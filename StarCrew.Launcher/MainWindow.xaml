@@ -4,53 +4,61 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="64"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <!-- 全屏背景 -->
+        <Image
+            Source="ms-appx:///Assets/background.webp"
+            Stretch="UniformToFill"/>
 
-        <Grid
-            x:Name="AppTitleBar"
-            Grid.Row="0"
-            Height="64"
-            Background="Transparent">
-            <StackPanel
-                Margin="16,0,0,0"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Center"
-                Orientation="Horizontal"
-                Spacing="12">
-                <Image
-                    Width="32"
-                    Height="32"
-                    Source="ms-appx:///Assets/icon.png"/>
-                <TextBlock
-                    VerticalAlignment="Center"
-                    FontSize="16"
-                    FontWeight="SemiBold"
-                    Text="StarCrew Launcher"/>
-            </StackPanel>
-        </Grid>
+        <NavigationView
+            x:Name="NavView"
+            Background="Transparent"
+            IsBackButtonVisible="Visible"
+            IsBackEnabled="False"
+            IsSettingsVisible="False"
+            IsTitleBarAutoPaddingEnabled="False"
+            OpenPaneLength="200"
+            PaneDisplayMode="LeftCompact">
+            <NavigationView.Resources>
+                <!-- LeftCompact 常开面板用的不是 DefaultPaneBackground，而是 ExpandedPaneBackground（默认为全透明） -->
+                <StaticResource
+                    x:Key="NavigationViewExpandedPaneBackground"
+                    ResourceKey="AcrylicInAppFillColorDefaultBrush"/>
+                <!-- 去掉内容区卡片描边、圆角与填充 -->
+                <Thickness x:Key="NavigationViewContentGridBorderThickness">0</Thickness>
+                <CornerRadius x:Key="NavigationViewContentGridCornerRadius">0</CornerRadius>
+                <!-- 去掉 RootSplitView 的 1px 外边框，否则侧边栏与窗口边框之间会留出 1px 缝隙 -->
+                <Thickness x:Key="NavigationViewBorderThickness">0</Thickness>
+                <StaticResource
+                    x:Key="NavigationViewContentBackground"
+                    ResourceKey="SolidBackgroundFillColorTransparent"/>
+            </NavigationView.Resources>
+            <NavigationView.MenuItems>
+                <NavigationViewItem
+                    Content="首页"
+                    Icon="Home"
+                    IsSelected="True"/>
+            </NavigationView.MenuItems>
 
-        <Grid Grid.Row="1">
-            <StackPanel
-                x:Name="ToastPanel"
-                Width="360"
-                Margin="0,16,16,0"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Top"
-                Spacing="8"/>
-            <Button
-                x:Name="LaunchButton"
-                Width="240"
-                Height="48"
-                Margin="0,0,32,32"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Click="LaunchButton_Click"
-                Content="启动游戏"
-                FontSize="18"
-                Style="{StaticResource AccentButtonStyle}"/>
-        </Grid>
+            <Grid>
+                <StackPanel
+                    x:Name="ToastPanel"
+                    Width="360"
+                    Margin="0,60,16,0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Spacing="8"/>
+                <Button
+                    x:Name="LaunchButton"
+                    Width="240"
+                    Height="48"
+                    Margin="0,0,32,32"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Click="LaunchButton_Click"
+                    Content="启动游戏"
+                    FontSize="18"
+                    Style="{StaticResource AccentButtonStyle}"/>
+            </Grid>
+        </NavigationView>
     </Grid>
 </Window>

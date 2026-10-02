@@ -29,7 +29,7 @@ public sealed partial class MainWindow : Window
         Title = "StarCrew Launcher";
         SystemBackdrop = new MicaBackdrop();
         ExtendsContentIntoTitleBar = true;
-        SetTitleBar(AppTitleBar);
+        SetTitleBar(NavView);
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         AppWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
         AppWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
