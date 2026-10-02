@@ -2,4 +2,5 @@
     <Project Path="StarCrew.Launcher/StarCrew.Launcher.csproj" />
     <Project Path="StarCrew.Launcher.Core/StarCrew.Launcher.Core.csproj" />
     <Project Path="StarCrew.Launcher.Tests/StarCrew.Launcher.Tests.csproj" />
+    <Project Path="StarCrew.Launcher.UITests/StarCrew.Launcher.UITests.csproj" />
 </Solution>

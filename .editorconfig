@@ -53,5 +53,8 @@ dotnet_diagnostic.CA2007.severity = none
 dotnet_diagnostic.CA2011.severity = warning
 
 # 测试工程豁免：Method_Scenario_Result 下划线命名是 xUnit 社区标准，可读性优先
-[StarCrew.Launcher.Tests/**/*.cs]
+[StarCrew.Launcher.Tests/{*.cs,**/*.cs}]
+dotnet_diagnostic.CA1707.severity = none
+
+[StarCrew.Launcher.UITests/{*.cs,**/*.cs}]
 dotnet_diagnostic.CA1707.severity = none
