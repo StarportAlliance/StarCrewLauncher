@@ -23,6 +23,9 @@
   详见 `stryker-config.json` 头部注释）。当前变异分 61.90%，`break: 60` 卡门；
   存活变异集中在真机 OS 相关的注册表键名字面量，属已知可接受存活。
 - 依赖审计：`NuGetAudit=all`（restore 即审计）+ Dependabot 按需。
+- SDK 对齐：CI 用 `10.0.x` 最新 SDK，本地 `global.json` 定 10.0.400；servicing 小版本也可能改变分析器行为
+  （2026-10-02：10.0.401 起 `dotnet format` 对 XAML 绑定的事件处理器报 IDE0060 而本地不报）。
+  修这类问题要用文件级 severity（见 `.editorconfig` 的 MainWindow 节），不要依赖成员级压制——后者拦不住 format 的 verify 通道。
 
 ## 新增代码铁律
 

@@ -58,3 +58,10 @@ dotnet_diagnostic.CA1707.severity = none
 
 [StarCrew.Launcher.UITests/{*.cs,**/*.cs}]
 dotnet_diagnostic.CA1707.severity = none
+
+# XAML 接线对 Roslyn 不可见：在 xaml 里绑定的事件处理器不会被“曾用作委托则免检”
+# 的逻辑豁免，IDE0060 会误报未用参数。注意：成员级 SuppressMessage 经实测拦不住
+# dotnet format 的 verify 通道（SDK 10.0.401 起 format 会报而构建不报），
+# 所以这里用文件级 severity——构建/format/IDE 所有主机、所有 SDK 版本都生效。
+[StarCrew.Launcher/MainWindow.xaml.cs]
+dotnet_diagnostic.IDE0060.severity = suggestion

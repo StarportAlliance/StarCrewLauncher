@@ -25,10 +25,3 @@ using System.Diagnostics.CodeAnalysis;
     Scope = "member",
     Target = "~M:Microsoft.Windows.Foundation.UndockedRegFreeWinRTCS.NativeMethods.WindowsAppRuntime_EnsureIsLoaded~System.Int32"
 )]
-[assembly: SuppressMessage(
-    "Usage",
-    "IDE0060:RemoveUnusedParameter",
-    Justification = "XAML 事件处理器签名由 MainWindow.xaml 的 Click 绑定决定，sender/e 必须保留但确实用不到。",
-    Scope = "member",
-    Target = "~M:StarCrew.Launcher.MainWindow.LaunchButton_Click(System.Object,Microsoft.UI.Xaml.RoutedEventArgs)~System.Void"
-)]
