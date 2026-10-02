@@ -4,10 +4,11 @@
 
 ## 一键入口
 
-| 入口        | 用途                                                  |
-| ----------- | ----------------------------------------------------- |
-| `test.bat`  | 一键运行全套测试 + 覆盖率（TestResults/）             |
-| `check.bat` | 本地全部门禁：排版 → 风格 → 构建 → 测试（与 CI 同构） |
+| 入口          | 用途                                                   |
+| ------------- | ------------------------------------------------------ |
+| `test.bat`    | 一键运行全套测试 + 覆盖率（TestResults/，含 UI 冒烟）  |
+| `test-ui.bat` | 只跑 FlaUI UI 冒烟（先构建主工程再启动真窗口，不点击） |
+| `check.bat`   | 本地全部门禁：排版 → 风格 → 构建 → 测试（与 CI 同构）  |
 
 提交前必须 `check.bat` 全绿；push 前 husky 会再拦一道（pre-commit：排版+风格+构建；pre-push：全套测试）。
 
@@ -18,27 +19,26 @@
 - 单元测试：xUnit + AwesomeAssertions + NSubstitute + coverlet，配置见 `coverlet.runsettings`。
 - 架构防腐：`StarCrew.Launcher.Tests/Architecture/`（NetArchTest），分层一破就红。
 - 变异测试：Stryker（`stryker-config.json`），`dotnet stryker`，建议每夜跑，不进 PR 门禁。
-  **当前被工具限制阻塞**（已验证：Stryker 5.0 corrupt WinUI 生成文件，`mutate` 排除无效，
-  详见 `stryker-config.json` 头部注释）；AGENTS.md 缺口第 1 条（抽类库）完成后解封。
+  变异对象是 `StarCrew.Launcher.Core` 类库（WinExe+XAML 工程 Stryker 跑不起来，
+  详见 `stryker-config.json` 头部注释）。当前变异分 61.90%，`break: 60` 卡门；
+  存活变异集中在真机 OS 相关的注册表键名字面量，属已知可接受存活。
 - 依赖审计：`NuGetAudit=all`（restore 即审计）+ Dependabot 按需。
 
 ## 新增代码铁律
 
 1. 业务类型默认 `internal`（CA1515 门禁）；测试靠 `InternalsVisibleTo` 可见。XAML 代码隐藏类保持 `public`。
-2. 压制分析器一律登记到 `StarCrew.Launcher/GlobalSuppressions.cs` 并写清理由，禁止散落 `#pragma`。
+2. 压制分析器一律登记到各工程的 `GlobalSuppressions.cs` 并写清理由，禁止散落 `#pragma`。
 3. `Services` 不许依赖 `Microsoft.UI.Xaml`，`Models` 不许依赖 `Services`（架构测试兜底）。
 4. 测试命名用 `Method_Scenario_Result` 下划线风格（已在 `.editorconfig` 豁免 CA1707）。
 5. `*.xaml.cs` 不计单元覆盖率（`coverlet.runsettings` 已排除）：UI 逻辑不要往里面加，加了也测不到。
 6. `*.bat` 必须 CRLF + 纯 ASCII（英文输出）：cmd 不认 LF，中文在非 UTF-8 环境必乱码。
 
-## 已知缺口（按顺序填）
+## 已填缺口（销账记录）
 
-1. `GameLauncher` 直调 `Process.Start`、`SteamGameLocator` 直读注册表/文件，无接缝：
-   下一步拆 `IProcessStarter` / `ISteamLocator`（NSubstitute 已引入就是为此准备的），
-   届时把 `steam://` 成功分支、库枚举分支补上测试。
-2. 覆盖率数字门槛、`stryker-config.json` 的 `break` 当前都是宽松档（只出报告不卡门），
-   第 1 条完成后收紧到 line 80 / break 60。
-3. WinUI 真机 UI 测试（FlaUI）暂无，`MainWindow` 大改时靠手动冒烟。
+1. ~~`GameLauncher` 直调 `Process.Start`~~ → 已拆 `StarCrew.Launcher.Core` 类库 +
+   `IProcessStarter` / `ISteamGameLocator` / `ISteamEnvironment` 接缝（NSubstitute 覆盖成功分支）。
+2. ~~覆盖率/`break`宽松档~~ → 单元覆盖率 line 93%+，硬门 80；变异分 61.90%，`break: 60`。
+3. ~~无 UI 测试~~ → `StarCrew.Launcher.UITests`（FlaUI）冒烟：只断言窗口+按钮存在，全程零点击，`test-ui.bat` 独立入口。
 
 ## 新克隆后手动操作（仅一次）
 
