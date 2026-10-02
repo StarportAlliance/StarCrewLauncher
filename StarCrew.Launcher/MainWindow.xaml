@@ -34,8 +34,8 @@
             </NavigationView.Resources>
             <NavigationView.MenuItems>
                 <NavigationViewItem
-                    Content="首页"
-                    Icon="Home"
+                    Content="启动"
+                    Icon="Play"
                     IsSelected="True"/>
             </NavigationView.MenuItems>
 
