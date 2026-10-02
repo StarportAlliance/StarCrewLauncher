@@ -4,4 +4,4 @@ namespace StarCrew.Launcher.Models;
 /// <param name="IsSuccess">是否已发起启动。</param>
 /// <param name="Method">实际生效的启动方式。</param>
 /// <param name="Message">面向用户展示的结果描述。</param>
-public sealed record LaunchResult(bool IsSuccess, LaunchMethod Method, string Message);
+internal sealed record LaunchResult(bool IsSuccess, LaunchMethod Method, string Message);

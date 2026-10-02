@@ -1,0 +1,25 @@
+{
+  // 变异测试（Stryker.NET）：覆盖率只能证明“跑到了”，变异测试证明“断言真有用”。
+  // 手动运行：dotnet tool restore，然后 dotnet stryker
+  // 建议每夜跑一次，不进 CI/PR 门禁（太慢）。
+  // 注意：只变异可单元测试的 Services/Models；XAML 代码隐藏不可单元测试，不变异。
+  // break 暂时为 0（只出报告不卡门）：等 IProcessStarter / IFileSystem 接缝拆出来、
+  // 成功路径可测之后再提高到 60。
+  // 已验证（2026-10-02，Stryker 5.0.0，前后共 4 次运行）：
+  // Stryker 目前跑不起来——它的构建编排会 corrupt WinUI 的 obj/*.g.i.cs XAML 生成文件
+  // （CS0017/CS0229），即使 mutate 明确排除 obj 也一样。这是工具对 WinExe+XAML 工程的
+  // 结构性限制，不是配置问题。AGENTS.md 步骤 1（把可测试代码抽到类库）完成后，
+  // Stryker 改测类库即可解封，届时把 solution/project/test-projects 指向类库。
+  "stryker-config": {
+    "solution": "StarCrew.Launcher.slnx",
+    "project": "StarCrew.Launcher/StarCrew.Launcher.csproj",
+    "test-projects": ["StarCrew.Launcher.Tests/StarCrew.Launcher.Tests.csproj"],
+    "mutate": ["StarCrew.Launcher/Services/**/*.cs", "StarCrew.Launcher/Models/**/*.cs"],
+    "reporters": ["html", "progress"],
+    "thresholds": {
+      "high": 80,
+      "low": 60,
+      "break": 0
+    }
+  }
+}

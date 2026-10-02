@@ -1,0 +1,21 @@
+<!-- 仓库级统一构建配置：所有项目（主工程 + 测试工程）自动继承。
+     目标：让 AI 生成的代码绕不过静态分析，从编译期掐死屎山。 -->
+<Project>
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <LangVersion>14</LangVersion>
+        <!-- Roslyn 官方分析器全开（含 .NET SDK 内置 NetAnalyzers），效果对标 ESLint recommended 之上的 strict -->
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <AnalysisMode>All</AnalysisMode>
+        <!-- 代码风格违规计入构建（需要 .editorconfig 配合 severity），对标 Ruff check -->
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <!-- 警告即错误：CI 与本地 -p:TreatWarningsAsErrors=true 时生效，默认 true，硬门禁 -->
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <!-- NuGet 漏洞审计，restore 时直接报错 -->
+        <NuGetAudit>true</NuGetAudit>
+        <NuGetAuditMode>all</NuGetAuditMode>
+        <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'"
+            >true</ContinuousIntegrationBuild>
+    </PropertyGroup>
+</Project>

@@ -1,0 +1,44 @@
+# 与本地 check.bat 同构：排版 -> 风格 -> 构建（警告即错误）-> 测试 + 覆盖率
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: 还原本地工具
+        run: dotnet tool restore
+
+      - name: 排版检查（CSharpier）
+        run: dotnet csharpier check .
+
+      - name: 风格检查（dotnet format）
+        run: dotnet format style StarCrew.Launcher.slnx --verify-no-changes --no-restore
+
+      - name: 构建（警告即错误）
+        run: dotnet build StarCrew.Launcher.slnx -c Release --nologo --no-restore -p:TreatWarningsAsErrors=true
+
+      - name: 全套测试 + 覆盖率
+        run: dotnet test StarCrew.Launcher.slnx -c Release --nologo --no-build --settings coverlet.runsettings --collect "XPlat Code Coverage" --results-directory ./TestResults --logger "trx;LogFileName=test.trx"
+
+      - name: 上传测试产物
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/
+
+      - name: 依赖漏洞复核
+        run: dotnet list StarCrew.Launcher.slnx package --vulnerable --include-transitive

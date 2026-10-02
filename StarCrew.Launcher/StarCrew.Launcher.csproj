@@ -1,48 +1,56 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-    <RootNamespace>StarCrew.Launcher</RootNamespace>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Platforms>x64;ARM64</Platforms>
-    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
-    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
-    <UseWinUI>true</UseWinUI>
-    <EnableMsixTooling>false</EnableMsixTooling>
-    <WindowsPackageType>None</WindowsPackageType>
-    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Version>0.2.0</Version>
-    <LangVersion>14</LangVersion>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+        <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+        <RootNamespace>StarCrew.Launcher</RootNamespace>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <Platforms>x64;ARM64</Platforms>
+        <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
+        <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+        <UseWinUI>true</UseWinUI>
+        <EnableMsixTooling>false</EnableMsixTooling>
+        <WindowsPackageType>None</WindowsPackageType>
+        <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Version>0.2.0</Version>
+        <LangVersion>14</LangVersion>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(DesignTimeBuild)' == 'true'">
-    <BuildingInsideVisualStudio Condition="'$(BuildingInsideVisualStudio)' == ''">true</BuildingInsideVisualStudio>
-    <_HostArch Condition="'$(RuntimeIdentifier)' == ''">
+    <PropertyGroup Condition="'$(DesignTimeBuild)' == 'true'">
+        <BuildingInsideVisualStudio Condition="'$(BuildingInsideVisualStudio)' == ''"
+            >true</BuildingInsideVisualStudio>
+        <_HostArch Condition="'$(RuntimeIdentifier)' == ''">
       $([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)</_HostArch>
-    <RuntimeIdentifier
-      Condition="'$(RuntimeIdentifier)' == '' and ('$(Platform)' == '' or '$(Platform)' == 'AnyCPU')">
+        <RuntimeIdentifier
+            Condition="'$(RuntimeIdentifier)' == '' and ('$(Platform)' == '' or '$(Platform)' == 'AnyCPU')"
+        >
       win-x64</RuntimeIdentifier>
-    <RuntimeIdentifier
-      Condition="'$(RuntimeIdentifier)' == '' and ('$(Platform)' == '' or '$(Platform)' == 'AnyCPU') and '$(_HostArch)' == 'Arm64'">
+        <RuntimeIdentifier
+            Condition="'$(RuntimeIdentifier)' == '' and ('$(Platform)' == '' or '$(Platform)' == 'AnyCPU') and '$(_HostArch)' == 'Arm64'"
+        >
       win-arm64</RuntimeIdentifier>
-  </PropertyGroup>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.5.1" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" />
-  </ItemGroup>
+    <ItemGroup>
+        <!-- 测试工程可见内部类型：业务类型保持 internal，测试照样能测；新增 public 类型会被 CA1515 拦下 -->
+        <InternalsVisibleTo Include="StarCrew.Launcher.Tests" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="..\Assets\icon.png">
-      <Link>Assets\icon.png</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Assets\background.webp">
-      <Link>Assets\background.webp</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.5.1" />
+        <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="..\Assets\icon.png">
+            <Link>Assets\icon.png</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="..\Assets\background.webp">
+            <Link>Assets\background.webp</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
 </Project>

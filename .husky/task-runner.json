@@ -1,0 +1,29 @@
+{
+   "$schema": "https://alirezanet.github.io/Husky.Net/schema.json",
+   "tasks": [
+      {
+         "name": "排版检查（CSharpier）",
+         "group": "pre-commit",
+         "command": "dotnet",
+         "args": ["csharpier", "check", "."]
+      },
+      {
+         "name": "风格检查（dotnet format）",
+         "group": "pre-commit",
+         "command": "dotnet",
+         "args": ["format", "style", "StarCrew.Launcher.slnx", "--verify-no-changes", "--no-restore"]
+      },
+      {
+         "name": "构建（警告即错误）",
+         "group": "pre-commit",
+         "command": "dotnet",
+         "args": ["build", "StarCrew.Launcher.slnx", "-c", "Release", "--nologo", "--no-restore", "-p:TreatWarningsAsErrors=true"]
+      },
+      {
+         "name": "全套测试",
+         "group": "pre-push",
+         "command": "dotnet",
+         "args": ["test", "StarCrew.Launcher.slnx", "-c", "Release", "--nologo", "--settings", "coverlet.runsettings", "--collect", "XPlat Code Coverage", "--results-directory", "./TestResults", "--logger", "trx;LogFileName=test.trx"]
+      }
+   ]
+}

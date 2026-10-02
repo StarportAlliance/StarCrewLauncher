@@ -4,9 +4,9 @@ using Microsoft.Win32;
 namespace StarCrew.Launcher.Services;
 
 /// <summary>在 Steam 安装目录与游戏库中定位 Among Us 可执行文件。</summary>
-public sealed partial class SteamGameLocator
+internal sealed partial class SteamGameLocator
 {
-    public const int AmongUsAppId = 945360;
+    internal const int AmongUsAppId = 945360;
     private const string AmongUsRelativePath = @"steamapps\common\Among Us\Among Us.exe";
 
     /// <summary>查找 Among Us.exe，找到返回完整路径，否则返回 null。</summary>
@@ -14,7 +14,7 @@ public sealed partial class SteamGameLocator
     {
         foreach (string library in EnumerateLibraries())
         {
-            string candidate = Path.Combine(library, "steamapps", "common", "Among Us", "Among Us.exe");
+            string candidate = Path.Combine(library, AmongUsRelativePath);
             if (File.Exists(candidate))
             {
                 return candidate;
@@ -27,7 +27,7 @@ public sealed partial class SteamGameLocator
     /// <summary>枚举本机 Steam 库目录，主库优先。</summary>
     private static IEnumerable<string> EnumerateLibraries()
     {
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (string steamDir in EnumerateSteamDirs())
         {
@@ -55,14 +55,25 @@ public sealed partial class SteamGameLocator
     /// <summary>枚举本机 Steam 主目录（注册表优先，默认路径兜底）。</summary>
     private static IEnumerable<string> EnumerateSteamDirs()
     {
-        foreach (string? dir in new[]
-        {
-            ReadRegistrySteamPath(RegistryHive.CurrentUser, @"Software\Valve\Steam"),
-            ReadRegistrySteamPath(RegistryHive.LocalMachine, @"SOFTWARE\Valve\Steam"),
-            ReadRegistrySteamPath(RegistryHive.LocalMachine, @"SOFTWARE\WOW6432Node\Valve\Steam"),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Steam"),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Steam"),
-        })
+        foreach (
+            string? dir in new[]
+            {
+                ReadRegistrySteamPath(RegistryHive.CurrentUser, @"Software\Valve\Steam"),
+                ReadRegistrySteamPath(RegistryHive.LocalMachine, @"SOFTWARE\Valve\Steam"),
+                ReadRegistrySteamPath(
+                    RegistryHive.LocalMachine,
+                    @"SOFTWARE\WOW6432Node\Valve\Steam"
+                ),
+                Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+                    "Steam"
+                ),
+                Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+                    "Steam"
+                ),
+            }
+        )
         {
             if (!string.IsNullOrWhiteSpace(dir) && Directory.Exists(dir))
             {
@@ -107,7 +118,10 @@ public sealed partial class SteamGameLocator
 
         foreach (Match match in LibraryPathRegex().Matches(content))
         {
-            string raw = match.Groups[1].Value.Replace(@"\\", @"\").Replace('/', Path.DirectorySeparatorChar);
+            string raw = match
+                .Groups[1]
+                .Value.Replace(@"\\", @"\", StringComparison.Ordinal)
+                .Replace('/', Path.DirectorySeparatorChar);
             if (!string.IsNullOrWhiteSpace(raw) && Directory.Exists(raw))
             {
                 yield return raw;

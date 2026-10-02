@@ -4,7 +4,7 @@ using StarCrew.Launcher.Models;
 namespace StarCrew.Launcher.Services;
 
 /// <summary>游戏启动器：优先走 Steam 协议拉起，失败时回退到直接启动 exe。</summary>
-public sealed class GameLauncher
+internal sealed class GameLauncher
 {
     private readonly SteamGameLocator _locator = new();
 
@@ -15,13 +15,25 @@ public sealed class GameLauncher
 
         if (TryLaunchBySteamProtocol(out string? steamError))
         {
-            return Task.FromResult(new LaunchResult(true, LaunchMethod.SteamProtocol, "已通过 Steam 发起启动，如果游戏没有弹出请确认 Steam 已登录。"));
+            return Task.FromResult(
+                new LaunchResult(
+                    true,
+                    LaunchMethod.SteamProtocol,
+                    "已通过 Steam 发起启动，如果游戏没有弹出请确认 Steam 已登录。"
+                )
+            );
         }
 
         string? exe = _locator.FindGameExe();
         if (exe is not null && TryLaunchExe(exe, out _))
         {
-            return Task.FromResult(new LaunchResult(true, LaunchMethod.DirectExe, $"已直接启动 {Path.GetFileName(exe)}。"));
+            return Task.FromResult(
+                new LaunchResult(
+                    true,
+                    LaunchMethod.DirectExe,
+                    $"已直接启动 {Path.GetFileName(exe)}。"
+                )
+            );
         }
 
         string reason = exe is null
@@ -43,7 +55,7 @@ public sealed class GameLauncher
 
         try
         {
-            var startInfo = new ProcessStartInfo
+            ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 FileName = exePath,
                 WorkingDirectory = Path.GetDirectoryName(exePath) ?? string.Empty,
@@ -66,7 +78,7 @@ public sealed class GameLauncher
 
         try
         {
-            var startInfo = new ProcessStartInfo
+            ProcessStartInfo startInfo = new ProcessStartInfo
             {
                 FileName = $"steam://rungameid/{SteamGameLocator.AmongUsAppId}",
                 UseShellExecute = true,

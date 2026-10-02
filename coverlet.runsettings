@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <!-- 单元覆盖率只统计可单元测试的手写代码：
+               XAML 代码隐藏（窗口/动画/文件弹窗）由手动冒烟 + 后续 UI 测试覆盖，
+               计入单元覆盖率只会逼出刷数字的假测试；
+               obj 生成代码与 WindowsAppSDK 包内文件不是本仓库代码，一律排除 -->
+          <ExcludeByFile>**/*.xaml.cs,**/obj/**/*.cs,**/*.g.cs,**/*.g.i.cs,**/*AutoInitializer.cs</ExcludeByFile>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

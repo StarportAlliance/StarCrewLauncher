@@ -5,8 +5,10 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
+using StarCrew.Launcher.Models;
 using StarCrew.Launcher.Services;
 using Windows.Graphics;
+using Windows.Storage;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
 
@@ -53,7 +55,9 @@ public sealed partial class MainWindow : Window
     private void PlaceWindow()
     {
         double scale = GetDpiForWindow(_hwnd) / 96.0;
-        RectInt32 work = DisplayArea.GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Primary).WorkArea;
+        RectInt32 work = DisplayArea
+            .GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Primary)
+            .WorkArea;
         double workW = work.Width / scale;
         double workH = work.Height / scale;
 
@@ -77,9 +81,12 @@ public sealed partial class MainWindow : Window
         int widthPhys = (int)(defaultW * scale);
         int heightPhys = (int)(defaultH * scale);
         AppWindow.Resize(new SizeInt32(widthPhys, heightPhys));
-        AppWindow.Move(new PointInt32(
-            work.X + (work.Width - widthPhys) / 2,
-            work.Y + (work.Height - heightPhys) / 2));
+        AppWindow.Move(
+            new PointInt32(
+                work.X + (work.Width - widthPhys) / 2,
+                work.Y + (work.Height - heightPhys) / 2
+            )
+        );
     }
 
     private async void LaunchButton_Click(object sender, RoutedEventArgs e)
@@ -89,7 +96,7 @@ public sealed partial class MainWindow : Window
 
         try
         {
-            var result = await _launcher.LaunchAsync();
+            LaunchResult result = await _launcher.LaunchAsync();
             if (result.IsSuccess)
             {
                 ShowToast("启动成功", result.Message, InfoBarSeverity.Success);
@@ -121,17 +128,27 @@ public sealed partial class MainWindow : Window
         }
         else
         {
-            ShowToast("启动失败", $"启动所选文件时发生错误：{error}", InfoBarSeverity.Error, autoCloseSeconds: 6);
+            ShowToast(
+                "启动失败",
+                $"启动所选文件时发生错误：{error}",
+                InfoBarSeverity.Error,
+                autoCloseSeconds: 6
+            );
         }
     }
 
     /// <summary>在右上角滑入一条 Toast，数秒后自动滑出关闭，也可手动关闭。</summary>
-    private void ShowToast(string title, string message, InfoBarSeverity severity, int autoCloseSeconds = 4)
+    private void ShowToast(
+        string title,
+        string message,
+        InfoBarSeverity severity,
+        int autoCloseSeconds = 4
+    )
     {
         StopToastTimer();
         ToastPanel.Children.Clear();
 
-        var bar = new InfoBar
+        InfoBar bar = new InfoBar
         {
             Title = title,
             Message = message,
@@ -148,8 +165,8 @@ public sealed partial class MainWindow : Window
         };
         ToastPanel.Children.Add(bar);
 
-        var flyIn = new Storyboard();
-        var slideIn = new DoubleAnimation
+        Storyboard flyIn = new Storyboard();
+        DoubleAnimation slideIn = new DoubleAnimation
         {
             Duration = TimeSpan.FromMilliseconds(250),
             From = 60,
@@ -158,7 +175,7 @@ public sealed partial class MainWindow : Window
         };
         Storyboard.SetTarget(slideIn, bar);
         Storyboard.SetTargetProperty(slideIn, "(UIElement.RenderTransform).(TranslateTransform.X)");
-        var fadeIn = new DoubleAnimation
+        DoubleAnimation fadeIn = new DoubleAnimation
         {
             Duration = TimeSpan.FromMilliseconds(300),
             From = 0,
@@ -179,8 +196,8 @@ public sealed partial class MainWindow : Window
     {
         StopToastTimer();
 
-        var flyOut = new Storyboard();
-        var slideOut = new DoubleAnimation
+        Storyboard flyOut = new Storyboard();
+        DoubleAnimation slideOut = new DoubleAnimation
         {
             Duration = TimeSpan.FromMilliseconds(250),
             From = 0,
@@ -188,8 +205,11 @@ public sealed partial class MainWindow : Window
             EasingFunction = new BackEase { EasingMode = EasingMode.EaseIn },
         };
         Storyboard.SetTarget(slideOut, bar);
-        Storyboard.SetTargetProperty(slideOut, "(UIElement.RenderTransform).(TranslateTransform.X)");
-        var fadeOut = new DoubleAnimation
+        Storyboard.SetTargetProperty(
+            slideOut,
+            "(UIElement.RenderTransform).(TranslateTransform.X)"
+        );
+        DoubleAnimation fadeOut = new DoubleAnimation
         {
             Duration = TimeSpan.FromMilliseconds(250),
             From = 1,
@@ -211,30 +231,43 @@ public sealed partial class MainWindow : Window
 
     private async Task<string?> PickGameExeAsync()
     {
-        var picker = new FileOpenPicker
+        FileOpenPicker picker = new FileOpenPicker
         {
             SuggestedStartLocation = PickerLocationId.ComputerFolder,
         };
         picker.FileTypeFilter.Add(".exe");
         InitializeWithWindow.Initialize(picker, _hwnd);
 
-        var file = await picker.PickSingleFileAsync();
+        StorageFile? file = await picker.PickSingleFileAsync();
         return file?.Path;
     }
 
     #region 窗口最小尺寸（WM_GETMINMAXINFO 子类化）
 
     private delegate nint SubclassProc(
-        nint hWnd, uint uMsg, nint wParam, nint lParam, nuint uIdSubclass, nuint dwRefData);
+        nint hWnd,
+        uint uMsg,
+        nint wParam,
+        nint lParam,
+        nuint uIdSubclass,
+        nuint dwRefData
+    );
 
     [DllImport("comctl32.dll", SetLastError = true)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     private static extern bool SetWindowSubclass(
-        nint hWnd, SubclassProc pfnSubclass, nuint uIdSubclass, nuint dwRefData);
+        nint hWnd,
+        SubclassProc pfnSubclass,
+        nuint uIdSubclass,
+        nuint dwRefData
+    );
 
     [DllImport("comctl32.dll")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     private static extern nint DefSubclassProc(nint hWnd, uint uMsg, nint wParam, nint lParam);
 
     [DllImport("user32.dll")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     private static extern uint GetDpiForWindow(nint hWnd);
 
     [StructLayout(LayoutKind.Sequential)]
@@ -257,17 +290,19 @@ public sealed partial class MainWindow : Window
     private const uint WM_GETMINMAXINFO = 0x24;
 
     private nint WndSubclassProc(
-        nint hWnd, uint uMsg, nint wParam, nint lParam, nuint uIdSubclass, nuint dwRefData)
+        nint hWnd,
+        uint uMsg,
+        nint wParam,
+        nint lParam,
+        nuint uIdSubclass,
+        nuint dwRefData
+    )
     {
         if (uMsg == WM_GETMINMAXINFO)
         {
             // 最小尺寸与 MINMAXINFO 均为物理像素，直接使用，不做 DPI 换算。
-            var mmi = Marshal.PtrToStructure<MinMaxInfo>(lParam);
-            mmi.MinTrackSize = new NativePoint
-            {
-                X = MinWidthPx,
-                Y = MinHeightPx,
-            };
+            MinMaxInfo mmi = Marshal.PtrToStructure<MinMaxInfo>(lParam);
+            mmi.MinTrackSize = new NativePoint { X = MinWidthPx, Y = MinHeightPx };
             Marshal.StructureToPtr(mmi, lParam, false);
             return nint.Zero;
         }

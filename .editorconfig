@@ -1,0 +1,57 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{cs,csx}]
+# CSharpier 负责排版（对标 Ruff format / Biome），这里只定它读得到的开关
+csharp_new_line_before_open_brace = all
+csharp_indent_case_contents = true
+csharp_space_after_keywords_in_control_flow_statements = true
+
+# Roslyn 风格规则 severity：配合 Directory.Build.props 的 EnforceCodeStyleInBuild + TreatWarningsAsErrors，
+# 以下 warning 在构建时直接变 error
+dotnet_style_qualification_for_field = false:warning
+dotnet_style_qualification_for_property = false:warning
+dotnet_style_explicit_tuple_names = true:warning
+dotnet_code_quality_unused_parameters = all:warning
+
+# 仓库现有风格是显式类型（string? exe / double scale），对 AI 生成代码也更易读：
+# 这里要求显式类型，与 CSharpier 排版正交，不冲突
+csharp_style_var_for_built_in_types = false:warning
+csharp_style_var_when_type_is_apparent = false:warning
+csharp_style_var_elsewhere = false:warning
+csharp_style_expression_bodied_methods = true:suggestion
+csharp_style_expression_bodied_properties = true:suggestion
+csharp_style_pattern_matching_over_as_with_null_check = true:warning
+csharp_style_pattern_matching_over_is_with_cast_check = true:warning
+csharp_style_prefer_switch_expression = true:suggestion
+csharp_style_prefer_primary_constructors = true:suggestion
+csharp_style_namespace_declaration = file_scoped:warning
+
+dotnet_sort_system_directives_first = true:warning
+dotnet_separate_import_directive_groups = false:warning
+csharp_using_directive_placement = outside_namespace:warning
+
+# IDE：未使用的 using / 不可达代码等
+dotnet_remove_unnecessary_imports = true:warning
+dotnet_fix_test_code_style_severity = true
+
+# CA（对标 ESLint no-unsafe-*）：AI 最容易踩的坑，全部 warning 起步
+# P/Invoke 应当用 LibraryImport 源生成（性能 + AOT 友好），但 MainWindow 现有 DllImport 子类化
+# 代码历史原因暂时保留，降为 suggestion，改动该区域时顺手迁移
+dotnet_diagnostic.SYSLIB1054.severity = suggestion
+# CA2007 ConfigureAwait 是给类库准备的规则。WinUI 是单线程 UI 模型，
+# await 之后要回 UI 线程碰控件，加 ConfigureAwait(false) 反而会崩，因此在应用工程全局关闭
+dotnet_diagnostic.CA2007.severity = none
+# WinUI 事件处理器允许 async void，其余 async void 由 CA2011 按默认处理
+dotnet_diagnostic.CA2011.severity = warning
+
+# 测试工程豁免：Method_Scenario_Result 下划线命名是 xUnit 社区标准，可读性优先
+[StarCrew.Launcher.Tests/**/*.cs]
+dotnet_diagnostic.CA1707.severity = none
