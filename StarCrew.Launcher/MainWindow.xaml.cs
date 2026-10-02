@@ -20,7 +20,10 @@ public sealed partial class MainWindow : Window
     private const int MinWidthPx = 1280;
     private const int MinHeightPx = 720;
 
-    private readonly GameLauncher _launcher = new();
+    private readonly GameLauncher _launcher = new(
+        new SteamGameLocator(new WindowsSteamEnvironment()),
+        new ProcessStarter()
+    );
     private readonly SubclassProc _subclassProc;
     private readonly nint _hwnd;
     private DispatcherTimer? _toastTimer;

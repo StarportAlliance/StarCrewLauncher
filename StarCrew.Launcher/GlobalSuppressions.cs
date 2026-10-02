@@ -1,56 +1,9 @@
 // 分析器压制集中登记处：每条压制必须写清理由，禁止无理由压制。
 // 新增压制前先确认：是规则不适用（留压制），还是代码真有问题（改代码）。
+// 业务类型的压制（CA1031/CA1822）已随类型搬入 StarCrew.Launcher.Core/GlobalSuppressions.cs，
+// 这里只保留 XAML 外壳与第三方包相关的压制。
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage(
-    "Design",
-    "CA1031:DoNotCatchGeneralExceptionTypes",
-    Justification = "启动器走 Try-* 尽力而为语义：定位/拉起失败必须回退到手动选择，任何异常都不能上浮崩溃。",
-    Scope = "member",
-    Target = "~M:StarCrew.Launcher.Services.GameLauncher.TryLaunchExe(System.String,System.String@)~System.Boolean"
-)]
-[assembly: SuppressMessage(
-    "Design",
-    "CA1031:DoNotCatchGeneralExceptionTypes",
-    Justification = "同上：steam:// 协议拉起在未安装 Steam 的机器上抛什么都有可能，必须吞掉并回退。",
-    Scope = "member",
-    Target = "~M:StarCrew.Launcher.Services.GameLauncher.TryLaunchBySteamProtocol(System.String@)~System.Boolean"
-)]
-[assembly: SuppressMessage(
-    "Design",
-    "CA1031:DoNotCatchGeneralExceptionTypes",
-    Justification = "同上：注册表读取失败直接视为未安装，不许影响主流程。",
-    Scope = "member",
-    Target = "~M:StarCrew.Launcher.Services.SteamGameLocator.ReadRegistrySteamPath(Microsoft.Win32.RegistryHive,System.String)~System.String"
-)]
-[assembly: SuppressMessage(
-    "Design",
-    "CA1031:DoNotCatchGeneralExceptionTypes",
-    Justification = "同上：VDF 解析失败视为无额外库，直接回退。",
-    Scope = "member",
-    Target = "~M:StarCrew.Launcher.Services.SteamGameLocator.ParseLibraryPaths(System.String)~System.Collections.Generic.IEnumerable{System.String}"
-)]
-[assembly: SuppressMessage(
-    "Performance",
-    "CA1822:MarkMembersAsStatic",
-    Justification = "刻意保留实例成员：后续拆分 IProcessStarter / ISteamLocator 依赖注入接缝时需要实例形态，现在改 static 以后还得改回去。",
-    Scope = "member",
-    Target = "~M:StarCrew.Launcher.Services.GameLauncher.TryLaunchExe(System.String,System.String@)~System.Boolean"
-)]
-[assembly: SuppressMessage(
-    "Performance",
-    "CA1822:MarkMembersAsStatic",
-    Justification = "同上：保留实例形态以支持依赖注入接缝。",
-    Scope = "member",
-    Target = "~M:StarCrew.Launcher.Services.GameLauncher.TryLaunchBySteamProtocol(System.String@)~System.Boolean"
-)]
-[assembly: SuppressMessage(
-    "Performance",
-    "CA1822:MarkMembersAsStatic",
-    Justification = "同上：保留实例形态以支持依赖注入接缝。",
-    Scope = "member",
-    Target = "~M:StarCrew.Launcher.Services.SteamGameLocator.FindGameExe~System.String"
-)]
 [assembly: SuppressMessage(
     "Maintainability",
     "CA1515:TypesCanBeMadeInternal",

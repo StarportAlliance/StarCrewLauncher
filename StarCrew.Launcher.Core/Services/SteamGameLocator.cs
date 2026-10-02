@@ -1,13 +1,21 @@
 using System.Text.RegularExpressions;
-using Microsoft.Win32;
 
 namespace StarCrew.Launcher.Services;
 
 /// <summary>在 Steam 安装目录与游戏库中定位 Among Us 可执行文件。</summary>
-internal sealed partial class SteamGameLocator
+internal sealed partial class SteamGameLocator : ISteamGameLocator
 {
     internal const int AmongUsAppId = 945360;
     private const string AmongUsRelativePath = @"steamapps\common\Among Us\Among Us.exe";
+
+    private readonly ISteamEnvironment _environment;
+
+    /// <summary>使用指定的环境接缝构造定位器。</summary>
+    public SteamGameLocator(ISteamEnvironment environment)
+    {
+        ArgumentNullException.ThrowIfNull(environment);
+        _environment = environment;
+    }
 
     /// <summary>查找 Among Us.exe，找到返回完整路径，否则返回 null。</summary>
     public string? FindGameExe()
@@ -15,7 +23,7 @@ internal sealed partial class SteamGameLocator
         foreach (string library in EnumerateLibraries())
         {
             string candidate = Path.Combine(library, AmongUsRelativePath);
-            if (File.Exists(candidate))
+            if (_environment.FileExists(candidate))
             {
                 return candidate;
             }
@@ -25,7 +33,7 @@ internal sealed partial class SteamGameLocator
     }
 
     /// <summary>枚举本机 Steam 库目录，主库优先。</summary>
-    private static IEnumerable<string> EnumerateLibraries()
+    private IEnumerable<string> EnumerateLibraries()
     {
         HashSet<string> seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -37,7 +45,7 @@ internal sealed partial class SteamGameLocator
             }
 
             string vdf = Path.Combine(steamDir, "steamapps", "libraryfolders.vdf");
-            if (!File.Exists(vdf))
+            if (!_environment.FileExists(vdf))
             {
                 continue;
             }
@@ -53,65 +61,26 @@ internal sealed partial class SteamGameLocator
     }
 
     /// <summary>枚举本机 Steam 主目录（注册表优先，默认路径兜底）。</summary>
-    private static IEnumerable<string> EnumerateSteamDirs()
+    private IEnumerable<string> EnumerateSteamDirs()
     {
-        foreach (
-            string? dir in new[]
-            {
-                ReadRegistrySteamPath(RegistryHive.CurrentUser, @"Software\Valve\Steam"),
-                ReadRegistrySteamPath(RegistryHive.LocalMachine, @"SOFTWARE\Valve\Steam"),
-                ReadRegistrySteamPath(
-                    RegistryHive.LocalMachine,
-                    @"SOFTWARE\WOW6432Node\Valve\Steam"
-                ),
-                Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
-                    "Steam"
-                ),
-                Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
-                    "Steam"
-                ),
-            }
-        )
+        List<string?> candidates = new List<string?>(_environment.GetRegistrySteamPaths());
+        candidates.Add(Path.Combine(_environment.GetProgramFilesX86(), "Steam"));
+        candidates.Add(Path.Combine(_environment.GetProgramFiles(), "Steam"));
+
+        foreach (string? dir in candidates)
         {
-            if (!string.IsNullOrWhiteSpace(dir) && Directory.Exists(dir))
+            if (!string.IsNullOrWhiteSpace(dir) && _environment.DirectoryExists(dir))
             {
                 yield return dir;
             }
         }
     }
 
-    private static string? ReadRegistrySteamPath(RegistryHive hive, string subKey)
-    {
-        try
-        {
-            using RegistryKey? baseKey = RegistryKey.OpenBaseKey(hive, RegistryView.Default);
-            using RegistryKey? key = baseKey.OpenSubKey(subKey);
-            string? raw = key?.GetValue("SteamPath") as string;
-            if (string.IsNullOrWhiteSpace(raw))
-            {
-                return null;
-            }
-
-            // 注册表中的路径使用正斜杠，统一为本地分隔符。
-            return raw.Replace('/', Path.DirectorySeparatorChar);
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
     /// <summary>从 libraryfolders.vdf 中提取全部库路径（只取 path 项并校验目录存在）。</summary>
-    private static IEnumerable<string> ParseLibraryPaths(string vdfPath)
+    private IEnumerable<string> ParseLibraryPaths(string vdfPath)
     {
-        string content;
-        try
-        {
-            content = File.ReadAllText(vdfPath);
-        }
-        catch
+        string? content = TryReadAllText(vdfPath);
+        if (content is null)
         {
             yield break;
         }
@@ -122,10 +91,23 @@ internal sealed partial class SteamGameLocator
                 .Groups[1]
                 .Value.Replace(@"\\", @"\", StringComparison.Ordinal)
                 .Replace('/', Path.DirectorySeparatorChar);
-            if (!string.IsNullOrWhiteSpace(raw) && Directory.Exists(raw))
+            if (!string.IsNullOrWhiteSpace(raw) && _environment.DirectoryExists(raw))
             {
                 yield return raw;
             }
+        }
+    }
+
+    /// <summary>读取 VDF 文本，环境接缝抛异常时也视为无额外库而不上浮。</summary>
+    private string? TryReadAllText(string vdfPath)
+    {
+        try
+        {
+            return _environment.ReadAllTextOrNull(vdfPath);
+        }
+        catch
+        {
+            return null;
         }
     }
 

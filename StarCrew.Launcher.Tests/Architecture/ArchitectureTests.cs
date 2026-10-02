@@ -18,6 +18,8 @@ public sealed class ArchitectureTests
         TestResult result = Types
             .InAssembly(AppAssembly)
             .That()
+            .AreClasses()
+            .And()
             .ResideInNamespace("StarCrew.Launcher.Services")
             .Should()
             .BeSealed()

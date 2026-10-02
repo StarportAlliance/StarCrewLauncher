@@ -8,8 +8,13 @@
           <!-- 单元覆盖率只统计可单元测试的手写代码：
                XAML 代码隐藏（窗口/动画/文件弹窗）由手动冒烟 + 后续 UI 测试覆盖，
                计入单元覆盖率只会逼出刷数字的假测试；
-               obj 生成代码与 WindowsAppSDK 包内文件不是本仓库代码，一律排除 -->
+               obj 生成代码与 WindowsAppSDK 包内文件不是本仓库代码，一律排除；
+               主工程只剩 XAML 外壳，不计单元覆盖率，可测代码已抽入 StarCrew.Launcher.Core -->
           <ExcludeByFile>**/*.xaml.cs,**/obj/**/*.cs,**/*.g.cs,**/*.g.i.cs,**/*AutoInitializer.cs</ExcludeByFile>
+          <Exclude>[StarCrew.Launcher]*</Exclude>
+          <Threshold>80</Threshold>
+          <ThresholdType>line</ThresholdType>
+          <ThresholdStat>total</ThresholdStat>
         </Configuration>
       </DataCollector>
     </DataCollectors>

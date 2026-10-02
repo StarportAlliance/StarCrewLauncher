@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using StarCrew.Launcher.Models;
 
 namespace StarCrew.Launcher.Services;
@@ -6,7 +5,17 @@ namespace StarCrew.Launcher.Services;
 /// <summary>游戏启动器：优先走 Steam 协议拉起，失败时回退到直接启动 exe。</summary>
 internal sealed class GameLauncher
 {
-    private readonly SteamGameLocator _locator = new();
+    private readonly ISteamGameLocator _locator;
+    private readonly IProcessStarter _starter;
+
+    /// <summary>使用指定的定位器与进程拉起来源构造启动器。</summary>
+    public GameLauncher(ISteamGameLocator locator, IProcessStarter starter)
+    {
+        ArgumentNullException.ThrowIfNull(locator);
+        ArgumentNullException.ThrowIfNull(starter);
+        _locator = locator;
+        _starter = starter;
+    }
 
     /// <summary>按 Steam 协议 → 自动定位 exe 的顺序尝试启动，全部失败时返回失败结果。</summary>
     public Task<LaunchResult> LaunchAsync(CancellationToken cancellationToken = default)
@@ -51,45 +60,17 @@ internal sealed class GameLauncher
     public bool TryLaunchExe(string exePath, out string? error)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(exePath);
-        error = null;
-
-        try
-        {
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                FileName = exePath,
-                WorkingDirectory = Path.GetDirectoryName(exePath) ?? string.Empty,
-                UseShellExecute = true,
-            };
-            Process.Start(startInfo);
-            return true;
-        }
-        catch (Exception ex)
-        {
-            error = ex.Message;
-            return false;
-        }
+        string workingDirectory = Path.GetDirectoryName(exePath) ?? string.Empty;
+        return _starter.TryStart(exePath, workingDirectory, out error);
     }
 
     /// <summary>通过 steam:// 协议拉起游戏，返回是否已成功移交启动请求。</summary>
     public bool TryLaunchBySteamProtocol(out string? error)
     {
-        error = null;
-
-        try
-        {
-            ProcessStartInfo startInfo = new ProcessStartInfo
-            {
-                FileName = $"steam://rungameid/{SteamGameLocator.AmongUsAppId}",
-                UseShellExecute = true,
-            };
-            Process.Start(startInfo);
-            return true;
-        }
-        catch (Exception ex)
-        {
-            error = ex.Message;
-            return false;
-        }
+        return _starter.TryStart(
+            $"steam://rungameid/{SteamGameLocator.AmongUsAppId}",
+            AppContext.BaseDirectory,
+            out error
+        );
     }
 }

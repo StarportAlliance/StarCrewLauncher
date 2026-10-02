@@ -5,6 +5,21 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>14</LangVersion>
+        <!-- 默认 RID：仓库所有求值（真实构建 + IDE 设计时）统一到本机架构，
+             免得各工程各配各的导致项目间引用解析到不存在的输出路径。
+             仅当未显式指定时生效：CLI 的 -a、VS 传的 Platform（x64/ARM64…）都不受影响。
+             背景：StarCrew.Launcher 主工程曾因此在 VSCode 里报 CS0103（XAML 生成缺席），
+             测试工程也出现过 Core 引用解析失败，统一 RID 后这类问题不再有土壤。-->
+        <_HostArch>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)</_HostArch>
+        <RuntimeIdentifier
+            Condition="'$(RuntimeIdentifier)' == '' and ('$(Platform)' == '' or '$(Platform)' == 'AnyCPU') and '$(_HostArch)' == 'X64'"
+            >win-x64</RuntimeIdentifier>
+        <RuntimeIdentifier
+            Condition="'$(RuntimeIdentifier)' == '' and ('$(Platform)' == '' or '$(Platform)' == 'AnyCPU') and '$(_HostArch)' == 'Arm64'"
+            >win-arm64</RuntimeIdentifier>
+        <RuntimeIdentifier
+            Condition="'$(RuntimeIdentifier)' == '' and ('$(Platform)' == '' or '$(Platform)' == 'AnyCPU') and '$(_HostArch)' == 'X86'"
+            >win-x86</RuntimeIdentifier>
         <!-- Roslyn 官方分析器全开（含 .NET SDK 内置 NetAnalyzers），效果对标 ESLint recommended 之上的 strict -->
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <AnalysisMode>All</AnalysisMode>
