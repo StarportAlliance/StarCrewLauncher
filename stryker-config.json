@@ -3,23 +3,20 @@
   // 手动运行：dotnet tool restore，然后 dotnet stryker
   // 建议每夜跑一次，不进 CI/PR 门禁（太慢）。
   // 注意：只变异可单元测试的 Services/Models；XAML 代码隐藏不可单元测试，不变异。
-  // break 暂时为 0（只出报告不卡门）：等 IProcessStarter / IFileSystem 接缝拆出来、
-  // 成功路径可测之后再提高到 60。
-  // 已验证（2026-10-02，Stryker 5.0.0，前后共 4 次运行）：
-  // Stryker 目前跑不起来——它的构建编排会 corrupt WinUI 的 obj/*.g.i.cs XAML 生成文件
-  // （CS0017/CS0229），即使 mutate 明确排除 obj 也一样。这是工具对 WinExe+XAML 工程的
-  // 结构性限制，不是配置问题。AGENTS.md 步骤 1（把可测试代码抽到类库）完成后，
-  // Stryker 改测类库即可解封，届时把 solution/project/test-projects 指向类库。
+  // mutate 通配符相对 projectRoot（即类库目录）解析，必须写类库相对路径。
+  // 2026-10-02 实测（Stryker 5.0.0）：79 个参测变异，杀死 52、存活 27，变异分 61.90%；
+  // 存活最多的是 String mutation×10，集中在 WindowsSteamEnvironment 的注册表键名/
+  // 路径字面量（真机 OS 相关，单元测不到）；GameLauncher 决策逻辑变异存活为 0。
   "stryker-config": {
     "solution": "StarCrew.Launcher.slnx",
-    "project": "StarCrew.Launcher/StarCrew.Launcher.csproj",
+    "project": "StarCrew.Launcher.Core.csproj",
     "test-projects": ["StarCrew.Launcher.Tests/StarCrew.Launcher.Tests.csproj"],
-    "mutate": ["StarCrew.Launcher/Services/**/*.cs", "StarCrew.Launcher/Models/**/*.cs"],
+    "mutate": ["Services/**/*.cs", "Models/**/*.cs"],
     "reporters": ["html", "progress"],
     "thresholds": {
       "high": 80,
       "low": 60,
-      "break": 0
+      "break": 60
     }
   }
 }
