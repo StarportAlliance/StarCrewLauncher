@@ -23,6 +23,11 @@
   详见 `stryker-config.json` 头部注释）。当前变异分 61.90%，`break: 60` 卡门；
   存活变异集中在真机 OS 相关的注册表键名字面量，属已知可接受存活。
 - 依赖审计：`NuGetAudit=all`（restore 即审计）+ Dependabot 按需。
+- 云端门禁：CodeQL 扫描（`.github/workflows/codeql.yml`，每周一次）+ 覆盖率上传到 GitHub Code Quality
+  （CI 的“上传覆盖率”步骤）。两者是 ruleset 规则的前置条件：
+  “Require code scanning results”需 CodeQL 跑出结果；“Restrict code coverage”需覆盖率数据，
+  且上传 coverage 的 check 本身也要设为 required（否则数据没到齐就放行）。
+  rollout 顺序：先 evaluate 跑两周看误拦率，再 enforce；阈值起步建议全 0 观察，看 bot 评论数字后再定。
 - SDK 对齐：CI 用 `10.0.x` 最新 SDK，本地 `global.json` 定 10.0.400；servicing 小版本也可能改变分析器行为
   （2026-10-02：10.0.401 起 `dotnet format` 对 XAML 绑定的事件处理器报 IDE0060 而本地不报）。
   修这类问题要用文件级 severity（见 `.editorconfig` 的 MainWindow 节），不要依赖成员级压制——后者拦不住 format 的 verify 通道。

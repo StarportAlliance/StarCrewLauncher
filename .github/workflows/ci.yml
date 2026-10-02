@@ -7,6 +7,13 @@ on:
   pull_request:
     branches: [main]
 
+# 上传覆盖率到 GitHub Code Quality 需要 code-quality: write；
+# 上传测试产物需要 actions: write；其余按最小权限只读。
+permissions:
+  contents: read
+  actions: write
+  code-quality: write
+
 jobs:
   quality:
     runs-on: windows-latest
@@ -39,6 +46,23 @@ jobs:
         with:
           name: test-results
           path: TestResults/
+
+      # coverlet 把报告写在随机 GUID 子目录里，先归档到固定路径再上传，
+      # 否则上传 action 拿不到稳定地址。GitHub 侧用这份数据做合并门禁，
+      # 见 AGENTS.md 的 Restrict code coverage 说明。
+      - name: 整理覆盖率报告路径
+        if: always()
+        run: |
+          $src = Get-ChildItem -Recurse TestResults -Filter *.cobertura.xml | Select-Object -First 1
+          Copy-Item $src.FullName TestResults/coverage.cobertura.xml
+
+      - name: 上传覆盖率到 GitHub Code Quality
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/upload-code-coverage@v1
+        with:
+          file: TestResults/coverage.cobertura.xml
+          language: C#
+          label: code-coverage/dotnet-test
 
       - name: 依赖漏洞复核
         run: dotnet list StarCrew.Launcher.slnx package --vulnerable --include-transitive
