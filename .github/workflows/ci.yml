@@ -68,6 +68,11 @@ jobs:
           file: TestResults/coverage.cobertura.xml
           language: C#
           label: code-coverage/dotnet-test
+          # Code Quality 是付费功能（2026-10 实测约 $10/月），未启用时上传会 403。
+          # 这里故意 fail-open：真正的覆盖率门禁在 runsettings 的 80 硬门（免费、本地同样生效），
+          # 上传只是给 GitHub 侧做展示/合并门禁用的。若将来启用了 Code Quality，
+          # 上传会自动恢复工作，无需改 workflow。
+          fail-on-error: false
 
       - name: 依赖漏洞复核
         run: dotnet list StarCrew.Launcher.slnx package --vulnerable --include-transitive
