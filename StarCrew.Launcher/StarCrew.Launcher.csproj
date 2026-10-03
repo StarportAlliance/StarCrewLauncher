@@ -19,15 +19,11 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(DesignTimeBuild)' == 'true'">
-        <!-- WinAppSDK 的设计时 XAML 编译只在 BuildingInsideVisualStudio == true 时挂进 CoreCompile，
-             VS 会传这个属性，VSCode/Trae 的语言服务器不传，这里补上。
-             默认 RID 已由 Directory.Build.props 统一提供，这里不管。-->
         <BuildingInsideVisualStudio Condition="'$(BuildingInsideVisualStudio)' == ''"
             >true</BuildingInsideVisualStudio>
     </PropertyGroup>
 
     <ItemGroup>
-        <!-- 测试工程可见内部类型：业务类型保持 internal，测试照样能测；新增 public 类型会被 CA1515 拦下 -->
         <InternalsVisibleTo Include="StarCrew.Launcher.Tests" />
     </ItemGroup>
 

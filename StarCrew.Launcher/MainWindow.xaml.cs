@@ -44,7 +44,6 @@ public sealed partial class MainWindow : Window
         _subclassProc = WndSubclassProc;
         SetWindowSubclass(_hwnd, _subclassProc, 0, 0);
 
-        // 构造期尺寸可能被系统覆盖，首次激活时按同一规则再放置一次（幂等）。
         Activated += OnFirstActivated;
     }
 
@@ -54,7 +53,7 @@ public sealed partial class MainWindow : Window
         PlaceWindow();
     }
 
-    /// <summary>按主显示器工作区自适应的 16:9 默认尺寸，并将窗口居中。</summary>
+    /// <summary>按主显示器工作区取 16:9 默认尺寸并居中。</summary>
     private void PlaceWindow()
     {
         double scale = GetDpiForWindow(_hwnd) / 96.0;
@@ -64,12 +63,9 @@ public sealed partial class MainWindow : Window
         double workW = work.Width / scale;
         double workH = work.Height / scale;
 
-        // 最小尺寸是物理像素，换算为 DIP 后参与默认尺寸钳制，
-        // 保证默认尺寸的物理像素不小于最小尺寸。
         double minW = MinWidthPx / scale;
         double minH = MinHeightPx / scale;
 
-        // 默认宽度取工作区宽减去两侧边距，高度按 16:9 推导；超高时改按高度推导。
         double defaultW = workW - 240;
         double defaultH = defaultW * 9.0 / 16.0;
         if (defaultH > workH - 120)
@@ -115,7 +111,7 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    /// <summary>自动定位失败时弹出文件选择框让用户手动定位游戏并启动。</summary>
+    /// <summary>自动定位失败时让用户手动选 exe 并启动。</summary>
     private async Task LaunchByManualPickAsync()
     {
         string? picked = await PickGameExeAsync();
@@ -140,7 +136,7 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    /// <summary>在右上角滑入一条 Toast，数秒后自动滑出关闭，也可手动关闭。</summary>
+    /// <summary>右上角滑入 Toast，数秒后自动滑出（可手动关闭）。</summary>
     private void ShowToast(
         string title,
         string message,
@@ -151,7 +147,7 @@ public sealed partial class MainWindow : Window
         StopToastTimer();
         ToastPanel.Children.Clear();
 
-        InfoBar bar = new InfoBar
+        InfoBar bar = new()
         {
             Title = title,
             Message = message,
@@ -168,8 +164,8 @@ public sealed partial class MainWindow : Window
         };
         ToastPanel.Children.Add(bar);
 
-        Storyboard flyIn = new Storyboard();
-        DoubleAnimation slideIn = new DoubleAnimation
+        Storyboard flyIn = new();
+        DoubleAnimation slideIn = new()
         {
             Duration = TimeSpan.FromMilliseconds(250),
             From = 60,
@@ -178,7 +174,7 @@ public sealed partial class MainWindow : Window
         };
         Storyboard.SetTarget(slideIn, bar);
         Storyboard.SetTargetProperty(slideIn, "(UIElement.RenderTransform).(TranslateTransform.X)");
-        DoubleAnimation fadeIn = new DoubleAnimation
+        DoubleAnimation fadeIn = new()
         {
             Duration = TimeSpan.FromMilliseconds(300),
             From = 0,
@@ -199,8 +195,8 @@ public sealed partial class MainWindow : Window
     {
         StopToastTimer();
 
-        Storyboard flyOut = new Storyboard();
-        DoubleAnimation slideOut = new DoubleAnimation
+        Storyboard flyOut = new();
+        DoubleAnimation slideOut = new()
         {
             Duration = TimeSpan.FromMilliseconds(250),
             From = 0,
@@ -212,7 +208,7 @@ public sealed partial class MainWindow : Window
             slideOut,
             "(UIElement.RenderTransform).(TranslateTransform.X)"
         );
-        DoubleAnimation fadeOut = new DoubleAnimation
+        DoubleAnimation fadeOut = new()
         {
             Duration = TimeSpan.FromMilliseconds(250),
             From = 1,
@@ -234,10 +230,7 @@ public sealed partial class MainWindow : Window
 
     private async Task<string?> PickGameExeAsync()
     {
-        FileOpenPicker picker = new FileOpenPicker
-        {
-            SuggestedStartLocation = PickerLocationId.ComputerFolder,
-        };
+        FileOpenPicker picker = new() { SuggestedStartLocation = PickerLocationId.ComputerFolder };
         picker.FileTypeFilter.Add(".exe");
         InitializeWithWindow.Initialize(picker, _hwnd);
 
@@ -303,7 +296,6 @@ public sealed partial class MainWindow : Window
     {
         if (uMsg == WM_GETMINMAXINFO)
         {
-            // 最小尺寸与 MINMAXINFO 均为物理像素，直接使用，不做 DPI 换算。
             MinMaxInfo mmi = Marshal.PtrToStructure<MinMaxInfo>(lParam);
             mmi.MinTrackSize = new NativePoint { X = MinWidthPx, Y = MinHeightPx };
             Marshal.StructureToPtr(mmi, lParam, false);

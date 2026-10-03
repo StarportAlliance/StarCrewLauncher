@@ -14,7 +14,7 @@ internal sealed class ProcessStarter : IProcessStarter
 
         try
         {
-            ProcessStartInfo startInfo = new ProcessStartInfo
+            ProcessStartInfo startInfo = new()
             {
                 FileName = fileName,
                 WorkingDirectory = workingDirectory,

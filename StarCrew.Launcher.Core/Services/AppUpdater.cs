@@ -8,14 +8,13 @@ internal sealed class AppUpdater
 {
     private readonly IUpdateClient _client;
 
-    /// <summary>使用指定的更新客户端构造更新器。</summary>
     public AppUpdater(IUpdateClient client)
     {
         ArgumentNullException.ThrowIfNull(client);
         _client = client;
     }
 
-    /// <summary>当前已安装版本，未安装时为 null，关于页展示用。</summary>
+    /// <summary>当前已安装版本，未经安装时为 null。</summary>
     public string? CurrentVersion => _client.CurrentVersion;
 
     /// <summary>检查更新并在命中时下载、安排应用；调用方按返回状态提示用户重启。</summary>

@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 >
     <Grid>
-        <!-- 全屏背景 -->
         <Image Source="ms-appx:///Assets/background.webp" Stretch="UniformToFill" />
 
         <NavigationView
@@ -18,15 +17,12 @@
             PaneDisplayMode="LeftCompact"
         >
             <NavigationView.Resources>
-                <!-- LeftCompact 常开面板用的不是 DefaultPaneBackground，而是 ExpandedPaneBackground（默认为全透明） -->
                 <StaticResource
                     x:Key="NavigationViewExpandedPaneBackground"
                     ResourceKey="AcrylicInAppFillColorDefaultBrush"
                 />
-                <!-- 去掉内容区卡片描边、圆角与填充 -->
                 <Thickness x:Key="NavigationViewContentGridBorderThickness">0</Thickness>
                 <CornerRadius x:Key="NavigationViewContentGridCornerRadius">0</CornerRadius>
-                <!-- 去掉 RootSplitView 的 1px 外边框，否则侧边栏与窗口边框之间会留出 1px 缝隙 -->
                 <Thickness x:Key="NavigationViewBorderThickness">0</Thickness>
                 <StaticResource
                     x:Key="NavigationViewContentBackground"

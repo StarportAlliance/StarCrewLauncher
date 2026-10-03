@@ -10,7 +10,6 @@ internal sealed partial class SteamGameLocator : ISteamGameLocator
 
     private readonly ISteamEnvironment _environment;
 
-    /// <summary>使用指定的环境接缝构造定位器。</summary>
     public SteamGameLocator(ISteamEnvironment environment)
     {
         ArgumentNullException.ThrowIfNull(environment);
@@ -35,7 +34,7 @@ internal sealed partial class SteamGameLocator : ISteamGameLocator
     /// <summary>枚举本机 Steam 库目录，主库优先。</summary>
     private IEnumerable<string> EnumerateLibraries()
     {
-        HashSet<string> seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
 
         foreach (string steamDir in EnumerateSteamDirs())
         {
@@ -63,7 +62,7 @@ internal sealed partial class SteamGameLocator : ISteamGameLocator
     /// <summary>枚举本机 Steam 主目录（注册表优先，默认路径兜底）。</summary>
     private IEnumerable<string> EnumerateSteamDirs()
     {
-        List<string?> candidates = new List<string?>(_environment.GetRegistrySteamPaths());
+        List<string?> candidates = [.. _environment.GetRegistrySteamPaths()];
         candidates.Add(Path.Combine(_environment.GetProgramFilesX86(), "Steam"));
         candidates.Add(Path.Combine(_environment.GetProgramFiles(), "Steam"));
 
@@ -76,7 +75,7 @@ internal sealed partial class SteamGameLocator : ISteamGameLocator
         }
     }
 
-    /// <summary>从 libraryfolders.vdf 中提取全部库路径（只取 path 项并校验目录存在）。</summary>
+    /// <summary>从 libraryfolders.vdf 取 path 项并校验目录存在。</summary>
     private IEnumerable<string> ParseLibraryPaths(string vdfPath)
     {
         string? content = TryReadAllText(vdfPath);
@@ -98,7 +97,7 @@ internal sealed partial class SteamGameLocator : ISteamGameLocator
         }
     }
 
-    /// <summary>读取 VDF 文本，环境接缝抛异常时也视为无额外库而不上浮。</summary>
+    /// <summary>读 VDF 文本，失败视为无额外库（吞异常不上浮）。</summary>
     private string? TryReadAllText(string vdfPath)
     {
         try

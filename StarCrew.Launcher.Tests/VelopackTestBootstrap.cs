@@ -8,8 +8,5 @@ namespace StarCrew.Launcher.Tests;
 internal static class VelopackTestBootstrap
 {
     [ModuleInitializer]
-    internal static void Initialize()
-    {
-        VelopackApp.Build().Run();
-    }
+    internal static void Initialize() => VelopackApp.Build().Run();
 }

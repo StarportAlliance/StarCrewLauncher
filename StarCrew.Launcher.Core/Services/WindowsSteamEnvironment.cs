@@ -17,16 +17,10 @@ internal sealed class WindowsSteamEnvironment : ISteamEnvironment
     }
 
     /// <inheritdoc />
-    public bool DirectoryExists(string path)
-    {
-        return Directory.Exists(path);
-    }
+    public bool DirectoryExists(string path) => Directory.Exists(path);
 
     /// <inheritdoc />
-    public bool FileExists(string path)
-    {
-        return File.Exists(path);
-    }
+    public bool FileExists(string path) => File.Exists(path);
 
     /// <inheritdoc />
     public string? ReadAllTextOrNull(string path)
@@ -42,16 +36,12 @@ internal sealed class WindowsSteamEnvironment : ISteamEnvironment
     }
 
     /// <inheritdoc />
-    public string GetProgramFilesX86()
-    {
-        return Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
-    }
+    public string GetProgramFilesX86() =>
+        Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
 
     /// <inheritdoc />
-    public string GetProgramFiles()
-    {
-        return Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-    }
+    public string GetProgramFiles() =>
+        Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
 
     private static string? ReadRegistrySteamPath(RegistryHive hive, string subKey)
     {
@@ -65,7 +55,6 @@ internal sealed class WindowsSteamEnvironment : ISteamEnvironment
                 return null;
             }
 
-            // 注册表中的路径使用正斜杠，统一为本地分隔符。
             return raw.Replace('/', Path.DirectorySeparatorChar);
         }
         catch

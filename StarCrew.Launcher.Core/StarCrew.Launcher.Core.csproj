@@ -8,9 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <!-- 业务类型保持 internal，主工程与测试工程靠此可见；
-             NSubstitute（Castle DynamicProxy）在运行时为 internal 接口生成代理类，
-             须对 DynamicProxyGenAssembly2 开放，否则 Substitute.For 抛 ArgumentException -->
         <InternalsVisibleTo Include="StarCrew.Launcher" />
         <InternalsVisibleTo Include="StarCrew.Launcher.Tests" />
         <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />

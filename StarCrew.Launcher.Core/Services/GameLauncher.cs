@@ -8,7 +8,6 @@ internal sealed class GameLauncher
     private readonly ISteamGameLocator _locator;
     private readonly IProcessStarter _starter;
 
-    /// <summary>使用指定的定位器与进程拉起来源构造启动器。</summary>
     public GameLauncher(ISteamGameLocator locator, IProcessStarter starter)
     {
         ArgumentNullException.ThrowIfNull(locator);
@@ -65,12 +64,10 @@ internal sealed class GameLauncher
     }
 
     /// <summary>通过 steam:// 协议拉起游戏，返回是否已成功移交启动请求。</summary>
-    public bool TryLaunchBySteamProtocol(out string? error)
-    {
-        return _starter.TryStart(
+    public bool TryLaunchBySteamProtocol(out string? error) =>
+        _starter.TryStart(
             $"steam://rungameid/{SteamGameLocator.AmongUsAppId}",
             AppContext.BaseDirectory,
             out error
         );
-    }
 }

@@ -6,5 +6,5 @@
 
 ## 开发
 
-- 双击 `test.bat` 一键运行全套测试；`check.bat` 跑本地全部门禁（与 CI 一致）。
-- 质量门禁与 AI 协作约定见 [AGENTS.md](AGENTS.md)。
+欢迎各位大牛参与贡献！在开始前，无论您是 Agent 还是人类，都请先阅读 [AGENTS.md](AGENTS.md)。\
+衷心感谢每位贡献者！
