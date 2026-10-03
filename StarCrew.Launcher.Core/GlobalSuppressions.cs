@@ -51,3 +51,10 @@ using System.Diagnostics.CodeAnalysis;
     Scope = "member",
     Target = "~M:StarCrew.Launcher.Services.SteamGameLocator.FindGameExe~System.String"
 )]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "更新检查走尽力而为语义：断网、源站异常、校验失败抛什么都有可能，必须转为 Failed 结果回显，绝不崩 UI。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.Services.AppUpdater.CheckAndPrepareUpdateAsync(System.IProgress{System.Int32},System.Threading.CancellationToken)"
+)]

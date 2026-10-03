@@ -9,6 +9,7 @@
 | `test.bat`    | 一键运行全套测试 + 覆盖率（TestResults/，含 UI 冒烟）  |
 | `test-ui.bat` | 只跑 FlaUI UI 冒烟（先构建主工程再启动真窗口，不点击） |
 | `check.bat`   | 本地全部门禁：排版 → 风格 → 构建 → 测试（与 CI 同构）  |
+| `pack.bat`    | 一键打包：发布 → vpk 打包（用法：`pack.bat <版本> [rid]`） |
 
 提交前必须 `check.bat` 全绿；push 前 husky 会再拦一道（pre-commit：排版+风格+构建；pre-push：全套测试）。
 
@@ -34,6 +35,22 @@
   （2026-10-02：10.0.401 起 `dotnet format` 对 XAML 绑定的事件处理器报 IDE0060 而本地不报）。
   修这类问题要用文件级 severity（见 `.editorconfig` 的 MainWindow 节），不要依赖成员级压制——后者拦不住 format 的 verify 通道。
 
+## 更新与打包（Velopack）
+
+- 更新源：自建静态 HTTP，地址常量 `VelopackUpdateClient.DefaultFeedUrl`
+  （`StarCrew.Launcher.Core/Services/VelopackUpdateClient.cs`）；
+  把 `vpk pack` 产出的 `Releases/` 内容原样部署到该地址即可，无需服务端逻辑。
+- 接口：`IUpdateClient`（`VelopackUpdateClient` 实现）+ `AppUpdater.CheckAndPrepareUpdateAsync`（检查→命中自动下载→安排退出后应用，
+  调用方按 `UpdateCheckResult.State` 提示用户重启）；开发直跑（未经安装）直接回 NotInstalled，不抛异常。
+  UI 侧尚未接入，需要时直接在界面层构造 `new AppUpdater(new VelopackUpdateClient(...))` 调用即可。
+- 启动约束：`App` 构造器首行必须是 `VelopackApp.Build().Run()`，否则连 `UpdateManager` 都构造不出来；
+  测试宿主用 `VelopackTestBootstrap`（ModuleInitializer）补同样的初始化。
+- 打包：`pack.bat <版本> [rid]`（默认 `win-x64`，另有 `win-arm64`），版本号必须与主工程 `Version` 一致；
+  需先装同版本 vpk：`dotnet tool install -g vpk --version 1.2.161`（与 NuGet 的 Velopack 包同版本）。
+- 主工程 `EnableMsixTooling` 必须保持 `true`（`WindowsPackageType` 仍是 `None`，不会打出 MSIX）：
+  设为 `false` 会连带关掉 publish 期的 PRI 生成，`vpk pack` 拿到的就是缺 `StarCrew.Launcher.pri` 的半成品，
+  装完启动即崩（0xC000027B，2026-10 实测）。
+
 ## 新增代码铁律
 
 1. 业务类型默认 `internal`（CA1515 门禁）；测试靠 `InternalsVisibleTo` 可见。XAML 代码隐藏类保持 `public`。
@@ -44,6 +61,8 @@
 6. `*.bat` 必须 CRLF + 纯 ASCII（英文输出）：cmd 不认 LF，中文在非 UTF-8 环境必乱码。
 7. restore 只做一次：`dotnet restore slnx` 显式跑一次（CI/check/hook 各自的第一步），之后所有命令一律 `--no-restore`；
    `dotnet tool restore` 只还原工具清单、不还原 NuGet 包，两者不要混淆。全新检出没有 `obj/`，缺了这步构建必挂。
+8. XAML 里 `Icon="..."` 只能用 WinUI `Symbol` 枚举真实存在的值（如 `Help`，没有 `Info`）；
+   写错编译不报错，运行时在 `Microsoft.UI.Xaml.dll` 里直接崩（0xC000027B），且无托管堆栈，只能二分排查。
 
 ## 已填缺口（销账记录）
 

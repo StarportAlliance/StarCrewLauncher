@@ -17,6 +17,8 @@ vs/
 [Bb]uild[Ll]og.*
 TestResults/
 StrykerOutput/
+Releases/
+publish/
 *.trx
 *.cobertura.xml
 
