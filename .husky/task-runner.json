@@ -2,6 +2,12 @@
    "$schema": "https://alirezanet.github.io/Husky.Net/schema.json",
    "tasks": [
       {
+         "name": "还原 NuGet 包",
+         "group": "pre-commit",
+         "command": "dotnet",
+         "args": ["restore", "StarCrew.Launcher.slnx"]
+      },
+      {
          "name": "排版检查（CSharpier）",
          "group": "pre-commit",
          "command": "dotnet",

@@ -40,6 +40,8 @@
 4. 测试命名用 `Method_Scenario_Result` 下划线风格（已在 `.editorconfig` 豁免 CA1707）。
 5. `*.xaml.cs` 不计单元覆盖率（`coverlet.runsettings` 已排除）：UI 逻辑不要往里面加，加了也测不到。
 6. `*.bat` 必须 CRLF + 纯 ASCII（英文输出）：cmd 不认 LF，中文在非 UTF-8 环境必乱码。
+7. restore 只做一次：`dotnet restore slnx` 显式跑一次（CI/check/hook 各自的第一步），之后所有命令一律 `--no-restore`；
+   `dotnet tool restore` 只还原工具清单、不还原 NuGet 包，两者不要混淆。全新检出没有 `obj/`，缺了这步构建必挂。
 
 ## 已填缺口（销账记录）
 
