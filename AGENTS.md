@@ -16,6 +16,7 @@ dotnet husky install
 | `test.bat`    | 一键运行全套测试 + 覆盖率（TestResults/，含 UI 冒烟）      |
 | `test-ui.bat` | 只跑 FlaUI UI 冒烟（先构建主工程再启动真窗口，不点击）     |
 | `check.bat`   | 本地全部门禁：排版 → 风格 → 构建 → 测试（与 CI 同构）      |
+| `format.bat`  | 一键执行格式化：CSharpier 排版 → dotnet format 修风格      |
 | `pack.bat`    | 一键打包：发布 → vpk 打包（用法：`pack.bat <版本> [rid]`） |
 
 提交前必须 `check.bat` 全绿；push 前 husky 会再拦一道（pre-commit：排版+风格+构建；pre-push：全套测试）。
