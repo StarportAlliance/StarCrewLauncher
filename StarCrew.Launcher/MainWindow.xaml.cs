@@ -32,9 +32,10 @@ public sealed partial class MainWindow : Window
     {
         InitializeComponent();
         Title = "StarCrew Launcher";
+        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "icon.ico"));
         SystemBackdrop = new MicaBackdrop();
         ExtendsContentIntoTitleBar = true;
-        SetTitleBar(NavView);
+        SetTitleBar(AppTitleBar);
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         AppWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
         AppWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
