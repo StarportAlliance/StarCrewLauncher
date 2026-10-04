@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="Assets/icon.png" alt="StarCrew Launcher" width="128" height="128" />
+    <img src="Assets/icon.svg" alt="StarCrew Launcher" width="128" height="128" />
     <h1>StarCrew Launcher</h1>
     <p>简洁、易上手、现代化的 Among Us 启动器。</p>
     <img alt="GitHub Release" src="https://img.shields.io/github/v/release/StarportAlliance/StarCrewLauncher?sort=date&display_name=release&style=flat-square&cacheSeconds=3600">

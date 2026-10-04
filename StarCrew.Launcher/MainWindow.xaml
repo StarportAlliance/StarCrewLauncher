@@ -48,7 +48,11 @@
                     Spacing="8"
                     VerticalAlignment="Center"
                 >
-                    <Image Width="24" Height="24" Source="ms-appx:///Assets/icon.png" />
+                    <Image Width="24" Height="24">
+                        <Image.Source>
+                            <SvgImageSource UriSource="ms-appx:///Assets/icon.svg" />
+                        </Image.Source>
+                    </Image>
                     <TextBlock
                         VerticalAlignment="Center"
                         Style="{StaticResource BodyStrongTextBlockStyle}"
