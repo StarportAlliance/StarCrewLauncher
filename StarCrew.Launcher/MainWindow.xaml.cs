@@ -1,10 +1,10 @@
 using System.Runtime.InteropServices;
+using CommunityToolkit.WinUI.Behaviors;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Animation;
 using StarCrew.Launcher.Models;
 using StarCrew.Launcher.Services;
 using Windows.Graphics;
@@ -26,7 +26,6 @@ public sealed partial class MainWindow : Window
     );
     private readonly SubclassProc _subclassProc;
     private readonly nint _hwnd;
-    private DispatcherTimer? _toastTimer;
 
     public MainWindow()
     {
@@ -46,6 +45,7 @@ public sealed partial class MainWindow : Window
         SetWindowSubclass(_hwnd, _subclassProc, 0, 0);
 
         Activated += OnFirstActivated;
+        ToastBar.RegisterPropertyChangedCallback(InfoBar.IsOpenProperty, OnToastIsOpenChanged);
     }
 
     private void OnFirstActivated(object sender, WindowActivatedEventArgs args)
@@ -142,7 +142,7 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    /// <summary>右上角滑入 Toast，数秒后自动滑出（可手动关闭）。</summary>
+    /// <summary>右上角应用内通知，经 Toolkit 排队逐条展示，到期自动关闭（悬停暂停计时，可手动关闭），进退场带滑动淡入淡出。</summary>
     private void ShowToast(
         string title,
         string message,
@@ -150,88 +150,47 @@ public sealed partial class MainWindow : Window
         int autoCloseSeconds = 4
     )
     {
-        StopToastTimer();
-        ToastPanel.Children.Clear();
-
-        InfoBar bar = new()
-        {
-            Title = title,
-            Message = message,
-            Severity = severity,
-            IsOpen = true,
-            IsClosable = true,
-            Opacity = 0,
-            RenderTransform = new TranslateTransform(),
-        };
-        bar.CloseButtonClick += (_, _) =>
-        {
-            StopToastTimer();
-            ToastPanel.Children.Remove(bar);
-        };
-        ToastPanel.Children.Add(bar);
-
-        Storyboard flyIn = new();
-        DoubleAnimation slideIn = new()
-        {
-            Duration = TimeSpan.FromMilliseconds(250),
-            From = 60,
-            To = 0,
-            EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut },
-        };
-        Storyboard.SetTarget(slideIn, bar);
-        Storyboard.SetTargetProperty(slideIn, "(UIElement.RenderTransform).(TranslateTransform.X)");
-        DoubleAnimation fadeIn = new()
-        {
-            Duration = TimeSpan.FromMilliseconds(300),
-            From = 0,
-            To = 1,
-        };
-        Storyboard.SetTarget(fadeIn, bar);
-        Storyboard.SetTargetProperty(fadeIn, "Opacity");
-        flyIn.Children.Add(slideIn);
-        flyIn.Children.Add(fadeIn);
-        flyIn.Begin();
-
-        _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(autoCloseSeconds) };
-        _toastTimer.Tick += (_, _) => DismissToast(bar);
-        _toastTimer.Start();
-    }
-
-    private void DismissToast(InfoBar bar)
-    {
-        StopToastTimer();
-
-        Storyboard flyOut = new();
-        DoubleAnimation slideOut = new()
-        {
-            Duration = TimeSpan.FromMilliseconds(250),
-            From = 0,
-            To = 60,
-            EasingFunction = new BackEase { EasingMode = EasingMode.EaseIn },
-        };
-        Storyboard.SetTarget(slideOut, bar);
-        Storyboard.SetTargetProperty(
-            slideOut,
-            "(UIElement.RenderTransform).(TranslateTransform.X)"
+        ToastQueue.Show(
+            new Notification
+            {
+                Title = title,
+                Message = message,
+                Severity = severity,
+                Duration = TimeSpan.FromSeconds(autoCloseSeconds),
+            }
         );
-        DoubleAnimation fadeOut = new()
-        {
-            Duration = TimeSpan.FromMilliseconds(250),
-            From = 1,
-            To = 0,
-        };
-        Storyboard.SetTarget(fadeOut, bar);
-        Storyboard.SetTargetProperty(fadeOut, "Opacity");
-        flyOut.Children.Add(slideOut);
-        flyOut.Children.Add(fadeOut);
-        flyOut.Completed += (_, _) => ToastPanel.Children.Remove(bar);
-        flyOut.Begin();
     }
 
-    private void StopToastTimer()
+    // 退场动画播完前先取消关闭，播完再真正关闭；Toolkit 只监听 Closed，排队逻辑不受影响。
+    private bool _isToastExitAnimating;
+
+    private void OnToastIsOpenChanged(DependencyObject sender, DependencyProperty dp)
     {
-        _toastTimer?.Stop();
-        _toastTimer = null;
+        // Closing 取消后 InfoBar 会把 IsOpen 同步弹回 true：退场进行中时忽略，否则退场会被进场覆盖。
+        if (sender.GetValue(dp) is true && !_isToastExitAnimating)
+        {
+            ToastExitStoryboard.Stop();
+            ToastEnterStoryboard.Begin();
+        }
+    }
+
+    private void ToastBar_Closing(InfoBar sender, InfoBarClosingEventArgs args)
+    {
+        if (_isToastExitAnimating)
+        {
+            _isToastExitAnimating = false;
+            return;
+        }
+
+        args.Cancel = true;
+        _isToastExitAnimating = true;
+        ToastEnterStoryboard.Stop();
+        ToastExitStoryboard.Begin();
+    }
+
+    private void ToastExitStoryboard_Completed(object sender, object e)
+    {
+        ToastBar.IsOpen = false;
     }
 
     private async Task<string?> PickGameExeAsync()
