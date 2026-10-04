@@ -54,6 +54,11 @@ public sealed partial class MainWindow : Window
         PlaceWindow();
     }
 
+    private void AppTitleBar_PaneToggleRequested(TitleBar sender, object args)
+    {
+        NavView.IsPaneOpen = !NavView.IsPaneOpen;
+    }
+
     /// <summary>按主显示器工作区取 16:9 默认尺寸并居中。</summary>
     private void PlaceWindow()
     {
