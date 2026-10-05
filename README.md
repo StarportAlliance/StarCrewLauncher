@@ -38,8 +38,3 @@ StarCrew Launcher (SCL) 是一个开源，适用于 Windows 平台的 Among Us �
 <a href="https://github.com/StarportAlliance/StarCrewLauncher/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=StarportAlliance/StarCrewLauncher" />
 </a> -->
-
-### AI 使用说明
-
-我们（指隶属于 StarportAlliance 的成员）**完全**使用 AI 生成代码来维护该项目，我们理解人们对于代码质量的担忧，因而我们也为此搭建了全面的代码测试框架与流程，并人工实测构建产物，尽可能的守住代码质量和稳定性。\
-此外我们人工校对了文案，确保您在使用过程中不会感受到明显的 AI 味。
