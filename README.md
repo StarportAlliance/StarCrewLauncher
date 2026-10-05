@@ -38,3 +38,9 @@ StarCrew Launcher (SCL) 是一个开源，适用于 Windows 平台的 Among Us �
 <a href="https://github.com/StarportAlliance/StarCrewLauncher/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=StarportAlliance/StarCrewLauncher" />
 </a> -->
+
+<!-- ## 鸣谢
+
+- Fledge Alpha (Stealth Model) - 成功的 refactor 了设置页的屎山动画代码，解决了差点把我气到脑溢血的 Bug。
+
+-->
