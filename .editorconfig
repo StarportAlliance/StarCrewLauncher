@@ -65,3 +65,6 @@ dotnet_diagnostic.CA1707.severity = none
 # 所以这里用文件级 severity——构建/format/IDE 所有主机、所有 SDK 版本都生效。
 [StarCrew.Launcher/MainWindow.xaml.cs]
 dotnet_diagnostic.IDE0060.severity = suggestion
+
+[StarCrew.Launcher/Views/SettingsPage.xaml.cs]
+dotnet_diagnostic.IDE0060.severity = suggestion

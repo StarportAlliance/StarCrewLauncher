@@ -36,8 +36,9 @@ dotnet husky install
 
 - 更新源：自建静态 HTTP，地址常量 `VelopackUpdateClient.DefaultFeedUrl`；
   把 `vpk pack` 产出的 `Releases/` 内容原样部署到该地址即可，无需服务端逻辑。
-- 接口：`IUpdateClient`（`VelopackUpdateClient` 实现）+ `AppUpdater.CheckAndPrepareUpdateAsync`（检查→命中下载→安排重启后应用，
-  调用方按 `UpdateCheckResult.State` 提示重启）；开发直跑回 NotInstalled，不抛。UI 未接入，需要时在界面层直接构造调用。
+- 接口：`IUpdateClient`（`VelopackUpdateClient` 实现）+ `AppUpdater.CheckOnlyAsync`（仅检查，命中回 Available）
+  与 `DownloadAndPrepareAsync`（用户确认后下载→安排重启后应用，成功后调用方直接退出即自动重启）；
+  开发直跑回 NotInstalled，不抛。UI 已接入设置页，需要时在界面层直接构造调用。
 - 启动约束：`App` 构造器首行必须是 `VelopackApp.Build().Run()`，否则 `UpdateManager` 构造失败；
   测试宿主用 `VelopackTestBootstrap`（ModuleInitializer）补初始化。
 - 打包：`pack.bat <版本> [rid]`（默认 `win-x64`，另有 `win-arm64`），版本须与主工程 `Version` 一致；

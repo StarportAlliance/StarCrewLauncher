@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:views="using:StarCrew.Launcher.Views"
 >
     <Grid>
         <Grid.RowDefinitions>
@@ -46,10 +47,11 @@
             Background="Transparent"
             IsBackButtonVisible="Collapsed"
             IsPaneToggleButtonVisible="False"
-            IsSettingsVisible="False"
+            IsSettingsVisible="True"
             IsTitleBarAutoPaddingEnabled="False"
             OpenPaneLength="200"
             PaneDisplayMode="LeftCompact"
+            SelectionChanged="NavView_SelectionChanged"
         >
             <NavigationView.Resources>
                 <!-- WinUI 3 的侧边栏背景走 NavigationViewExpandedPaneBackground（折叠/展开态同一个 key，
@@ -124,7 +126,22 @@
                         </DoubleAnimation>
                     </Storyboard>
                 </Grid.Resources>
-                <Image Source="ms-appx:///Assets/background.webp" Stretch="UniformToFill" />
+                <Grid x:Name="LaunchContent">
+                    <Image Source="ms-appx:///Assets/background.webp" Stretch="UniformToFill" />
+                    <Button
+                        x:Name="LaunchButton"
+                        Width="240"
+                        Height="48"
+                        Margin="0,0,32,32"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Click="LaunchButton_Click"
+                        Content="启动游戏"
+                        FontSize="18"
+                        Style="{StaticResource AccentButtonStyle}"
+                    />
+                </Grid>
+                <views:SettingsPage x:Name="SettingsContent" Visibility="Collapsed" />
                 <!-- 应用内通知走 Toolkit 的 StackedNotificationsBehavior：排队逐条展示、Duration 到期自动关闭、悬停暂停计时。
                      进退场动画由 IsOpen 回调与 Closing 驱动（Closing 里取消关闭、播完退场再真正关闭，不断排队逻辑）。 -->
                 <InfoBar
@@ -144,18 +161,6 @@
                         <behaviors:StackedNotificationsBehavior x:Name="ToastQueue" />
                     </interactivity:Interaction.Behaviors>
                 </InfoBar>
-                <Button
-                    x:Name="LaunchButton"
-                    Width="240"
-                    Height="48"
-                    Margin="0,0,32,32"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Bottom"
-                    Click="LaunchButton_Click"
-                    Content="启动游戏"
-                    FontSize="18"
-                    Style="{StaticResource AccentButtonStyle}"
-                />
             </Grid>
         </NavigationView>
     </Grid>

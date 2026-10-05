@@ -24,6 +24,7 @@ public sealed partial class MainWindow : Window
         new SteamGameLocator(new WindowsSteamEnvironment()),
         new ProcessStarter()
     );
+    private readonly ThemeSettings _themeSettings;
     private readonly SubclassProc _subclassProc;
     private readonly nint _hwnd;
 
@@ -38,6 +39,12 @@ public sealed partial class MainWindow : Window
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         AppWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
         AppWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+        _themeSettings = new ThemeSettings(GetThemeStore());
+        ApplyTheme(_themeSettings.Theme);
+        SettingsContent.BindTheme(_themeSettings);
+        SettingsContent.ThemeChanged += OnSettingsThemeChanged;
+        SettingsContent.NotifyRequested += OnSettingsNotify;
 
         _hwnd = WindowNative.GetWindowHandle(this);
         PlaceWindow();
@@ -57,6 +64,54 @@ public sealed partial class MainWindow : Window
     private void AppTitleBar_PaneToggleRequested(TitleBar sender, object args)
     {
         NavView.IsPaneOpen = !NavView.IsPaneOpen;
+    }
+
+    private void NavView_SelectionChanged(
+        NavigationView sender,
+        NavigationViewSelectionChangedEventArgs args
+    )
+    {
+        bool isSettings = args.IsSettingsSelected;
+        LaunchContent.Visibility = isSettings ? Visibility.Collapsed : Visibility.Visible;
+        SettingsContent.Visibility = isSettings ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void OnSettingsThemeChanged(object? sender, AppTheme theme)
+    {
+        ApplyTheme(theme);
+    }
+
+    private void OnSettingsNotify(string title, string message, InfoBarSeverity severity)
+    {
+        ShowToast(title, message, severity);
+    }
+
+    private void ApplyTheme(AppTheme theme)
+    {
+        if (Content is FrameworkElement root)
+        {
+            root.RequestedTheme = theme switch
+            {
+                AppTheme.Light => ElementTheme.Light,
+                AppTheme.Dark => ElementTheme.Dark,
+                _ => ElementTheme.Default,
+            };
+        }
+    }
+
+    // LocalSettings.Values 即 IDictionary，开发期取不到时用内存回退。
+    private static IDictionary<string, object> GetThemeStore()
+    {
+        try
+        {
+            if (ApplicationData.Current?.LocalSettings.Values is IDictionary<string, object> store)
+            {
+                return store;
+            }
+        }
+        catch (InvalidOperationException) { }
+
+        return new Dictionary<string, object>();
     }
 
     /// <summary>按主显示器工作区取 16:9 默认尺寸并居中。</summary>

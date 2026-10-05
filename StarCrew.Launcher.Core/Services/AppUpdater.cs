@@ -3,7 +3,7 @@ using Velopack.Exceptions;
 
 namespace StarCrew.Launcher.Services;
 
-/// <summary>应用更新器：检查远端新版本，命中时自动下载并安排在重启后应用。</summary>
+/// <summary>应用更新器：先检查远端新版本，用户确认后再下载并安排在重启后应用。</summary>
 internal sealed class AppUpdater
 {
     private readonly IUpdateClient _client;
@@ -17,9 +17,8 @@ internal sealed class AppUpdater
     /// <summary>当前已安装版本，未经安装时为 null。</summary>
     public string? CurrentVersion => _client.CurrentVersion;
 
-    /// <summary>检查更新并在命中时下载、安排应用；调用方按返回状态提示用户重启。</summary>
-    public async Task<UpdateCheckResult> CheckAndPrepareUpdateAsync(
-        IProgress<int>? progress = null,
+    /// <summary>仅检查远端新版本；命中时返回 Available，调用方据此弹窗请用户确认下载。</summary>
+    public async Task<UpdateCheckResult> CheckOnlyAsync(
         CancellationToken cancellationToken = default
     )
     {
@@ -49,15 +48,7 @@ internal sealed class AppUpdater
                 );
             }
 
-            await _client
-                .DownloadUpdatesAsync(version, progress, cancellationToken)
-                .ConfigureAwait(false);
-            _client.PrepareUpdateForRestart(version);
-            return new UpdateCheckResult(
-                UpdateState.ReadyToRestart,
-                version,
-                $"已下载新版本 {version}，重启后生效。"
-            );
+            return new UpdateCheckResult(UpdateState.Available, version, $"发现新版本 {version}。");
         }
         catch (OperationCanceledException)
         {
@@ -74,6 +65,47 @@ internal sealed class AppUpdater
         catch (Exception ex)
         {
             return new UpdateCheckResult(UpdateState.Failed, null, $"检查更新失败：{ex.Message}");
+        }
+    }
+
+    /// <summary>下载指定版本并安排在重启后应用；调用方确认后再调，成功后直接退出即自动重启生效。</summary>
+    public async Task<UpdateCheckResult> DownloadAndPrepareAsync(
+        string version,
+        IProgress<int>? progress = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(version);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!_client.IsInstalled)
+        {
+            return new UpdateCheckResult(
+                UpdateState.NotInstalled,
+                null,
+                "当前未经 Velopack 安装，无法下载更新。"
+            );
+        }
+
+        try
+        {
+            await _client
+                .DownloadUpdatesAsync(version, progress, cancellationToken)
+                .ConfigureAwait(false);
+            _client.PrepareUpdateForRestart(version);
+            return new UpdateCheckResult(
+                UpdateState.ReadyToRestart,
+                version,
+                $"已下载新版本 {version}，重启后生效。"
+            );
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            return new UpdateCheckResult(UpdateState.Failed, null, $"下载更新失败：{ex.Message}");
         }
     }
 }

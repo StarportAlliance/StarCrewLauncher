@@ -56,5 +56,12 @@ using System.Diagnostics.CodeAnalysis;
     "CA1031:DoNotCatchGeneralExceptionTypes",
     Justification = "更新走尽力语义：异常转 Failed 回显，不崩 UI。",
     Scope = "member",
-    Target = "~M:StarCrew.Launcher.Services.AppUpdater.CheckAndPrepareUpdateAsync(System.IProgress{System.Int32},System.Threading.CancellationToken)"
+    Target = "~M:StarCrew.Launcher.Services.AppUpdater.CheckOnlyAsync(System.Threading.CancellationToken)"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "同上：下载异常同样转 Failed 回显。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.Services.AppUpdater.DownloadAndPrepareAsync(System.String,System.IProgress{System.Int32},System.Threading.CancellationToken)"
 )]

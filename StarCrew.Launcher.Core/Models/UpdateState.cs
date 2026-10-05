@@ -6,6 +6,9 @@ internal enum UpdateState
     /// <summary>已是最新，无需操作。</summary>
     UpToDate,
 
+    /// <summary>发现新版本，待用户确认是否下载。</summary>
+    Available,
+
     /// <summary>新版本已下载，重启后生效。</summary>
     ReadyToRestart,
 
