@@ -162,6 +162,9 @@
                             ActionIconToolTip="在浏览器中打开"
                             Click="WebsiteCard_Click"
                         >
+                            <controls:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="&#xE774;" />
+                            </controls:SettingsCard.HeaderIcon>
                             <controls:SettingsCard.ActionIcon>
                                 <FontIcon Glyph="&#xE8A7;" />
                             </controls:SettingsCard.ActionIcon>
@@ -172,6 +175,63 @@
                             IsClickEnabled="True"
                             ActionIconToolTip="在浏览器中打开"
                             Click="FeedbackCard_Click"
+                        >
+                            <controls:SettingsCard.HeaderIcon>
+                                <FontIcon Glyph="&#xEBE8;" />
+                            </controls:SettingsCard.HeaderIcon>
+                            <controls:SettingsCard.ActionIcon>
+                                <FontIcon Glyph="&#xE8A7;" />
+                            </controls:SettingsCard.ActionIcon>
+                        </controls:SettingsCard>
+                        <TextBlock
+                            Margin="1,12,0,6"
+                            Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                            Text="法律声明"
+                        />
+                        <controls:SettingsCard
+                            Header="© 2026 StarportAlliance"
+                            Description="StarCrewLauncher 以 AGPL-3.0 开源发布"
+                            IsClickEnabled="True"
+                            ActionIconToolTip="在浏览器中打开"
+                            Click="LicenseCard_Click"
+                        >
+                            <controls:SettingsCard.ActionIcon>
+                                <FontIcon Glyph="&#xE8A7;" />
+                            </controls:SettingsCard.ActionIcon>
+                        </controls:SettingsCard>
+                        <TextBlock
+                            Margin="1,12,0,6"
+                            Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                            Text="三方许可与版权声明"
+                        />
+                        <controls:SettingsCard
+                            Header="Windows App SDK"
+                            Description="© Microsoft Corporation，License under MIT."
+                            IsClickEnabled="True"
+                            ActionIconToolTip="在浏览器中打开"
+                            Click="WindowsAppSdkLicenseCard_Click"
+                        >
+                            <controls:SettingsCard.ActionIcon>
+                                <FontIcon Glyph="&#xE8A7;" />
+                            </controls:SettingsCard.ActionIcon>
+                        </controls:SettingsCard>
+                        <controls:SettingsCard
+                            Header="Windows Community Toolkit"
+                            Description="© .NET Foundation and Contributors，License under MIT."
+                            IsClickEnabled="True"
+                            ActionIconToolTip="在浏览器中打开"
+                            Click="CommunityToolkitLicenseCard_Click"
+                        >
+                            <controls:SettingsCard.ActionIcon>
+                                <FontIcon Glyph="&#xE8A7;" />
+                            </controls:SettingsCard.ActionIcon>
+                        </controls:SettingsCard>
+                        <controls:SettingsCard
+                            Header="Velopack"
+                            Description="© Velopack Ltd，License under MIT."
+                            IsClickEnabled="True"
+                            ActionIconToolTip="在浏览器中打开"
+                            Click="VelopackLicenseCard_Click"
                         >
                             <controls:SettingsCard.ActionIcon>
                                 <FontIcon Glyph="&#xE8A7;" />

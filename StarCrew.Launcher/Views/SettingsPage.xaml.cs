@@ -158,6 +158,34 @@ public sealed partial class SettingsPage : Page
         );
     }
 
+    private async void LicenseCard_Click(object sender, RoutedEventArgs e)
+    {
+        await Windows.System.Launcher.LaunchUriAsync(
+            new Uri("https://github.com/StarportAlliance/StarCrewLauncher/blob/main/LICENSE")
+        );
+    }
+
+    private async void WindowsAppSdkLicenseCard_Click(object sender, RoutedEventArgs e)
+    {
+        await Windows.System.Launcher.LaunchUriAsync(
+            new Uri("https://github.com/microsoft/WindowsAppSDK/blob/main/LICENSE")
+        );
+    }
+
+    private async void CommunityToolkitLicenseCard_Click(object sender, RoutedEventArgs e)
+    {
+        await Windows.System.Launcher.LaunchUriAsync(
+            new Uri("https://github.com/CommunityToolkit/Windows/blob/main/License.md")
+        );
+    }
+
+    private async void VelopackLicenseCard_Click(object sender, RoutedEventArgs e)
+    {
+        await Windows.System.Launcher.LaunchUriAsync(
+            new Uri("https://github.com/velopack/velopack/blob/develop/LICENSE")
+        );
+    }
+
     private async void CheckUpdateButton_Click(object sender, RoutedEventArgs e)
     {
         CheckUpdateButton.IsEnabled = false;
