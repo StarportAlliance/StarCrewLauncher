@@ -53,9 +53,9 @@
                     <Thickness x:Key="NavigationViewBorderThickness">0</Thickness>
                 </NavigationView.Resources>
                 <NavigationView.MenuItems>
-                    <NavigationViewItem Content="外观" Tag="Appearance" IsSelected="True">
+                    <NavigationViewItem Content="通用" Tag="Appearance" IsSelected="True">
                         <NavigationViewItem.Icon>
-                            <FontIcon Glyph="&#xE790;" />
+                            <FontIcon Glyph="&#xE74C;" />
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
                     <NavigationViewItem Content="关于" Tag="About">
