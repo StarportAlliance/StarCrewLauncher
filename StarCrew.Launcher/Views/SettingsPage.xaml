@@ -4,18 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
 >
-    <Page.Resources>
-        <x:Double x:Key="SettingsCardSpacing">4</x:Double>
-        <Style
-            x:Key="SettingsSectionHeaderTextBlockStyle"
-            BasedOn="{StaticResource BodyStrongTextBlockStyle}"
-            TargetType="TextBlock"
-        >
-            <Style.Setters>
-                <Setter Property="Margin" Value="1,0,0,6" />
-            </Style.Setters>
-        </Style>
-    </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -66,180 +54,19 @@
                 </NavigationView.MenuItems>
             </NavigationView>
 
-            <ScrollViewer
-                x:Name="SettingsScroll"
+            <!-- 内容区走 Frame：与 MatchWindow 一致地用 Windows 原生页面切换动画，内层 NavigationView 选中项触发导航。 -->
+            <Frame
+                x:Name="SectionFrame"
                 Grid.Column="1"
-                VerticalScrollBarVisibility="Auto"
+                IsNavigationStackEnabled="False"
+                Navigated="SectionFrame_Navigated"
             >
-                <Grid Padding="24,0,24,24">
-                    <StackPanel
-                        x:Name="AppearancePanel"
-                        x:Load="False"
-                        MaxWidth="1000"
-                        HorizontalAlignment="Stretch"
-                        Spacing="{StaticResource SettingsCardSpacing}"
-                    >
-                        <!-- 整板齐滑进场 + 卸载淡出：挂载/卸载时原生重播。 -->
-                        <StackPanel.Transitions>
-                            <TransitionCollection>
-                                <EntranceThemeTransition
-                                    FromVerticalOffset="24"
-                                    IsStaggeringEnabled="False"
-                                />
-                                <AddDeleteThemeTransition />
-                            </TransitionCollection>
-                        </StackPanel.Transitions>
-                        <StackPanel.ChildrenTransitions>
-                            <RepositionThemeTransition IsStaggeringEnabled="False" />
-                        </StackPanel.ChildrenTransitions>
-                        <TextBlock
-                            Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
-                            Text="外观"
-                        />
-                        <controls:SettingsCard
-                            Header="主题"
-                            Description="选择启动器要显示哪种颜色的主题"
-                        >
-                            <controls:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph="&#xE790;" />
-                            </controls:SettingsCard.HeaderIcon>
-                            <ComboBox
-                                x:Name="ThemeCombo"
-                                Width="200"
-                                SelectionChanged="ThemeCombo_SelectionChanged"
-                            >
-                                <ComboBoxItem Content="跟随系统" Tag="System" />
-                                <ComboBoxItem Content="浅色" Tag="Light" />
-                                <ComboBoxItem Content="深色" Tag="Dark" />
-                            </ComboBox>
-                        </controls:SettingsCard>
-                    </StackPanel>
-
-                    <StackPanel
-                        x:Name="AboutPanel"
-                        x:Load="False"
-                        MaxWidth="1000"
-                        HorizontalAlignment="Stretch"
-                        Spacing="{StaticResource SettingsCardSpacing}"
-                        Visibility="Collapsed"
-                    >
-                        <!-- 整板齐滑进场 + 卸载淡出：挂载/卸载时原生重播。 -->
-                        <StackPanel.Transitions>
-                            <TransitionCollection>
-                                <EntranceThemeTransition
-                                    FromVerticalOffset="24"
-                                    IsStaggeringEnabled="False"
-                                />
-                                <AddDeleteThemeTransition />
-                            </TransitionCollection>
-                        </StackPanel.Transitions>
-                        <StackPanel.ChildrenTransitions>
-                            <RepositionThemeTransition IsStaggeringEnabled="False" />
-                        </StackPanel.ChildrenTransitions>
-                        <TextBlock
-                            Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
-                            Text="关于"
-                        />
-                        <controls:SettingsCard x:Name="AboutVersionCard" Header="StarCrewLauncher">
-                            <controls:SettingsCard.HeaderIcon>
-                                <ImageIcon>
-                                    <ImageIcon.Source>
-                                        <SvgImageSource UriSource="ms-appx:///Assets/icon.svg" />
-                                    </ImageIcon.Source>
-                                </ImageIcon>
-                            </controls:SettingsCard.HeaderIcon>
-                            <Button
-                                x:Name="CheckUpdateButton"
-                                Click="CheckUpdateButton_Click"
-                                Content="检查更新"
-                                Style="{StaticResource AccentButtonStyle}"
-                            />
-                        </controls:SettingsCard>
-                        <controls:SettingsCard
-                            Header="官方网站"
-                            Description="查看教学文档、疑难解答，或是下载最新版本的 SCL 安装程序"
-                            IsClickEnabled="True"
-                            ActionIconToolTip="在浏览器中打开"
-                            Click="WebsiteCard_Click"
-                        >
-                            <controls:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph="&#xE774;" />
-                            </controls:SettingsCard.HeaderIcon>
-                            <controls:SettingsCard.ActionIcon>
-                                <FontIcon Glyph="&#xE8A7;" />
-                            </controls:SettingsCard.ActionIcon>
-                        </controls:SettingsCard>
-                        <controls:SettingsCard
-                            Header="问题反馈"
-                            Description="使用过程发现了 Bug？想要新的实用功能？欢迎在 GitHub Issues 反馈"
-                            IsClickEnabled="True"
-                            ActionIconToolTip="在浏览器中打开"
-                            Click="FeedbackCard_Click"
-                        >
-                            <controls:SettingsCard.HeaderIcon>
-                                <FontIcon Glyph="&#xEBE8;" />
-                            </controls:SettingsCard.HeaderIcon>
-                            <controls:SettingsCard.ActionIcon>
-                                <FontIcon Glyph="&#xE8A7;" />
-                            </controls:SettingsCard.ActionIcon>
-                        </controls:SettingsCard>
-                        <TextBlock
-                            Margin="1,12,0,6"
-                            Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
-                            Text="法律声明"
-                        />
-                        <controls:SettingsCard
-                            Header="© 2026 StarportAlliance"
-                            Description="StarCrewLauncher 以 AGPL-3.0 开源发布"
-                            IsClickEnabled="True"
-                            ActionIconToolTip="在浏览器中打开"
-                            Click="LicenseCard_Click"
-                        >
-                            <controls:SettingsCard.ActionIcon>
-                                <FontIcon Glyph="&#xE8A7;" />
-                            </controls:SettingsCard.ActionIcon>
-                        </controls:SettingsCard>
-                        <TextBlock
-                            Margin="1,12,0,6"
-                            Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
-                            Text="三方许可与版权声明"
-                        />
-                        <controls:SettingsCard
-                            Header="Windows App SDK"
-                            Description="© Microsoft Corporation，License under MIT."
-                            IsClickEnabled="True"
-                            ActionIconToolTip="在浏览器中打开"
-                            Click="WindowsAppSdkLicenseCard_Click"
-                        >
-                            <controls:SettingsCard.ActionIcon>
-                                <FontIcon Glyph="&#xE8A7;" />
-                            </controls:SettingsCard.ActionIcon>
-                        </controls:SettingsCard>
-                        <controls:SettingsCard
-                            Header="Windows Community Toolkit"
-                            Description="© .NET Foundation and Contributors，License under MIT."
-                            IsClickEnabled="True"
-                            ActionIconToolTip="在浏览器中打开"
-                            Click="CommunityToolkitLicenseCard_Click"
-                        >
-                            <controls:SettingsCard.ActionIcon>
-                                <FontIcon Glyph="&#xE8A7;" />
-                            </controls:SettingsCard.ActionIcon>
-                        </controls:SettingsCard>
-                        <controls:SettingsCard
-                            Header="Velopack"
-                            Description="© Velopack Ltd，License under MIT."
-                            IsClickEnabled="True"
-                            ActionIconToolTip="在浏览器中打开"
-                            Click="VelopackLicenseCard_Click"
-                        >
-                            <controls:SettingsCard.ActionIcon>
-                                <FontIcon Glyph="&#xE8A7;" />
-                            </controls:SettingsCard.ActionIcon>
-                        </controls:SettingsCard>
-                    </StackPanel>
-                </Grid>
-            </ScrollViewer>
+                <Frame.ContentTransitions>
+                    <TransitionCollection>
+                        <NavigationThemeTransition />
+                    </TransitionCollection>
+                </Frame.ContentTransitions>
+            </Frame>
         </Grid>
     </Grid>
 </Page>
