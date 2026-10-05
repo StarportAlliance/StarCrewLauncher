@@ -26,6 +26,13 @@ using System.Diagnostics.CodeAnalysis;
     Target = "~T:StarCrew.Launcher.Views.SettingsPage"
 )]
 [assembly: SuppressMessage(
+    "Maintainability",
+    "CA1515:TypesCanBeMadeInternal",
+    Justification = "同上：XAML 代码隐藏类保持 public。",
+    Scope = "type",
+    Target = "~T:StarCrew.Launcher.Views.HomePage"
+)]
+[assembly: SuppressMessage(
     "Security",
     "CA5392:UseDefaultDllImportSearchPathsAttributeForPInvokes",
     Justification = "第三方包自带文件，无权修改；自有 P/Invoke 已全加 DefaultDllImportSearchPaths。",

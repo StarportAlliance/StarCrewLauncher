@@ -7,7 +7,7 @@ using Windows.Storage;
 
 namespace StarCrew.Launcher.Views;
 
-public sealed partial class SettingsPage : UserControl
+public sealed partial class SettingsPage : Page
 {
     private IThemeSettings? _themeSettings;
     private bool _syncingTheme;
@@ -15,6 +15,8 @@ public sealed partial class SettingsPage : UserControl
     public SettingsPage()
     {
         InitializeComponent();
+        // 默认面板先挂载：后继 BindTheme/OnLoaded 要摸里面的 ThemeCombo。
+        FindName(nameof(AppearancePanel));
         Loaded += OnLoaded;
     }
 
@@ -35,42 +37,70 @@ public sealed partial class SettingsPage : UserControl
     {
         _themeSettings ??= new ThemeSettings(GetSharedStore());
         SyncThemeCombo();
-        ShowVersion();
-        if (SectionList.SelectedIndex < 0)
+        if (SectionNav.SelectedItem is null && SectionNav.MenuItems.Count > 0)
         {
-            SectionList.SelectedIndex = 0;
+            SectionNav.SelectedItem = SectionNav.MenuItems[0];
         }
 
         SyncPanels(scrollToTop: false);
     }
 
-    private void SectionList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void SectionNav_SelectionChanged(
+        NavigationView sender,
+        NavigationViewSelectionChangedEventArgs args
+    )
     {
         SyncPanels(scrollToTop: true);
     }
 
-    // SelectionChanged 在 InitializeComponent 期间就会触发，此时后建的面板/滚动器仍为 null，直接返回等 Loaded 再同步。
+    // 面板用 x:Load 按需挂载：重新挂载触发 Load，面板自身 Transitions（Entrance 整板齐滑）自动重播，无需手写 Storyboard。
+    // SelectionChanged 在 InitializeComponent 期间就会触发，此时滚动器仍为 null，直接返回等 Loaded 再同步。
     private void SyncPanels(bool scrollToTop)
     {
-        if (AppearancePanel is null || AboutPanel is null || SettingsScroll is null)
+        if (SettingsScroll is null || SectionNav is null)
         {
             return;
         }
 
-        bool showAbout = SectionList.SelectedIndex == 1;
-        AppearancePanel.Visibility = showAbout ? Visibility.Collapsed : Visibility.Visible;
-        AboutPanel.Visibility = showAbout ? Visibility.Visible : Visibility.Collapsed;
+        bool showAbout =
+            SectionNav.SelectedItem is NavigationViewItem selected && Equals(selected.Tag, "About");
+        if (showAbout)
+        {
+            if (AppearancePanel is not null)
+            {
+                UnloadObject(AppearancePanel);
+            }
+
+            if (FindName(nameof(AboutPanel)) is StackPanel about)
+            {
+                about.Visibility = Visibility.Visible;
+                ShowVersion();
+            }
+        }
+        else
+        {
+            if (AboutPanel is not null)
+            {
+                UnloadObject(AboutPanel);
+            }
+
+            if (FindName(nameof(AppearancePanel)) is StackPanel appearance)
+            {
+                appearance.Visibility = Visibility.Visible;
+                // 重挂会重置 ComboBox 等交互状态，用已存主题重同步（守卫内不回写）。
+                SyncThemeCombo();
+            }
+        }
+
         if (scrollToTop)
         {
             SettingsScroll.ChangeView(null, 0, null);
-            PanelSwitchStoryboard.Stop();
-            PanelSwitchStoryboard.Begin();
         }
     }
 
     private void SyncThemeCombo()
     {
-        if (_themeSettings is null)
+        if (_themeSettings is null || ThemeCombo is null)
         {
             return;
         }

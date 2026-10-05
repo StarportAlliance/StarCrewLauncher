@@ -68,3 +68,6 @@ dotnet_diagnostic.IDE0060.severity = suggestion
 
 [StarCrew.Launcher/Views/SettingsPage.xaml.cs]
 dotnet_diagnostic.IDE0060.severity = suggestion
+
+[StarCrew.Launcher/Views/HomePage.xaml.cs]
+dotnet_diagnostic.IDE0060.severity = suggestion

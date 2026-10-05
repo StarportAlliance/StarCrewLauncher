@@ -25,9 +25,20 @@ public sealed class SmokeTests
             Window? mainWindow = app.GetMainWindow(automation, TimeSpan.FromSeconds(10));
             Assert.NotNull(mainWindow);
             Assert.Contains("StarCrew", mainWindow.Title, StringComparison.Ordinal);
-            AutomationElement? launchButton = mainWindow
-                .FindAllDescendants(cf => cf.ByControlType(ControlType.Button))
-                .FirstOrDefault(IsLaunchButton);
+            // Frame 导航异步完成：首屏内容比窗口句柄晚出现，轮询等按钮现身。
+            AutomationElement? launchButton = null;
+            DateTime deadline = DateTime.UtcNow.AddSeconds(10);
+            while (launchButton is null && DateTime.UtcNow < deadline)
+            {
+                launchButton = mainWindow
+                    .FindAllDescendants(cf => cf.ByControlType(ControlType.Button))
+                    .FirstOrDefault(IsLaunchButton);
+                if (launchButton is null)
+                {
+                    Thread.Sleep(200);
+                }
+            }
+
             Assert.NotNull(launchButton);
         }
         finally

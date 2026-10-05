@@ -5,11 +5,13 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
+using Microsoft.UI.Xaml.Navigation;
 using StarCrew.Launcher.Models;
 using StarCrew.Launcher.Services;
+using StarCrew.Launcher.Views;
 using Windows.Graphics;
 using Windows.Storage;
-using Windows.Storage.Pickers;
 using WinRT.Interop;
 
 namespace StarCrew.Launcher;
@@ -20,10 +22,6 @@ public sealed partial class MainWindow : Window
     private const int MinWidthPx = 1280;
     private const int MinHeightPx = 720;
 
-    private readonly GameLauncher _launcher = new(
-        new SteamGameLocator(new WindowsSteamEnvironment()),
-        new ProcessStarter()
-    );
     private readonly ThemeSettings _themeSettings;
     private readonly SubclassProc _subclassProc;
     private readonly nint _hwnd;
@@ -42,9 +40,6 @@ public sealed partial class MainWindow : Window
 
         _themeSettings = new ThemeSettings(GetThemeStore());
         ApplyTheme(_themeSettings.Theme);
-        SettingsContent.BindTheme(_themeSettings);
-        SettingsContent.ThemeChanged += OnSettingsThemeChanged;
-        SettingsContent.NotifyRequested += OnSettingsNotify;
 
         _hwnd = WindowNative.GetWindowHandle(this);
         PlaceWindow();
@@ -66,14 +61,60 @@ public sealed partial class MainWindow : Window
         NavView.IsPaneOpen = !NavView.IsPaneOpen;
     }
 
+    private void NavView_Loaded(object sender, RoutedEventArgs e)
+    {
+        // 首屏等 Frame 进视觉树再导航：在构造器里 Navigate 会被静默丢弃；首屏不播进场，直接呈现。
+        _initialNavigated = true;
+        NavView_Navigate(typeof(HomePage), new SuppressNavigationTransitionInfo());
+    }
+
     private void NavView_SelectionChanged(
         NavigationView sender,
         NavigationViewSelectionChangedEventArgs args
     )
     {
-        bool isSettings = args.IsSettingsSelected;
-        LaunchContent.Visibility = isSettings ? Visibility.Collapsed : Visibility.Visible;
-        SettingsContent.Visibility = isSettings ? Visibility.Visible : Visibility.Collapsed;
+        // 加载中 SelectionChanged 会先于 Loaded 触发一次：此时 Frame 未就绪，导航上了内容也不呈现，
+        // 还会把 Loaded 的首航顶掉变砖；直接忽略，等 Loaded 做唯一一次首航。
+        if (!_initialNavigated)
+        {
+            return;
+        }
+
+        NavView_Navigate(
+            args.IsSettingsSelected ? typeof(SettingsPage) : typeof(HomePage),
+            args.RecommendedNavigationTransitionInfo
+        );
+    }
+
+    // 同页重复选中不导航：关掉导航栈后 CurrentSourcePageType 恒为 null，只能自己记当前页；
+    // 连续导航会把进行中的进场过渡顶掉，内容区 visually 卡空白。
+    private Type? _currentPageType;
+    private bool _initialNavigated;
+
+    private void NavView_Navigate(Type navPageType, NavigationTransitionInfo transitionInfo)
+    {
+        if (!Type.Equals(_currentPageType, navPageType))
+        {
+            _currentPageType = navPageType;
+            ContentFrame.Navigate(navPageType, null, transitionInfo);
+        }
+    }
+
+    // Frame 每次建新页实例，在此统一接主题与通知事件。
+    private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
+    {
+        switch (e.Content)
+        {
+            case HomePage home:
+                home.WindowHandle = _hwnd;
+                home.NotifyRequested += OnPageNotify;
+                break;
+            case SettingsPage settings:
+                settings.BindTheme(_themeSettings);
+                settings.ThemeChanged += OnSettingsThemeChanged;
+                settings.NotifyRequested += OnPageNotify;
+                break;
+        }
     }
 
     private void OnSettingsThemeChanged(object? sender, AppTheme theme)
@@ -81,7 +122,7 @@ public sealed partial class MainWindow : Window
         ApplyTheme(theme);
     }
 
-    private void OnSettingsNotify(string title, string message, InfoBarSeverity severity)
+    private void OnPageNotify(string title, string message, InfoBarSeverity severity)
     {
         ShowToast(title, message, severity);
     }
@@ -149,54 +190,6 @@ public sealed partial class MainWindow : Window
         );
     }
 
-    private async void LaunchButton_Click(object sender, RoutedEventArgs e)
-    {
-        LaunchButton.IsEnabled = false;
-        LaunchButton.Content = "正在启动...";
-
-        try
-        {
-            LaunchResult result = await _launcher.LaunchAsync();
-            if (result.IsSuccess)
-            {
-                ShowToast("启动成功", result.Message, InfoBarSeverity.Success);
-                return;
-            }
-
-            await LaunchByManualPickAsync();
-        }
-        finally
-        {
-            LaunchButton.IsEnabled = true;
-            LaunchButton.Content = "启动游戏";
-        }
-    }
-
-    /// <summary>自动定位失败时让用户手动选 exe 并启动。</summary>
-    private async Task LaunchByManualPickAsync()
-    {
-        string? picked = await PickGameExeAsync();
-        if (picked is null)
-        {
-            ShowToast("已取消", "已取消选择，点击启动游戏可重试。", InfoBarSeverity.Informational);
-            return;
-        }
-
-        if (_launcher.TryLaunchExe(picked, out string? error))
-        {
-            ShowToast("启动成功", "已启动手动选择的游戏。", InfoBarSeverity.Success);
-        }
-        else
-        {
-            ShowToast(
-                "启动失败",
-                $"启动所选文件时发生错误：{error}",
-                InfoBarSeverity.Error,
-                autoCloseSeconds: 6
-            );
-        }
-    }
-
     /// <summary>右上角应用内通知，经 Toolkit 排队逐条展示，到期自动关闭（悬停暂停计时，可手动关闭），进退场带滑动淡入淡出。</summary>
     private void ShowToast(
         string title,
@@ -246,16 +239,6 @@ public sealed partial class MainWindow : Window
     private void ToastExitStoryboard_Completed(object sender, object e)
     {
         ToastBar.IsOpen = false;
-    }
-
-    private async Task<string?> PickGameExeAsync()
-    {
-        FileOpenPicker picker = new() { SuggestedStartLocation = PickerLocationId.ComputerFolder };
-        picker.FileTypeFilter.Add(".exe");
-        InitializeWithWindow.Initialize(picker, _hwnd);
-
-        StorageFile? file = await picker.PickSingleFileAsync();
-        return file?.Path;
     }
 
     #region 窗口最小尺寸（WM_GETMINMAXINFO 子类化）

@@ -1,10 +1,10 @@
-<UserControl
+<Page
     x:Class="StarCrew.Launcher.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
 >
-    <UserControl.Resources>
+    <Page.Resources>
         <x:Double x:Key="SettingsCardSpacing">4</x:Double>
         <Style
             x:Key="SettingsSectionHeaderTextBlockStyle"
@@ -15,35 +15,8 @@
                 <Setter Property="Margin" Value="1,0,0,6" />
             </Style.Setters>
         </Style>
-    </UserControl.Resources>
+    </Page.Resources>
     <Grid>
-        <Grid.Resources>
-            <!-- 右侧面板切换：淡入 + 小位移，位移与透明度走合成器，不触发布局。 -->
-            <Storyboard x:Name="PanelSwitchStoryboard">
-                <DoubleAnimation
-                    Storyboard.TargetName="ContentPanel"
-                    Storyboard.TargetProperty="Opacity"
-                    From="0"
-                    To="1"
-                    Duration="0:0:0.18"
-                >
-                    <DoubleAnimation.EasingFunction>
-                        <CubicEase EasingMode="EaseOut" />
-                    </DoubleAnimation.EasingFunction>
-                </DoubleAnimation>
-                <DoubleAnimation
-                    Storyboard.TargetName="ContentTranslate"
-                    Storyboard.TargetProperty="Y"
-                    From="16"
-                    To="0"
-                    Duration="0:0:0.18"
-                >
-                    <DoubleAnimation.EasingFunction>
-                        <CubicEase EasingMode="EaseOut" />
-                    </DoubleAnimation.EasingFunction>
-                </DoubleAnimation>
-            </Storyboard>
-        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -57,45 +30,66 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <ListView
-                x:Name="SectionList"
+            <!-- 分组用内层 NavigationView：和外层侧栏同一控件，选中竖条动画天然一致。 -->
+            <NavigationView
+                x:Name="SectionNav"
                 Grid.Column="0"
                 Margin="12,0,0,24"
-                SelectedIndex="0"
-                SelectionChanged="SectionList_SelectionChanged"
-                SelectionMode="Single"
+                Background="Transparent"
+                IsBackButtonVisible="Collapsed"
+                IsPaneToggleButtonVisible="False"
+                IsSettingsVisible="False"
+                IsTitleBarAutoPaddingEnabled="False"
+                OpenPaneLength="200"
+                PaneDisplayMode="Left"
+                SelectionChanged="SectionNav_SelectionChanged"
             >
-                <ListViewItem>
-                    <StackPanel Orientation="Horizontal" Spacing="12">
-                        <FontIcon FontSize="16" Glyph="&#xE790;" />
-                        <TextBlock VerticalAlignment="Center" Text="外观" />
-                    </StackPanel>
-                </ListViewItem>
-                <ListViewItem>
-                    <StackPanel Orientation="Horizontal" Spacing="12">
-                        <FontIcon FontSize="16" Glyph="&#xE946;" />
-                        <TextBlock VerticalAlignment="Center" Text="关于" />
-                    </StackPanel>
-                </ListViewItem>
-            </ListView>
+                <NavigationView.Resources>
+                    <!-- 和外层侧栏一致：pane 透明共用 Mica，去边框。 -->
+                    <StaticResource
+                        x:Key="NavigationViewExpandedPaneBackground"
+                        ResourceKey="SolidBackgroundFillColorTransparent"
+                    />
+                    <Thickness x:Key="NavigationViewBorderThickness">0</Thickness>
+                </NavigationView.Resources>
+                <NavigationView.MenuItems>
+                    <NavigationViewItem Content="外观" Tag="Appearance" IsSelected="True">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE790;" />
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                    <NavigationViewItem Content="关于" Tag="About">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE946;" />
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                </NavigationView.MenuItems>
+            </NavigationView>
 
             <ScrollViewer
                 x:Name="SettingsScroll"
                 Grid.Column="1"
                 VerticalScrollBarVisibility="Auto"
             >
-                <Grid x:Name="ContentPanel" Padding="24,0,24,24">
-                    <Grid.RenderTransform>
-                        <TranslateTransform x:Name="ContentTranslate" />
-                    </Grid.RenderTransform>
+                <Grid Padding="24,0,24,24">
                     <StackPanel
                         x:Name="AppearancePanel"
+                        x:Load="False"
                         MaxWidth="1000"
                         HorizontalAlignment="Stretch"
                         Spacing="{StaticResource SettingsCardSpacing}"
                     >
+                        <!-- 整板齐滑进场 + 卸载淡出：挂载/卸载时原生重播。 -->
+                        <StackPanel.Transitions>
+                            <TransitionCollection>
+                                <EntranceThemeTransition
+                                    FromVerticalOffset="24"
+                                    IsStaggeringEnabled="False"
+                                />
+                                <AddDeleteThemeTransition />
+                            </TransitionCollection>
+                        </StackPanel.Transitions>
                         <StackPanel.ChildrenTransitions>
-                            <EntranceThemeTransition FromVerticalOffset="50" />
                             <RepositionThemeTransition IsStaggeringEnabled="False" />
                         </StackPanel.ChildrenTransitions>
                         <TextBlock
@@ -123,13 +117,23 @@
 
                     <StackPanel
                         x:Name="AboutPanel"
+                        x:Load="False"
                         MaxWidth="1000"
                         HorizontalAlignment="Stretch"
                         Spacing="{StaticResource SettingsCardSpacing}"
                         Visibility="Collapsed"
                     >
+                        <!-- 整板齐滑进场 + 卸载淡出：挂载/卸载时原生重播。 -->
+                        <StackPanel.Transitions>
+                            <TransitionCollection>
+                                <EntranceThemeTransition
+                                    FromVerticalOffset="24"
+                                    IsStaggeringEnabled="False"
+                                />
+                                <AddDeleteThemeTransition />
+                            </TransitionCollection>
+                        </StackPanel.Transitions>
                         <StackPanel.ChildrenTransitions>
-                            <EntranceThemeTransition FromVerticalOffset="50" />
                             <RepositionThemeTransition IsStaggeringEnabled="False" />
                         </StackPanel.ChildrenTransitions>
                         <TextBlock
@@ -178,4 +182,4 @@
             </ScrollViewer>
         </Grid>
     </Grid>
-</UserControl>
+</Page>

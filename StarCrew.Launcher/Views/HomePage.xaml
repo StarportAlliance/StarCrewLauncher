@@ -1,0 +1,21 @@
+<Page
+    x:Class="StarCrew.Launcher.Views.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+>
+    <Grid>
+        <Image Source="ms-appx:///Assets/background.webp" Stretch="UniformToFill" />
+        <Button
+            x:Name="LaunchButton"
+            Width="240"
+            Height="48"
+            Margin="0,0,32,32"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Click="LaunchButton_Click"
+            Content="启动游戏"
+            FontSize="18"
+            Style="{StaticResource AccentButtonStyle}"
+        />
+    </Grid>
+</Page>
