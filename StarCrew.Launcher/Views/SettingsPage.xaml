@@ -55,12 +55,7 @@
             </NavigationView>
 
             <!-- 内容区走 Frame：与 MatchWindow 一致地用 Windows 原生页面切换动画，内层 NavigationView 选中项触发导航。 -->
-            <Frame
-                x:Name="SectionFrame"
-                Grid.Column="1"
-                IsNavigationStackEnabled="False"
-                Navigated="SectionFrame_Navigated"
-            >
+            <Frame x:Name="SectionFrame" Grid.Column="1" IsNavigationStackEnabled="False">
                 <Frame.ContentTransitions>
                     <TransitionCollection>
                         <NavigationThemeTransition />

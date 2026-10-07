@@ -16,7 +16,11 @@
                     Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
                     Text="关于"
                 />
-                <controls:SettingsCard x:Name="AboutVersionCard" Header="StarCrewLauncher">
+                <controls:SettingsCard
+                    x:Name="AboutVersionCard"
+                    Header="StarCrewLauncher"
+                    Description="{x:Bind ViewModel.VersionDescription}"
+                >
                     <controls:SettingsCard.HeaderIcon>
                         <ImageIcon>
                             <ImageIcon.Source>
@@ -26,7 +30,7 @@
                     </controls:SettingsCard.HeaderIcon>
                     <Button
                         x:Name="CheckUpdateButton"
-                        Click="CheckUpdateButton_Click"
+                        Command="{x:Bind ViewModel.CheckUpdateCommand}"
                         Content="检查更新"
                         Style="{StaticResource AccentButtonStyle}"
                     />

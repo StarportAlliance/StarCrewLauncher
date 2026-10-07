@@ -16,10 +16,22 @@ internal sealed class ThemeSettings : IThemeSettings
     }
 
     /// <inheritdoc />
+    public event EventHandler<AppTheme>? ThemeChanged;
+
+    /// <inheritdoc />
     public AppTheme Theme
     {
         get => Load();
-        set => Save(value);
+        set
+        {
+            if (Load() == value)
+            {
+                return;
+            }
+
+            Save(value);
+            ThemeChanged?.Invoke(this, value);
+        }
     }
 
     private AppTheme Load()

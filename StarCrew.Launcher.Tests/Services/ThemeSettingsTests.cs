@@ -73,4 +73,30 @@ public sealed class ThemeSettingsTests
 
         Assert.Throws<ArgumentOutOfRangeException>(() => settings.Theme = (AppTheme)99);
     }
+
+    [Fact]
+    public void Theme_WhenChanged_RaisesThemeChangedOnce()
+    {
+        ThemeSettings settings = new(new Dictionary<string, object>());
+        List<AppTheme> received = [];
+        settings.ThemeChanged += (_, theme) => received.Add(theme);
+
+        settings.Theme = AppTheme.Dark;
+        settings.Theme = AppTheme.Dark;
+
+        Assert.Equal(new[] { AppTheme.Dark }, received);
+    }
+
+    [Fact]
+    public void Theme_SetSameValue_DoesNotRaiseThemeChanged()
+    {
+        Dictionary<string, object> store = new() { [ThemeSettings.ThemeKey] = "Light" };
+        ThemeSettings settings = new(store);
+        bool raised = false;
+        settings.ThemeChanged += (_, _) => raised = true;
+
+        settings.Theme = AppTheme.Light;
+
+        Assert.False(raised);
+    }
 }

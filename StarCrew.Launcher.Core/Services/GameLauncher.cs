@@ -3,7 +3,7 @@ using StarCrew.Launcher.Models;
 namespace StarCrew.Launcher.Services;
 
 /// <summary>游戏启动器：优先走 Steam 协议拉起，失败时回退到直接启动 exe。</summary>
-internal sealed class GameLauncher
+internal sealed class GameLauncher : IGameLauncher
 {
     private readonly ISteamGameLocator _locator;
     private readonly IProcessStarter _starter;

@@ -27,6 +27,7 @@ dotnet husky install
 - 风格/语法：Roslyn 全量分析，规则见 `.editorconfig`。
 - 单元测试：xUnit + AwesomeAssertions + NSubstitute + coverlet，配置见 `coverlet.runsettings`。
 - 架构防腐：`StarCrew.Launcher.Tests/Architecture/`（NetArchTest）。
+- MVVM/DI：CommunityToolkit.Mvvm + Microsoft.Extensions.DependencyInjection（组合根在 `App`）。
 - 变异测试：Stryker。
   变异对象是 `StarCrew.Launcher.Core` 类库，`break: 60`。
 - 依赖审计：`NuGetAudit=all`（restore 即审计）+ Dependabot 按需。
@@ -51,7 +52,8 @@ dotnet husky install
 
 - 业务类型默认 `internal`（CA1515 门禁）；测试靠 `InternalsVisibleTo` 可见。XAML 代码隐藏类保持 `public`。
 - 压制分析器一律登记到各工程的 `GlobalSuppressions.cs` 并写清理由，禁止散落 `#pragma`。
-- `Services` 不许依赖 `Microsoft.UI.Xaml`，`Models` 不许依赖 `Services`（架构测试兜底）。
+- `Services`/`ViewModels` 不许依赖 `Microsoft.UI.Xaml`；`Models` 不许依赖 `Services`/`ViewModels`；
+  `Services` 不许依赖 `ViewModels`（架构测试兜底）。
 - 测试命名用 `Method_Scenario_Result` 下划线风格（已在 `.editorconfig` 豁免 CA1707）。
 - `*.xaml.cs` 不计单元覆盖率（`coverlet.runsettings` 已排除）：UI 逻辑不要往里面加，加了也测不到。
 - `*.bat` 必须 CRLF + 纯 ASCII（英文输出）：cmd 不认 LF，中文在非 UTF-8 环境必乱码。
@@ -59,6 +61,18 @@ dotnet husky install
   `dotnet tool restore` 只还原工具清单、不还原 NuGet 包。全新检出无 `obj/`，缺这步构建必挂。
 - XAML 里 `Icon="..."` 只能用 WinUI `Symbol` 枚举真实存在的值（如 `Help`，没有 `Info`）；
    写错编译不报错，运行时在 `Microsoft.UI.Xaml.dll` 里直接崩（0xC000027B），且无托管堆栈，只能二分排查。
+
+## 架构与实现约定（MVVM + DI）
+
+- 组合根在 `App`（MEDI）：`App.Services` 注册全部服务与视图模型；业务依赖一律构造注入，
+  页面代码隐藏只经 `App.Services` 取界面层基础件（导航服务等）。
+- 视图模型放 `StarCrew.Launcher.Core/ViewModels`，计入覆盖率与变异测试；用 CommunityToolkit.Mvvm：
+  `[ObservableProperty]` 一律用 partial 属性写法，命令用 `[RelayCommand]`。
+- 页面导航一律走 `INavigationService`（`NavigationTarget` 枚举），页面间不得互相 new；
+  重复导航到当前目标由导航服务按帧去重。
+- 用户提示一律经 `INotificationService` 发应用内通知，视图模型不直接接触 UI。
+- XAML 绑定只用 `x:Bind`：页面在 `OnNavigatedTo` 里把导航参数赋给 `ViewModel` 属性，随后调用 `Bindings.Update()`。
+- 对话框等离不开 UI 的交互留在代码隐藏；决策逻辑必须回视图模型（代码隐藏不计覆盖率）。
 
 ## 注释与文档风格
 

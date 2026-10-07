@@ -23,7 +23,7 @@
                     <ComboBox
                         x:Name="ThemeCombo"
                         Width="200"
-                        SelectionChanged="ThemeCombo_SelectionChanged"
+                        SelectedIndex="{x:Bind ViewModel.SelectedThemeIndex, Mode=TwoWay}"
                     >
                         <ComboBoxItem Content="跟随系统" Tag="System" />
                         <ComboBoxItem Content="浅色" Tag="Light" />

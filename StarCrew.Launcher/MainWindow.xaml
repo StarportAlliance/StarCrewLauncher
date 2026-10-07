@@ -127,11 +127,7 @@
                     </Storyboard>
                 </Grid.Resources>
                 <!-- 页面容器走 Frame：导航自带 NavigationThemeTransition（PageRefresh = 上滑 + 淡入），切换时传 RecommendedNavigationTransitionInfo 即可。 -->
-                <Frame
-                    x:Name="ContentFrame"
-                    IsNavigationStackEnabled="False"
-                    Navigated="ContentFrame_Navigated"
-                >
+                <Frame x:Name="ContentFrame" IsNavigationStackEnabled="False">
                     <Frame.ContentTransitions>
                         <TransitionCollection>
                             <NavigationThemeTransition />

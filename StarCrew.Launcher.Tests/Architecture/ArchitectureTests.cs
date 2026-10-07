@@ -58,4 +58,65 @@ public sealed class ArchitectureTests
 
         Assert.True(result.IsSuccessful, "模型层必须保持纯净，不许反向依赖服务层。");
     }
+
+    [Fact]
+    public void Models_DoNotDependOnViewModels()
+    {
+        TestResult result = Types
+            .InAssembly(AppAssembly)
+            .That()
+            .ResideInNamespace("StarCrew.Launcher.Models")
+            .ShouldNot()
+            .HaveDependencyOn("StarCrew.Launcher.ViewModels")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, "模型层必须保持纯净，不许反向依赖视图模型层。");
+    }
+
+    [Fact]
+    public void Services_DoNotDependOnViewModels()
+    {
+        TestResult result = Types
+            .InAssembly(AppAssembly)
+            .That()
+            .ResideInNamespace("StarCrew.Launcher.Services")
+            .ShouldNot()
+            .HaveDependencyOn("StarCrew.Launcher.ViewModels")
+            .GetResult();
+
+        Assert.True(
+            result.IsSuccessful,
+            "服务层不许反向依赖视图模型层：依赖方向只能是 ViewModel → Service。"
+        );
+    }
+
+    [Fact]
+    public void ViewModels_DoNotDependOnXaml()
+    {
+        TestResult result = Types
+            .InAssembly(AppAssembly)
+            .That()
+            .ResideInNamespace("StarCrew.Launcher.ViewModels")
+            .ShouldNot()
+            .HaveDependencyOn("Microsoft.UI.Xaml")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, "视图模型不许依赖 WinUI XAML：绑定与弹窗归界面层。");
+    }
+
+    [Fact]
+    public void ViewModels_AreSealed()
+    {
+        TestResult result = Types
+            .InAssembly(AppAssembly)
+            .That()
+            .AreClasses()
+            .And()
+            .ResideInNamespace("StarCrew.Launcher.ViewModels")
+            .Should()
+            .BeSealed()
+            .GetResult();
+
+        Assert.True(result.IsSuccessful, "视图模型必须 sealed，禁止随手加继承体系。");
+    }
 }

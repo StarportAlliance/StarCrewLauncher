@@ -6,12 +6,9 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
-using Microsoft.UI.Xaml.Navigation;
 using StarCrew.Launcher.Models;
 using StarCrew.Launcher.Services;
-using StarCrew.Launcher.Views;
 using Windows.Graphics;
-using Windows.Storage;
 using WinRT.Interop;
 
 namespace StarCrew.Launcher;
@@ -22,12 +19,23 @@ public sealed partial class MainWindow : Window
     private const int MinWidthPx = 1280;
     private const int MinHeightPx = 720;
 
-    private readonly ThemeSettings _themeSettings;
+    private readonly IThemeSettings _themeSettings;
+    private readonly FrameNavigationService _navigation;
     private readonly SubclassProc _subclassProc;
     private readonly nint _hwnd;
 
-    public MainWindow()
+    internal MainWindow(
+        IThemeSettings themeSettings,
+        INotificationService notifications,
+        FrameNavigationService navigation,
+        IFilePickerService filePicker
+    )
     {
+        ArgumentNullException.ThrowIfNull(themeSettings);
+        ArgumentNullException.ThrowIfNull(notifications);
+        ArgumentNullException.ThrowIfNull(navigation);
+        ArgumentNullException.ThrowIfNull(filePicker);
+
         InitializeComponent();
         Title = "StarCrew Launcher";
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "icon.ico"));
@@ -38,16 +46,44 @@ public sealed partial class MainWindow : Window
         AppWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
         AppWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-        _themeSettings = new ThemeSettings(GetThemeStore());
+        _themeSettings = themeSettings;
+        _themeSettings.ThemeChanged += OnThemeChanged;
         ApplyTheme(_themeSettings.Theme);
 
         _hwnd = WindowNative.GetWindowHandle(this);
+        filePicker.AttachHostWindow(_hwnd);
+
+        _navigation = navigation;
+        _navigation.AttachMainFrame(ContentFrame);
+
+        notifications.Requested += OnNotificationRequested;
+
         PlaceWindow();
         _subclassProc = WndSubclassProc;
         SetWindowSubclass(_hwnd, _subclassProc, 0, 0);
 
         Activated += OnFirstActivated;
         ToastBar.RegisterPropertyChangedCallback(InfoBar.IsOpenProperty, OnToastIsOpenChanged);
+    }
+
+    private void OnThemeChanged(object? sender, AppTheme theme)
+    {
+        ApplyTheme(theme);
+    }
+
+    private void OnNotificationRequested(object? sender, NotificationMessage message)
+    {
+        ShowToast(
+            message.Title,
+            message.Message,
+            message.Severity switch
+            {
+                NotificationSeverity.Success => InfoBarSeverity.Success,
+                NotificationSeverity.Warning => InfoBarSeverity.Warning,
+                NotificationSeverity.Error => InfoBarSeverity.Error,
+                _ => InfoBarSeverity.Informational,
+            }
+        );
     }
 
     private void OnFirstActivated(object sender, WindowActivatedEventArgs args)
@@ -61,11 +97,13 @@ public sealed partial class MainWindow : Window
         NavView.IsPaneOpen = !NavView.IsPaneOpen;
     }
 
+    private bool _initialNavigated;
+
     private void NavView_Loaded(object sender, RoutedEventArgs e)
     {
         // 首屏等 Frame 进视觉树再导航：在构造器里 Navigate 会被静默丢弃；首屏不播进场，直接呈现。
         _initialNavigated = true;
-        NavView_Navigate(typeof(HomePage), new SuppressNavigationTransitionInfo());
+        _navigation.NavigateTo(NavigationTarget.Home, new SuppressNavigationTransitionInfo());
     }
 
     private void NavView_SelectionChanged(
@@ -80,51 +118,10 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        NavView_Navigate(
-            args.IsSettingsSelected ? typeof(SettingsPage) : typeof(HomePage),
+        _navigation.NavigateTo(
+            args.IsSettingsSelected ? NavigationTarget.Settings : NavigationTarget.Home,
             args.RecommendedNavigationTransitionInfo
         );
-    }
-
-    // 同页重复选中不导航：关掉导航栈后 CurrentSourcePageType 恒为 null，只能自己记当前页；
-    // 连续导航会把进行中的进场过渡顶掉，内容区 visually 卡空白。
-    private Type? _currentPageType;
-    private bool _initialNavigated;
-
-    private void NavView_Navigate(Type navPageType, NavigationTransitionInfo transitionInfo)
-    {
-        if (!Type.Equals(_currentPageType, navPageType))
-        {
-            _currentPageType = navPageType;
-            ContentFrame.Navigate(navPageType, null, transitionInfo);
-        }
-    }
-
-    // Frame 每次建新页实例，在此统一接主题与通知事件。
-    private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
-    {
-        switch (e.Content)
-        {
-            case HomePage home:
-                home.WindowHandle = _hwnd;
-                home.NotifyRequested += OnPageNotify;
-                break;
-            case SettingsPage settings:
-                settings.BindTheme(_themeSettings);
-                settings.ThemeChanged += OnSettingsThemeChanged;
-                settings.NotifyRequested += OnPageNotify;
-                break;
-        }
-    }
-
-    private void OnSettingsThemeChanged(object? sender, AppTheme theme)
-    {
-        ApplyTheme(theme);
-    }
-
-    private void OnPageNotify(string title, string message, InfoBarSeverity severity)
-    {
-        ShowToast(title, message, severity);
     }
 
     private void ApplyTheme(AppTheme theme)
@@ -138,21 +135,6 @@ public sealed partial class MainWindow : Window
                 _ => ElementTheme.Default,
             };
         }
-    }
-
-    // LocalSettings.Values 即 IDictionary，开发期取不到时用内存回退。
-    private static IDictionary<string, object> GetThemeStore()
-    {
-        try
-        {
-            if (ApplicationData.Current?.LocalSettings.Values is IDictionary<string, object> store)
-            {
-                return store;
-            }
-        }
-        catch (InvalidOperationException) { }
-
-        return new Dictionary<string, object>();
     }
 
     /// <summary>按主显示器工作区取 16:9 默认尺寸并居中。</summary>

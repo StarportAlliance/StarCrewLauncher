@@ -2,7 +2,7 @@
   // 变异测试（Stryker.NET）：覆盖率只能证明“跑到了”，变异测试证明“断言真有用”。
   // 手动运行：dotnet tool restore，然后 dotnet stryker
   // 建议每夜跑一次，不进 CI/PR 门禁（太慢）。
-  // 注意：只变异可单元测试的 Services/Models；XAML 代码隐藏不可单元测试，不变异。
+  // 注意：只变异可单元测试的 Services/Models/ViewModels；XAML 代码隐藏不可单元测试，不变异。
   // mutate 通配符相对 projectRoot（即类库目录）解析，必须写类库相对路径。
   // 2026-10-02 实测（Stryker 5.0.0）：79 个参测变异，杀死 52、存活 27，变异分 61.90%；
   // 存活最多的是 String mutation×10，集中在 WindowsSteamEnvironment 的注册表键名/
@@ -11,7 +11,7 @@
     "solution": "StarCrew.Launcher.slnx",
     "project": "StarCrew.Launcher.Core.csproj",
     "test-projects": ["StarCrew.Launcher.Tests/StarCrew.Launcher.Tests.csproj"],
-    "mutate": ["Services/**/*.cs", "Models/**/*.cs"],
+    "mutate": ["Services/**/*.cs", "Models/**/*.cs", "ViewModels/**/*.cs"],
     "reporters": ["html", "progress"],
     "thresholds": {
       "high": 80,
