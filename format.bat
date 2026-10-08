@@ -15,4 +15,3 @@ echo [4/4] Fixing style (dotnet format)...
 dotnet format style StarCrew.Launcher.slnx --no-restore || exit /b 1
 echo.
 echo [OK] Formatting done. Run check.bat to verify.
-if not defined CI pause

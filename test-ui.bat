@@ -7,7 +7,6 @@ dotnet build StarCrew.Launcher/StarCrew.Launcher.csproj -c Release
 if errorlevel 1 (
   echo.
   echo [FAIL] Launcher build failed.
-  if not defined CI pause
   exit /b 1
 )
 echo.
@@ -16,9 +15,7 @@ dotnet test StarCrew.Launcher.UITests/ -c Release --nologo
 if errorlevel 1 (
   echo.
   echo [FAIL] UI smoke tests failed.
-  if not defined CI pause
   exit /b 1
 )
 echo.
 echo [OK] UI smoke tests passed.
-if not defined CI pause
