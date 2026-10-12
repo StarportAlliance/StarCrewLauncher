@@ -13,7 +13,10 @@ dotnet csharpier check . || exit /b 1
 dotnet format style StarCrew.Launcher.slnx --verify-no-changes --no-restore || exit /b 1
 echo.
 echo [4/5] Building (warnings as errors)...
-dotnet build StarCrew.Launcher.slnx -c Release --nologo --no-restore -p:TreatWarningsAsErrors=true || exit /b 1
+rem ReleaseGate keeps gate outputs in bin\ReleaseGate so a running Release app never locks the build.
+rem Build csproj directly: the slnx only declares Debug/Release solution configurations.
+dotnet build StarCrew.Launcher\StarCrew.Launcher.csproj -c ReleaseGate --nologo --no-restore -p:TreatWarningsAsErrors=true || exit /b 1
+dotnet build StarCrew.Launcher.Tests\StarCrew.Launcher.Tests.csproj -c ReleaseGate --nologo --no-restore -p:TreatWarningsAsErrors=true || exit /b 1
 echo.
 echo [5/5] Running all tests...
 call test.bat
