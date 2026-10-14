@@ -5,85 +5,113 @@ using StarCrew.Launcher.Services;
 
 namespace StarCrew.Launcher.ViewModels;
 
-/// <summary>首页视图模型：自动启动失败时回退到手动选择 exe。</summary>
+/// <summary>首页视图模型：列出/选择实例，启动选中的实例；无实例时引导去下载。</summary>
 internal sealed partial class HomeViewModel : ObservableObject
 {
-    private readonly IGameLauncher _launcher;
-    private readonly IFilePickerService _picker;
+    private readonly IInstanceStore _store;
+    private readonly IInstanceLauncher _launcher;
+    private readonly INavigationService _navigation;
     private readonly INotificationService _notifications;
 
     public HomeViewModel(
-        IGameLauncher launcher,
-        IFilePickerService picker,
+        IInstanceStore store,
+        IInstanceLauncher launcher,
+        INavigationService navigation,
         INotificationService notifications
     )
     {
+        ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(launcher);
-        ArgumentNullException.ThrowIfNull(picker);
+        ArgumentNullException.ThrowIfNull(navigation);
         ArgumentNullException.ThrowIfNull(notifications);
+        _store = store;
         _launcher = launcher;
-        _picker = picker;
+        _navigation = navigation;
         _notifications = notifications;
+
+        LauncherState state = _store.Load();
+        Instances = state.Instances;
+        GameInstance? lastUsed = null;
+        if (state.Instances.Count > 0)
+        {
+            lastUsed =
+                state.Instances.FirstOrDefault(i => i.Id == state.LastInstanceId)
+                ?? state.Instances[0];
+        }
+
+        SelectedInstance = lastUsed;
     }
 
-    /// <summary>启动进行中，按钮文字与命令可用性都跟着它走。</summary>
+    /// <summary>全部实例。</summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasInstances))]
     [NotifyPropertyChangedFor(nameof(LaunchButtonText))]
-    public partial bool IsLaunching { get; set; }
+    public partial IReadOnlyList<GameInstance> Instances { get; set; }
+
+    /// <summary>当前选中的实例（实例切换器选中的项）。</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CurrentInstanceName))]
+    public partial GameInstance? SelectedInstance { get; set; }
+
+    /// <summary>是否有任何实例（决定按钮文案与启动方式）。</summary>
+    public bool HasInstances => Instances.Count > 0;
 
     /// <summary>启动按钮文案。</summary>
-    public string LaunchButtonText => IsLaunching ? "正在启动..." : "启动游戏";
+    public string LaunchButtonText => HasInstances ? "启动游戏" : "下载游戏";
+
+    /// <summary>首页左下角的当前实例名，没有实例时给出下载提示。</summary>
+    public string CurrentInstanceName =>
+        SelectedInstance is not null ? SelectedInstance.Name : "还没有实例，下载一个以开始游玩吧。";
 
     [RelayCommand]
     private async Task LaunchAsync()
     {
-        IsLaunching = true;
-
-        try
+        if (!HasInstances)
         {
-            LaunchResult result = await _launcher.LaunchAsync();
-            if (result.IsSuccess)
-            {
-                _notifications.Notify("启动成功", result.Message, NotificationSeverity.Success);
-                return;
-            }
-
-            await LaunchByManualPickAsync();
+            _navigation.NavigateTo(NavigationTarget.Download);
+            return;
         }
-        finally
+
+        GameInstance target = SelectedInstance ?? Instances[0];
+        SelectedInstance = target;
+
+        LaunchOutcome outcome = await _launcher.LaunchAsync(target);
+        if (outcome.IsSuccess)
         {
-            IsLaunching = false;
+            _notifications.Notify(outcome.Message, null, NotificationSeverity.Success);
+            PersistLaunch(target.Id);
+        }
+        else
+        {
+            _notifications.Notify(outcome.Message, null, NotificationSeverity.Error);
         }
     }
 
-    /// <summary>自动定位失败时让用户手动选 exe 并启动。</summary>
-    private async Task LaunchByManualPickAsync()
+    partial void OnSelectedInstanceChanged(GameInstance? value)
     {
-        string? picked = await _picker.PickGameExeAsync();
-        if (picked is null)
+        // 切换选中项时持久化，下次打开启动器默认选中同一个实例
+        if (value is not null)
         {
-            _notifications.Notify(
-                "已取消",
-                "已取消选择，点击启动游戏可重试。",
-                NotificationSeverity.Informational
-            );
-            return;
+            LauncherState state = _store.Load();
+            if (state.LastInstanceId != value.Id)
+            {
+                _store.Save(state with { LastInstanceId = value.Id });
+            }
         }
+    }
 
-        if (_launcher.TryLaunchExe(picked, out string? error))
-        {
-            _notifications.Notify(
-                "启动成功",
-                "已启动手动选择的游戏。",
-                NotificationSeverity.Success
-            );
-            return;
-        }
+    // 启动成功后刷新该实例的最后启动时间并回写状态
+    private void PersistLaunch(Guid instanceId)
+    {
+        LauncherState state = _store.Load();
+        List<GameInstance> updated = state
+            .Instances.Select(i =>
+                i.Id == instanceId ? i with { LastLaunchedAt = DateTimeOffset.UtcNow } : i
+            )
+            .ToList();
+        _store.Save(state with { LastInstanceId = instanceId, Instances = updated });
 
-        _notifications.Notify(
-            "启动失败",
-            $"启动所选文件时发生错误：{error}",
-            NotificationSeverity.Error
-        );
+        Instances = updated;
+        SelectedInstance = updated.FirstOrDefault(i => i.Id == instanceId);
     }
 }

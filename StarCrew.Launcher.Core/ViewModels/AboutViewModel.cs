@@ -46,13 +46,13 @@ internal sealed partial class AboutViewModel : ObservableObject
         UpdateCheckResult check = await _updater.CheckOnlyAsync();
         if (check.State != UpdateState.Available || check.AvailableVersion is null)
         {
-            (string title, NotificationSeverity severity) = check.State switch
+            NotificationSeverity severity = check.State switch
             {
-                UpdateState.UpToDate => ("已是最新", NotificationSeverity.Success),
-                UpdateState.NotInstalled => ("无法检查更新", NotificationSeverity.Informational),
-                _ => ("检查更新失败", NotificationSeverity.Error),
+                UpdateState.UpToDate => NotificationSeverity.Success,
+                UpdateState.NotInstalled => NotificationSeverity.Informational,
+                _ => NotificationSeverity.Error,
             };
-            _notifications.Notify(title, check.Message, severity);
+            _notifications.Notify(check.Message, null, severity);
             return;
         }
 
@@ -78,16 +78,12 @@ internal sealed partial class AboutViewModel : ObservableObject
                 return true;
             }
 
-            _notifications.Notify("下载更新失败", downloaded.Message, NotificationSeverity.Error);
+            _notifications.Notify(downloaded.Message, null, NotificationSeverity.Error);
             return false;
         }
         catch (OperationCanceledException)
         {
-            _notifications.Notify(
-                "已取消下载",
-                "已取消新版本下载。",
-                NotificationSeverity.Informational
-            );
+            _notifications.Notify("已取消新版本下载。", null, NotificationSeverity.Informational);
             return false;
         }
     }

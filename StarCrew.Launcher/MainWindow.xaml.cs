@@ -55,6 +55,9 @@ public sealed partial class MainWindow : Window
 
         _navigation = navigation;
         _navigation.AttachMainFrame(ContentFrame);
+        _navigation.MainFrameNavigated += SyncNavSelection;
+        // 返回按钮可用性 = 分区或主页面还有历史；分区内的回退永远落在设置页内，主栈不会被弹空。
+        _navigation.MainFrameNavigated += OnMainFrameNavigated;
 
         notifications.Requested += OnNotificationRequested;
 
@@ -97,6 +100,24 @@ public sealed partial class MainWindow : Window
         NavView.IsPaneOpen = !NavView.IsPaneOpen;
     }
 
+    private void AppTitleBar_BackRequested(TitleBar sender, object args)
+    {
+        // 回退目标由导航服务按历史决定：设置分区内先退分区，退到底才退主页面。
+        _navigation.GoBack();
+    }
+
+    /// <summary>TitleBar 返回按钮可用性：分区或主页面任一还有历史即可退；分区内的回退仍在设置页内，主栈不会弹空。</summary>
+    private void OnMainFrameNavigated(NavigationTarget target)
+    {
+        _ = target;
+        SyncBackButton();
+    }
+
+    private void SyncBackButton()
+    {
+        AppTitleBar.IsBackButtonEnabled = _navigation.CanGoBack;
+    }
+
     private bool _initialNavigated;
 
     private void NavView_Loaded(object sender, RoutedEventArgs e)
@@ -118,10 +139,59 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        _navigation.NavigateTo(
-            args.IsSettingsSelected ? NavigationTarget.Settings : NavigationTarget.Home,
-            args.RecommendedNavigationTransitionInfo
-        );
+        NavigationTarget target = NavigationTarget.Home;
+        if (args.IsSettingsSelected)
+        {
+            target = NavigationTarget.Settings;
+        }
+        else if (args.SelectedItem is NavigationViewItem selected && selected.Tag is string tag)
+        {
+            target = tag switch
+            {
+                "Instances" => NavigationTarget.Instances,
+                "Download" => NavigationTarget.Download,
+                _ => NavigationTarget.Home,
+            };
+        }
+
+        _navigation.NavigateTo(target, args.RecommendedNavigationTransitionInfo);
+    }
+
+    /// <summary>程序化主导航后把侧栏选中项对齐到目标页；设置分区不映射主侧栏，仅在整体落到设置页时选中设置项。
+    /// 由此引发的 SelectionChanged 重复导航由导航服务按帧去重。</summary>
+    private void SyncNavSelection(NavigationTarget target)
+    {
+        if (target == NavigationTarget.Settings)
+        {
+            NavView.SelectedItem = NavView.SettingsItem;
+            return;
+        }
+
+        // 安装详情页是下载页的二级页面：侧栏本来就停在「游戏下载」上，
+        // 此时若再按目标回选一次会触发反向导航，把二级页面顶掉。
+        if (target == NavigationTarget.Install)
+        {
+            return;
+        }
+
+        string? tag = target switch
+        {
+            NavigationTarget.Home => "Home",
+            NavigationTarget.Instances => "Instances",
+            NavigationTarget.Download or NavigationTarget.Install => "Download",
+            _ => null,
+        };
+        foreach (object item in NavView.MenuItems)
+        {
+            if (
+                item is NavigationViewItem { Tag: string itemTag }
+                && string.Equals(itemTag, tag, StringComparison.Ordinal)
+            )
+            {
+                NavView.SelectedItem = item;
+                return;
+            }
+        }
     }
 
     private void ApplyTheme(AppTheme theme)
@@ -175,7 +245,7 @@ public sealed partial class MainWindow : Window
     /// <summary>右上角应用内通知，经 Toolkit 排队逐条展示，到期自动关闭（悬停暂停计时，可手动关闭），进退场带滑动淡入淡出。</summary>
     private void ShowToast(
         string title,
-        string message,
+        string? message,
         InfoBarSeverity severity,
         int autoCloseSeconds = 4
     )
@@ -184,7 +254,7 @@ public sealed partial class MainWindow : Window
             new Notification
             {
                 Title = title,
-                Message = message,
+                Message = message ?? string.Empty,
                 Severity = severity,
                 Duration = TimeSpan.FromSeconds(autoCloseSeconds),
             }

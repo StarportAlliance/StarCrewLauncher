@@ -46,6 +46,11 @@
                             <FontIcon Glyph="&#xE74C;" />
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
+                    <NavigationViewItem Content="网络" Tag="Network">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE774;" />
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
                     <NavigationViewItem Content="关于" Tag="About">
                         <NavigationViewItem.Icon>
                             <FontIcon Glyph="&#xE946;" />
@@ -54,8 +59,9 @@
                 </NavigationView.MenuItems>
             </NavigationView>
 
-            <!-- 内容区走 Frame：与 MatchWindow 一致地用 Windows 原生页面切换动画，内层 NavigationView 选中项触发导航。 -->
-            <Frame x:Name="SectionFrame" Grid.Column="1" IsNavigationStackEnabled="False">
+            <!-- 内容区走 Frame：与 MatchWindow 一致地用 Windows 原生页面切换动画，内层 NavigationView 选中项触发导航。
+                 历史栈保持开启：分区内返回交给 Frame.GoBack，自动取进场过渡反向播放。 -->
+            <Frame x:Name="SectionFrame" Grid.Column="1" IsNavigationStackEnabled="True">
                 <Frame.ContentTransitions>
                     <TransitionCollection>
                         <NavigationThemeTransition />

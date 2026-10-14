@@ -10,7 +10,7 @@ public sealed class SmokeTests
 {
     private const string SolutionFileName = "StarCrew.Launcher.slnx";
     private const string LauncherExeFileName = "StarCrew.Launcher.exe";
-    private const string LaunchButtonText = "启动游戏";
+    private const string DownloadButtonText = "下载游戏";
 
     [Fact]
     public void MainWindow_Shows_WithLaunchButton()
@@ -52,11 +52,18 @@ public sealed class SmokeTests
         }
     }
 
+    private const string LaunchButtonText = "启动游戏";
+
+    // 启动 or 下载 文案随实例状态变化，两者之一即通过。
     private static bool IsLaunchButton(AutomationElement element) =>
         ContainsLaunchText(element.Name) || ContainsLaunchText(element.AutomationId);
 
     private static bool ContainsLaunchText(string? value) =>
-        value is not null && value.Contains(LaunchButtonText, StringComparison.Ordinal);
+        value is not null
+        && (
+            value.Contains(LaunchButtonText, StringComparison.Ordinal)
+            || value.Contains(DownloadButtonText, StringComparison.Ordinal)
+        );
 
     /// <summary>以 slnx 为标记找仓库根，拼主程序 exe 路径；优先 Release，其次 Debug。</summary>
     private static string ResolveLauncherExe()

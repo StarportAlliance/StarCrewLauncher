@@ -1,0 +1,45 @@
+<Page
+    x:Class="StarCrew.Launcher.Views.NetworkPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Padding="24,0,24,24">
+            <StackPanel
+                MaxWidth="1000"
+                HorizontalAlignment="Stretch"
+                Spacing="{StaticResource SettingsCardSpacing}"
+            >
+                <TextBlock
+                    Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                    Text="网络"
+                />
+
+                <controls:SettingsCard
+                    Header="下载加速源"
+                    Description="选择从 GitHub 拉取 DepotDownloader 等资源时使用的链路。"
+                >
+                    <ComboBox
+                        x:Name="AcceleratorCombo"
+                        Width="240"
+                        ItemsSource="{x:Bind ViewModel.Options, Mode=OneWay}"
+                        SelectedIndex="{x:Bind ViewModel.SelectedIndex, Mode=TwoWay}"
+                    />
+                </controls:SettingsCard>
+
+                <controls:SettingsCard
+                    x:Name="CustomPrefixCard"
+                    Header="自定义前缀"
+                    Description="仅在选择「自定义前缀」时生效。留空则退回官方直连。"
+                >
+                    <TextBox
+                        Width="240"
+                        PlaceholderText="https://example.com"
+                        Text="{x:Bind ViewModel.CustomPrefix, Mode=TwoWay}"
+                    />
+                </controls:SettingsCard>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Page>

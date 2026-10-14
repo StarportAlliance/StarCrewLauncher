@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using StarCrew.Launcher.ViewModels;
@@ -18,5 +20,34 @@ public sealed partial class HomePage : Page
         ArgumentNullException.ThrowIfNull(e);
         ViewModel = e.Parameter as HomeViewModel;
         Bindings.Update();
+        if (ViewModel is not null)
+        {
+            ViewModel.PropertyChanged += OnViewModelPropertyChanged;
+            UpdateInstanceCombo();
+        }
+    }
+
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        if (ViewModel is not null)
+        {
+            ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
+        }
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(HomeViewModel.HasInstances))
+        {
+            UpdateInstanceCombo();
+        }
+    }
+
+    // 无实例时隐藏切换器（按钮本身会变成“下载游戏”）。
+    private void UpdateInstanceCombo()
+    {
+        InstanceCombo.Visibility =
+            ViewModel?.HasInstances == true ? Visibility.Visible : Visibility.Collapsed;
     }
 }

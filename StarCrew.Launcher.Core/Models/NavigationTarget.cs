@@ -6,11 +6,23 @@ internal enum NavigationTarget
     /// <summary>首页（启动游戏）。</summary>
     Home,
 
+    /// <summary>实例管理页。</summary>
+    Instances,
+
+    /// <summary>游戏下载页。</summary>
+    Download,
+
+    /// <summary>安装详情页：选定版本的实例设置与安装确认。</summary>
+    Install,
+
     /// <summary>设置主页。</summary>
     Settings,
 
     /// <summary>设置 - 通用。</summary>
     Appearance,
+
+    /// <summary>设置 - 网络。</summary>
+    Network,
 
     /// <summary>设置 - 关于。</summary>
     About,

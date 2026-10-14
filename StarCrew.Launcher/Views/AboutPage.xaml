@@ -86,7 +86,7 @@
                 />
                 <controls:SettingsCard
                     Header="Windows App SDK"
-                    Description="© Microsoft Corporation，License under MIT."
+                    Description="© Microsoft Corporation, License under MIT."
                     IsClickEnabled="True"
                     ActionIconToolTip="在浏览器中打开"
                     Click="WindowsAppSdkLicenseCard_Click"
@@ -97,7 +97,7 @@
                 </controls:SettingsCard>
                 <controls:SettingsCard
                     Header="Windows Community Toolkit"
-                    Description="© .NET Foundation and Contributors，License under MIT."
+                    Description="© .NET Foundation and Contributors, License under MIT."
                     IsClickEnabled="True"
                     ActionIconToolTip="在浏览器中打开"
                     Click="CommunityToolkitLicenseCard_Click"
@@ -108,10 +108,22 @@
                 </controls:SettingsCard>
                 <controls:SettingsCard
                     Header="Velopack"
-                    Description="© Velopack Ltd，License under MIT."
+                    Description="© Velopack Ltd, License under MIT."
                     IsClickEnabled="True"
                     ActionIconToolTip="在浏览器中打开"
                     Click="VelopackLicenseCard_Click"
+                >
+                    <controls:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </controls:SettingsCard.ActionIcon>
+                </controls:SettingsCard>
+                <!-- BTW，GPL-2.0 其实不需要加 copyright，这里只是为了风格统一 -->
+                <controls:SettingsCard
+                    Header="DepotDownloader"
+                    Description="© DepotDownloader Contributors, License under GPL-2.0."
+                    IsClickEnabled="True"
+                    ActionIconToolTip="在浏览器中打开"
+                    Click="DepotDownloaderLicenseCard_Click"
                 >
                     <controls:SettingsCard.ActionIcon>
                         <FontIcon Glyph="&#xE8A7;" />

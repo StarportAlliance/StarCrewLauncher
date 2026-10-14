@@ -5,27 +5,42 @@ using StarCrew.Launcher.ViewModels;
 
 namespace StarCrew.Launcher.Tests.ViewModels;
 
-/// <summary>HomeViewModel 的单元测试：启动、回退选文件与提示全部走替身。</summary>
+/// <summary>HomeViewModel 的单元测试：提及实例列表、选择、启动导航与提示。</summary>
 public sealed class HomeViewModelTests
 {
     [Fact]
-    public void Ctor_WithNullLauncher_ThrowsArgumentNullException()
+    public void Ctor_WithNullStore_ThrowsArgumentNullException()
     {
         Assert.Throws<ArgumentNullException>(() =>
             new HomeViewModel(
                 null!,
-                Substitute.For<IFilePickerService>(),
+                Substitute.For<IInstanceLauncher>(),
+                Substitute.For<INavigationService>(),
                 Substitute.For<INotificationService>()
             )
         );
     }
 
     [Fact]
-    public void Ctor_WithNullPicker_ThrowsArgumentNullException()
+    public void Ctor_WithNullLauncher_ThrowsArgumentNullException()
     {
         Assert.Throws<ArgumentNullException>(() =>
             new HomeViewModel(
-                Substitute.For<IGameLauncher>(),
+                Substitute.For<IInstanceStore>(),
+                null!,
+                Substitute.For<INavigationService>(),
+                Substitute.For<INotificationService>()
+            )
+        );
+    }
+
+    [Fact]
+    public void Ctor_WithNullNavigation_ThrowsArgumentNullException()
+    {
+        Assert.Throws<ArgumentNullException>(() =>
+            new HomeViewModel(
+                Substitute.For<IInstanceStore>(),
+                Substitute.For<IInstanceLauncher>(),
                 null!,
                 Substitute.For<INotificationService>()
             )
@@ -37,147 +52,157 @@ public sealed class HomeViewModelTests
     {
         Assert.Throws<ArgumentNullException>(() =>
             new HomeViewModel(
-                Substitute.For<IGameLauncher>(),
-                Substitute.For<IFilePickerService>(),
+                Substitute.For<IInstanceStore>(),
+                Substitute.For<IInstanceLauncher>(),
+                Substitute.For<INavigationService>(),
                 null!
             )
         );
     }
 
     [Fact]
-    public void LaunchButtonText_DefaultsToStartText()
+    public void Ctor_WithEmptyStore_HasNoInstances()
     {
-        (HomeViewModel vm, _, _, _) = Create();
+        (HomeViewModel vm, IInstanceStore store, _, _, _) = Create();
 
+        Assert.Empty(vm.Instances);
+        Assert.False(vm.HasInstances);
+        Assert.Equal("下载游戏", vm.LaunchButtonText);
+        Assert.Equal("还没有实例，下载一个以开始游玩吧。", vm.CurrentInstanceName);
+    }
+
+    [Fact]
+    public void SelectedInstance_WhenNotSetAndInstancesExist_DefaultsToLastUsed()
+    {
+        Guid wanted = Guid.NewGuid();
+        GameInstance a = CreateInstance("A");
+        GameInstance b = CreateInstance("B", id: wanted);
+        (HomeViewModel vm, IInstanceStore store, _, _, _) = Create(
+            new LauncherState(1, wanted, null, [a, b])
+        );
+
+        Assert.Equal(b, vm.SelectedInstance);
+        Assert.Equal("B", vm.CurrentInstanceName);
         Assert.Equal("启动游戏", vm.LaunchButtonText);
     }
 
     [Fact]
-    public void LaunchButtonText_WhenLaunching_ShowsProgressText()
-    {
-        (HomeViewModel vm, _, _, _) = Create();
-        List<string?> changed = [];
-        vm.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
-
-        vm.IsLaunching = true;
-
-        Assert.Equal("正在启动...", vm.LaunchButtonText);
-        Assert.Contains(nameof(HomeViewModel.LaunchButtonText), changed);
-    }
-
-    [Fact]
-    public async Task LaunchCommand_WhenSucceeded_NotifiesSuccessAndSkipsPicker()
+    public void LaunchAsync_WithoutInstances_NavigatesToDownload()
     {
         (
             HomeViewModel vm,
-            IGameLauncher launcher,
-            IFilePickerService picker,
+            _,
+            _,
+            INavigationService navigation,
             INotificationService notifications
         ) = Create();
-        launcher
-            .LaunchAsync(Arg.Any<CancellationToken>())
-            .Returns(new LaunchResult(true, LaunchMethod.SteamProtocol, "已通过 Steam 发起启动。"));
 
-        await vm.LaunchCommand.ExecuteAsync(null);
+        vm.LaunchCommand.Execute(null);
 
-        notifications
-            .Received(1)
-            .Notify("启动成功", "已通过 Steam 发起启动。", NotificationSeverity.Success);
-        await picker.DidNotReceiveWithAnyArgs().PickGameExeAsync();
+        notifications.DidNotReceiveWithAnyArgs().Notify(default!, default!, default);
     }
 
     [Fact]
-    public async Task LaunchCommand_WhenFailedAndPickCanceled_NotifiesCanceled()
+    public async Task LaunchAsync_WithInstance_LaunchesAndNotifiesSuccess()
     {
-        (
-            HomeViewModel vm,
-            IGameLauncher launcher,
-            IFilePickerService picker,
-            INotificationService notifications
-        ) = Create();
+        GameInstance a = CreateInstance("A");
+        IInstanceStore store = CreateSubstituteWithState(new LauncherState(1, a.Id, null, [a]));
+        IInstanceLauncher launcher = Substitute.For<IInstanceLauncher>();
         launcher
-            .LaunchAsync(Arg.Any<CancellationToken>())
-            .Returns(new LaunchResult(false, LaunchMethod.None, "找不到游戏。"));
-        picker.PickGameExeAsync().Returns((string?)null);
+            .LaunchAsync(Arg.Any<GameInstance>(), Arg.Any<CancellationToken>())
+            .Returns(new LaunchOutcome(true, "已启动。"));
+        INavigationService navigation = Substitute.For<INavigationService>();
+        INotificationService notifications = Substitute.For<INotificationService>();
+        HomeViewModel vm = new(store, launcher, navigation, notifications);
 
         await vm.LaunchCommand.ExecuteAsync(null);
 
-        notifications
-            .Received(1)
-            .Notify(
-                "已取消",
-                "已取消选择，点击启动游戏可重试。",
-                NotificationSeverity.Informational
-            );
+        notifications.Received(1).Notify("已启动。", null, NotificationSeverity.Success);
+        store.Received(1).Save(Arg.Is<LauncherState>(s => s!.LastInstanceId == a.Id));
     }
 
     [Fact]
-    public async Task LaunchCommand_WhenManualPickSucceeds_NotifiesSuccess()
+    public async Task LaunchAsync_WithFailureOutcome_NotifiesError()
     {
-        (
-            HomeViewModel vm,
-            IGameLauncher launcher,
-            IFilePickerService picker,
-            INotificationService notifications
-        ) = Create();
+        GameInstance a = CreateInstance("A");
+        IInstanceStore store = CreateSubstituteWithState(new LauncherState(1, null, null, [a]));
+        IInstanceLauncher launcher = Substitute.For<IInstanceLauncher>();
         launcher
-            .LaunchAsync(Arg.Any<CancellationToken>())
-            .Returns(new LaunchResult(false, LaunchMethod.None, "找不到游戏。"));
-        picker.PickGameExeAsync().Returns(Path.Combine("C:", "Games", "Among Us.exe"));
-        string? outError = null;
-        launcher.TryLaunchExe(Arg.Any<string>(), out outError).Returns(true);
+            .LaunchAsync(Arg.Any<GameInstance>(), Arg.Any<CancellationToken>())
+            .Returns(new LaunchOutcome(false, "boom"));
+        HomeViewModel vm = new(
+            store,
+            launcher,
+            Substitute.For<INavigationService>(),
+            Substitute.For<INotificationService>()
+        );
+        INotificationService notifications = Substitute.For<INotificationService>();
+        HomeViewModel vm2 = new(
+            store,
+            launcher,
+            Substitute.For<INavigationService>(),
+            notifications
+        );
 
-        await vm.LaunchCommand.ExecuteAsync(null);
+        await vm2.LaunchCommand.ExecuteAsync(null);
 
-        notifications
-            .Received(1)
-            .Notify("启动成功", "已启动手动选择的游戏。", NotificationSeverity.Success);
+        notifications.Received(1).Notify("boom", null, NotificationSeverity.Error);
     }
 
     [Fact]
-    public async Task LaunchCommand_WhenManualPickFails_NotifiesError()
+    public void OnSelectedInstanceChanged_PersistsLastId()
     {
-        (
-            HomeViewModel vm,
-            IGameLauncher launcher,
-            IFilePickerService picker,
-            INotificationService notifications
-        ) = Create();
-        launcher
-            .LaunchAsync(Arg.Any<CancellationToken>())
-            .Returns(new LaunchResult(false, LaunchMethod.None, "找不到游戏。"));
-        picker.PickGameExeAsync().Returns(Path.Combine("C:", "Games", "Among Us.exe"));
-        string? outError = null;
-        launcher
-            .TryLaunchExe(Arg.Any<string>(), out outError)
-            .Returns(call =>
-            {
-                call[1] = "boom";
-                return false;
-            });
+        GameInstance a = CreateInstance("A");
+        GameInstance b = CreateInstance("B");
+        IInstanceStore store = CreateSubstituteWithState(new LauncherState(1, null, null, [a, b]));
+        HomeViewModel vm = new(
+            store,
+            Substitute.For<IInstanceLauncher>(),
+            Substitute.For<INavigationService>(),
+            Substitute.For<INotificationService>()
+        );
 
-        await vm.LaunchCommand.ExecuteAsync(null);
+        vm.SelectedInstance = b;
 
-        notifications
-            .Received(1)
-            .Notify("启动失败", "启动所选文件时发生错误：boom", NotificationSeverity.Error);
+        store.Received(1).Save(Arg.Is<LauncherState>(s => s!.LastInstanceId == b.Id));
     }
 
     private static (
         HomeViewModel Vm,
-        IGameLauncher Launcher,
-        IFilePickerService Picker,
+        IInstanceStore Store,
+        IInstanceLauncher Launcher,
+        INavigationService Navigation,
         INotificationService Notifications
-    ) Create()
+    ) Create(LauncherState? state = null)
     {
-        IGameLauncher launcher = Substitute.For<IGameLauncher>();
-        IFilePickerService picker = Substitute.For<IFilePickerService>();
+        IInstanceStore store = CreateSubstituteWithState(state);
+        IInstanceLauncher launcher = Substitute.For<IInstanceLauncher>();
+        INavigationService navigation = Substitute.For<INavigationService>();
         INotificationService notifications = Substitute.For<INotificationService>();
-        return (
-            new HomeViewModel(launcher, picker, notifications),
-            launcher,
-            picker,
-            notifications
+        HomeViewModel vm = new(store, launcher, navigation, notifications);
+        return (vm, store, launcher, navigation, notifications);
+    }
+
+    private static IInstanceStore CreateSubstituteWithState(LauncherState? state = null)
+    {
+        IInstanceStore store = Substitute.For<IInstanceStore>();
+        store.Load().Returns(state ?? LauncherState.Empty);
+        return store;
+    }
+
+    private static GameInstance CreateInstance(string name, Guid? id = null)
+    {
+        return new GameInstance(
+            id ?? Guid.NewGuid(),
+            name,
+            Path.Combine(Path.GetTempPath(), "instances", name),
+            945360,
+            945361,
+            990035194164819049L,
+            "2026.9.1",
+            InstanceState.Ready,
+            DateTimeOffset.UtcNow,
+            null
         );
     }
 }

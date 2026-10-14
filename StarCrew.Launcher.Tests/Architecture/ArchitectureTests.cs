@@ -10,7 +10,7 @@ namespace StarCrew.Launcher.Tests.Architecture;
 /// </summary>
 public sealed class ArchitectureTests
 {
-    private static readonly Assembly AppAssembly = typeof(GameLauncher).Assembly;
+    private static readonly Assembly AppAssembly = typeof(AppUpdater).Assembly;
 
     [Fact]
     public void Services_AreSealed()

@@ -85,7 +85,7 @@ public sealed class AboutViewModelTests
 
         notifications
             .Received(1)
-            .Notify("已是最新", "已是最新版本（0.3.0）。", NotificationSeverity.Success);
+            .Notify("已是最新版本（0.3.0）。", null, NotificationSeverity.Success);
     }
 
     [Fact]
@@ -117,8 +117,8 @@ public sealed class AboutViewModelTests
         notifications
             .Received(1)
             .Notify(
-                "无法检查更新",
                 "当前为开发运行，未经安装，跳过更新检查。",
+                null,
                 NotificationSeverity.Informational
             );
     }
@@ -134,9 +134,7 @@ public sealed class AboutViewModelTests
 
         await vm.CheckUpdateCommand.ExecuteAsync(null);
 
-        notifications
-            .Received(1)
-            .Notify("检查更新失败", "检查更新失败：boom", NotificationSeverity.Error);
+        notifications.Received(1).Notify("检查更新失败：boom", null, NotificationSeverity.Error);
     }
 
     [Fact]
@@ -175,9 +173,7 @@ public sealed class AboutViewModelTests
         bool ready = await vm.DownloadUpdateAsync("0.4.0", null, CancellationToken.None);
 
         Assert.False(ready);
-        notifications
-            .Received(1)
-            .Notify("下载更新失败", "下载更新失败：dl boom", NotificationSeverity.Error);
+        notifications.Received(1).Notify("下载更新失败：dl boom", null, NotificationSeverity.Error);
     }
 
     [Fact]
@@ -192,7 +188,7 @@ public sealed class AboutViewModelTests
         Assert.False(ready);
         notifications
             .Received(1)
-            .Notify("已取消下载", "已取消新版本下载。", NotificationSeverity.Informational);
+            .Notify("已取消新版本下载。", null, NotificationSeverity.Informational);
     }
 
     [Fact]

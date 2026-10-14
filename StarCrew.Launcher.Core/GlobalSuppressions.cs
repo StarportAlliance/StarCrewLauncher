@@ -28,28 +28,7 @@ using System.Diagnostics.CodeAnalysis;
     "CA1031:DoNotCatchGeneralExceptionTypes",
     Justification = "接缝异常同样视为无额外库，只回退不崩。",
     Scope = "member",
-    Target = "~M:StarCrew.Launcher.Services.SteamGameLocator.TryReadAllText(System.String)~System.String"
-)]
-[assembly: SuppressMessage(
-    "Performance",
-    "CA1822:MarkMembersAsStatic",
-    Justification = "保留实例形态：承载注入依赖，静态化破坏接缝。",
-    Scope = "member",
-    Target = "~M:StarCrew.Launcher.Services.GameLauncher.TryLaunchExe(System.String,System.String@)~System.Boolean"
-)]
-[assembly: SuppressMessage(
-    "Performance",
-    "CA1822:MarkMembersAsStatic",
-    Justification = "保留实例形态：用注入的 IProcessStarter。",
-    Scope = "member",
-    Target = "~M:StarCrew.Launcher.Services.GameLauncher.TryLaunchBySteamProtocol(System.String@)~System.Boolean"
-)]
-[assembly: SuppressMessage(
-    "Performance",
-    "CA1822:MarkMembersAsStatic",
-    Justification = "保留实例形态：用注入的 ISteamEnvironment。",
-    Scope = "member",
-    Target = "~M:StarCrew.Launcher.Services.SteamGameLocator.FindGameExe~System.String"
+    Target = "~M:StarCrew.Launcher.Services.WindowsSteamEnvironment.ReadAllTextOrNull(System.String)~System.String"
 )]
 [assembly: SuppressMessage(
     "Design",
@@ -64,4 +43,102 @@ using System.Diagnostics.CodeAnalysis;
     Justification = "同上：下载异常同样转 Failed 回显。",
     Scope = "member",
     Target = "~M:StarCrew.Launcher.Services.AppUpdater.DownloadAndPrepareAsync(System.String,System.IProgress{System.Int32},System.Threading.CancellationToken)"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "状态文件损坏时按空态处理，不让启动器崩。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.Services.InstanceStore.Load"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "副本备份失败也无所谓。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.Services.InstanceStore.TryBackupCorruptFile"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "删除实例目录失败时转通知，不崩。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.ViewModels.InstancesViewModel.ConfirmDelete(StarCrew.Launcher.Models.GameInstance,System.Boolean)"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "打开文件夹失败时转通知，不崩。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.ViewModels.InstanceItemViewModel.OpenFolderAsync"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "启动 exe 出错时转为失败结果，不崩。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.Services.InstanceLauncher.LaunchAsync(StarCrew.Launcher.Models.GameInstance,System.Threading.CancellationToken)"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "远端目录拉取失败时回退缓存，全失败由 LoadAsync 抛异常提示。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.Services.GameVersionCatalog.TryFetchRemoteAsync(System.Threading.CancellationToken)"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "缓存读取失败视为无缓存，由 LoadAsync 抛异常提示。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.Services.GameVersionCatalog.TryReadCacheAsync(System.Threading.CancellationToken)"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "缓存写入失败时静默忽略，下次照常拉取。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.Services.GameVersionCatalog.TryWriteCacheAsync(System.String,System.Threading.CancellationToken)"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "工具下载失败时转失败结果回显，不崩。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.Services.DepotDownloaderProvisioner.EnsureAsync(System.IProgress{StarCrew.Launcher.Models.DownloadProgressInfo},System.Threading.CancellationToken)"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "临时目录清理失败不影响主流程。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.Services.DepotDownloaderProvisioner.TryDeleteTempDirectory(System.String)"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "下载失败时转失败结果回显，不崩。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.Services.DownloadCoordinator.InstallAsync(System.String,StarCrew.Launcher.Models.GameVersionEntry,System.IProgress{StarCrew.Launcher.Models.DownloadProgressInfo},System.Threading.CancellationToken)"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "临时目录清理失败不影响主流程。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.Services.SteamLoginManager.TryDeleteTempDirectory(System.String)"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "版本列表加载失败时转空列表与状态提示，不崩。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.ViewModels.DownloadPageViewModel.LoadVersionsAsync~System.Threading.Tasks.Task"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "外部进程执行失败时转失败结果，不崩。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.Services.ProcessRunner.RunAsync(StarCrew.Launcher.Models.ExecutableCommand,System.IProgress{System.String},System.Threading.CancellationToken)"
 )]

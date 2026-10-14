@@ -54,6 +54,9 @@ public sealed partial class AboutPage : Page
     private async void VelopackLicenseCard_Click(object sender, RoutedEventArgs e) =>
         await OpenUriAsync("https://github.com/velopack/velopack/blob/develop/LICENSE");
 
+    private async void DepotDownloaderLicenseCard_Click(object sender, RoutedEventArgs e) =>
+        await OpenUriAsync("https://github.com/SteamRE/DepotDownloader/blob/master/LICENSE");
+
     private Task OpenUriAsync(string uri) => ViewModel?.OpenUriAsync(uri) ?? Task.CompletedTask;
 
     /// <summary>命中新版本时先弹窗确认，确认后弹进度框下载，成功后直接退出触发自动重启。</summary>
@@ -64,15 +67,17 @@ public sealed partial class AboutPage : Page
             return;
         }
 
-        ContentDialog confirm = new()
-        {
-            XamlRoot = XamlRoot,
-            Title = "发现新版本",
-            Content = $"检测到新版本 {version}，是否下载？",
-            PrimaryButtonText = "下载",
-            CloseButtonText = "稍后",
-            DefaultButton = ContentDialogButton.Primary,
-        };
+        ContentDialog confirm = ContentDialogFactory.Create(
+            XamlRoot,
+            d =>
+            {
+                d.Title = "发现新版本";
+                d.Content = $"检测到新版本 {version}，是否下载？";
+                d.PrimaryButtonText = "下载";
+                d.CloseButtonText = "稍后";
+                d.DefaultButton = ContentDialogButton.Primary;
+            }
+        );
         if (await confirm.ShowAsync() != ContentDialogResult.Primary)
         {
             return;
@@ -84,13 +89,15 @@ public sealed partial class AboutPage : Page
             Maximum = 100,
             Width = 280,
         };
-        ContentDialog downloading = new()
-        {
-            XamlRoot = XamlRoot,
-            Title = $"正在下载新版本 {version}",
-            Content = bar,
-            CloseButtonText = "取消",
-        };
+        ContentDialog downloading = ContentDialogFactory.Create(
+            XamlRoot,
+            d =>
+            {
+                d.Title = $"正在下载新版本 {version}";
+                d.Content = bar;
+                d.CloseButtonText = "取消";
+            }
+        );
         using CancellationTokenSource cts = new();
         downloading.Closing += (_, _) => cts.Cancel();
         Task<ContentDialogResult> showing = downloading.ShowAsync().AsTask();

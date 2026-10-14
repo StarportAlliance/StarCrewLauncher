@@ -11,14 +11,22 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- 顶层标题栏，48 高锁定 Tall 高度；汉堡按钮由 TitleBar 接管，品牌区用 LeftHeader 恢复 24px 图标 + BodyStrong 标题。 -->
+        <!-- 顶层标题栏，48 高锁定 Tall 高度；汉堡按钮由 TitleBar 接管，品牌区用 LeftHeader 恢复 24px 图标 + BodyStrong 标题。
+             返回按钮由 TitleBar 承接主页面/设置分区的回退，可用性随导航历史在代码隐藏里同步。 -->
         <TitleBar
             x:Name="AppTitleBar"
             Height="48"
             Background="Transparent"
+            IsBackButtonVisible="True"
+            IsBackButtonEnabled="False"
             IsPaneToggleButtonVisible="True"
+            BackRequested="AppTitleBar_BackRequested"
             PaneToggleRequested="AppTitleBar_PaneToggleRequested"
         >
+            <TitleBar.Resources>
+                <!-- WinUI 默认给禁用的返回按钮铺 ControlFillColorDisabledBrush 整块发灰；系统设置只灰化图标，故改透明。 -->
+                <SolidColorBrush x:Key="TitleBarBackButtonBackgroundDisabled" Color="Transparent" />
+            </TitleBar.Resources>
             <TitleBar.LeftHeader>
                 <StackPanel
                     Margin="12,0"
@@ -70,7 +78,9 @@
                 />
             </NavigationView.Resources>
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="启动游戏" Icon="Play" IsSelected="True" />
+                <NavigationViewItem Content="启动游戏" Tag="Home" Icon="Play" IsSelected="True" />
+                <NavigationViewItem Content="实例管理" Tag="Instances" Icon="Folder" />
+                <NavigationViewItem Content="游戏下载" Tag="Download" Icon="Download" />
             </NavigationView.MenuItems>
 
             <Grid>
@@ -126,8 +136,9 @@
                         </DoubleAnimation>
                     </Storyboard>
                 </Grid.Resources>
-                <!-- 页面容器走 Frame：导航自带 NavigationThemeTransition（PageRefresh = 上滑 + 淡入），切换时传 RecommendedNavigationTransitionInfo 即可。 -->
-                <Frame x:Name="ContentFrame" IsNavigationStackEnabled="False">
+                <!-- 页面容器走 Frame：导航自带 NavigationThemeTransition（PageRefresh = 上滑 + 淡入），切换时传 RecommendedNavigationTransitionInfo 即可。
+                     历史栈保持开启：返回交给 Frame.GoBack，自动取进场过渡反向播放，动画方向无需应用侧指定。 -->
+                <Frame x:Name="ContentFrame" IsNavigationStackEnabled="True">
                     <Frame.ContentTransitions>
                         <TransitionCollection>
                             <NavigationThemeTransition />

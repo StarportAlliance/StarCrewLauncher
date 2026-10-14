@@ -42,12 +42,15 @@ public sealed class NotificationServiceTests
     }
 
     [Fact]
-    public void Notify_WithNullMessage_ThrowsArgumentNullException()
+    public void Notify_WithNullMessage_ForwardsMessageWithNullBody()
     {
         NotificationService service = new();
+        NotificationMessage? received = null;
+        service.Requested += (_, message) => received = message;
 
-        Assert.Throws<ArgumentNullException>(() =>
-            service.Notify("标题", null!, NotificationSeverity.Informational)
-        );
+        service.Notify("标题", null, NotificationSeverity.Informational);
+
+        Assert.NotNull(received);
+        Assert.Null(received.Message);
     }
 }

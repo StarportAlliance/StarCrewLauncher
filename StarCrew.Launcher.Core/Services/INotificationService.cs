@@ -8,6 +8,6 @@ internal interface INotificationService
     /// <summary>有通知待展示；事件在发起通知的线程上触发。</summary>
     event EventHandler<NotificationMessage>? Requested;
 
-    /// <summary>发起一条通知，展示由界面层负责。</summary>
-    void Notify(string title, string message, NotificationSeverity severity);
+    /// <summary>发起一条通知，展示由界面层负责；<paramref name="message"/> 与标题重复时可传 null 省略。</summary>
+    void Notify(string title, string? message, NotificationSeverity severity);
 }

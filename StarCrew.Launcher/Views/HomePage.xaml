@@ -5,17 +5,41 @@
 >
     <Grid>
         <Image Source="ms-appx:///Assets/background.webp" Stretch="UniformToFill" />
-        <Button
-            x:Name="LaunchButton"
-            Width="240"
-            Height="48"
-            Margin="0,0,32,32"
+
+        <!-- 实例切换与启动按钮叠在背景图右下方，切换时把选中项写回存储 -->
+        <StackPanel
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom"
-            Command="{x:Bind ViewModel.LaunchCommand}"
-            Content="{x:Bind ViewModel.LaunchButtonText, Mode=OneWay}"
-            FontSize="18"
-            Style="{StaticResource AccentButtonStyle}"
+            Margin="0,0,32,32"
+            Spacing="12"
+        >
+            <ComboBox
+                x:Name="InstanceCombo"
+                Width="240"
+                Height="40"
+                DisplayMemberPath="Name"
+                ItemsSource="{x:Bind ViewModel.Instances, Mode=OneWay}"
+                SelectedItem="{x:Bind ViewModel.SelectedInstance, Mode=TwoWay}"
+            />
+            <Button
+                x:Name="LaunchButton"
+                Width="240"
+                Height="48"
+                Command="{x:Bind ViewModel.LaunchCommand}"
+                Content="{x:Bind ViewModel.LaunchButtonText, Mode=OneWay}"
+                FontSize="18"
+                Style="{StaticResource AccentButtonStyle}"
+            />
+        </StackPanel>
+
+        <!-- 左下角显示当前实例名（标题级字号），无实例时提示去下载 -->
+        <TextBlock
+            x:Name="CurrentInstanceNameBlock"
+            Style="{StaticResource TitleTextBlockStyle}"
+            Margin="32,0,0,32"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom"
+            Text="{x:Bind ViewModel.CurrentInstanceName, Mode=OneWay}"
         />
     </Grid>
 </Page>

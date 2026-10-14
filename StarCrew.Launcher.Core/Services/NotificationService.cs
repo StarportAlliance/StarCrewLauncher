@@ -7,10 +7,9 @@ internal sealed class NotificationService : INotificationService
 {
     public event EventHandler<NotificationMessage>? Requested;
 
-    public void Notify(string title, string message, NotificationSeverity severity)
+    public void Notify(string title, string? message, NotificationSeverity severity)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
-        ArgumentNullException.ThrowIfNull(message);
         Requested?.Invoke(this, new NotificationMessage(title, message, severity));
     }
 }

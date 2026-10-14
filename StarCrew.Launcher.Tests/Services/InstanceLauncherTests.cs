@@ -1,0 +1,196 @@
+using NSubstitute;
+using NSubstitute.ExceptionExtensions;
+using StarCrew.Launcher.Models;
+using StarCrew.Launcher.Services;
+
+namespace StarCrew.Launcher.Tests.Services;
+
+/// <summary>InstanceLauncher 的单元测试：Steam 检测、exe 检查与启动调用。</summary>
+public sealed class InstanceLauncherTests : IDisposable
+{
+    private readonly string _root;
+
+    public InstanceLauncherTests()
+    {
+        _root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(_root);
+    }
+
+    public void Dispose()
+    {
+        if (Directory.Exists(_root))
+        {
+            Directory.Delete(_root, recursive: true);
+        }
+    }
+
+    private GameInstance CreateInstance(
+        string name = "A",
+        InstanceState state = InstanceState.Ready
+    )
+    {
+        return new GameInstance(
+            Guid.NewGuid(),
+            name,
+            Path.Combine(_root, name.Replace(' ', '_')),
+            945360,
+            945361,
+            990035194164819049L,
+            "2026.9.1",
+            state,
+            DateTimeOffset.UtcNow,
+            null
+        );
+    }
+
+    private static string CreateExeFor(GameInstance instance)
+    {
+        Directory.CreateDirectory(instance.InstallDirectory);
+        string exe = Path.Combine(instance.InstallDirectory, "Among Us.exe");
+        File.WriteAllBytes(exe, []);
+        return exe;
+    }
+
+    [Fact]
+    public void Ctor_WithNullStarter_ThrowsArgumentNullException()
+    {
+        ISteamClient steam = Substitute.For<ISteamClient>();
+
+        Assert.Throws<ArgumentNullException>(() => new InstanceLauncher(null!, steam));
+    }
+
+    [Fact]
+    public void Ctor_WithNullSteam_ThrowsArgumentNullException()
+    {
+        IProcessStarter starter = Substitute.For<IProcessStarter>();
+
+        Assert.Throws<ArgumentNullException>(() => new InstanceLauncher(starter, null!));
+    }
+
+    [Fact]
+    public async Task LaunchAsync_WithIncompleteInstance_ReturnsFailureAndSkipsStarter()
+    {
+        IProcessStarter starter = Substitute.For<IProcessStarter>();
+        ISteamClient steam = Substitute.For<ISteamClient>();
+        InstanceLauncher launcher = new(starter, steam);
+        GameInstance instance = CreateInstance(state: InstanceState.Incomplete);
+
+        LaunchOutcome outcome = await launcher.LaunchAsync(instance);
+
+        Assert.False(outcome.IsSuccess);
+        Assert.Equal("该实例尚未就绪，请先完成安装。", outcome.Message);
+        Assert.False(steam.IsSteamRunning());
+        starter.DidNotReceiveWithAnyArgs().TryStart(default!, default!, out _);
+    }
+
+    [Fact]
+    public async Task LaunchAsync_WithMissingExe_ReturnsFailure()
+    {
+        IProcessStarter starter = Substitute.For<IProcessStarter>();
+        ISteamClient steam = Substitute.For<ISteamClient>();
+        steam.IsSteamRunning().Returns(true);
+        InstanceLauncher launcher = new(starter, steam);
+        GameInstance instance = CreateInstance();
+        Directory.CreateDirectory(instance.InstallDirectory);
+
+        LaunchOutcome outcome = await launcher.LaunchAsync(instance);
+
+        Assert.False(outcome.IsSuccess);
+        Assert.Equal("未找到游戏文件，请重新下载或修复该实例。", outcome.Message);
+    }
+
+    [Fact]
+    public async Task LaunchAsync_WithSteamRunningAndExe_StarterSucceeded_ReturnsSuccess()
+    {
+        IProcessStarter starter = Substitute.For<IProcessStarter>();
+        string? outError = null;
+        starter.TryStart(Arg.Any<string>(), Arg.Any<string>(), out outError).Returns(true);
+        ISteamClient steam = Substitute.For<ISteamClient>();
+        steam.IsSteamRunning().Returns(true);
+        InstanceLauncher launcher = new(starter, steam);
+        GameInstance instance = CreateInstance();
+        _ = CreateExeFor(instance);
+
+        LaunchOutcome outcome = await launcher.LaunchAsync(instance);
+
+        Assert.True(outcome.IsSuccess);
+        Assert.Equal("已启动。", outcome.Message);
+    }
+
+    [Fact]
+    public async Task LaunchAsync_WhenStartSteamFails_ContinuesLaunching()
+    {
+        IProcessStarter starter = Substitute.For<IProcessStarter>();
+        string? outError = null;
+        starter.TryStart(Arg.Any<string>(), Arg.Any<string>(), out outError).Returns(true);
+        ISteamClient steam = Substitute.For<ISteamClient>();
+        steam.IsSteamRunning().Returns(false);
+        steam.TryStartSteam(out _).Returns(false);
+        InstanceLauncher launcher = new(starter, steam);
+        GameInstance instance = CreateInstance();
+        _ = CreateExeFor(instance);
+
+        LaunchOutcome outcome = await launcher.LaunchAsync(instance);
+
+        Assert.True(outcome.IsSuccess);
+        Assert.False(steam.IsSteamRunning());
+    }
+
+    [Fact]
+    public async Task LaunchAsync_WhenStartSteamSucceeds_WaitsForProcess()
+    {
+        IProcessStarter starter = Substitute.For<IProcessStarter>();
+        string? outError = null;
+        starter.TryStart(Arg.Any<string>(), Arg.Any<string>(), out outError).Returns(true);
+        ISteamClient steam = Substitute.For<ISteamClient>();
+        // 首次 false，之后 true（启动成功后视为已在线）
+        steam.IsSteamRunning().Returns(false, true);
+        steam.TryStartSteam(out _).Returns(true);
+        InstanceLauncher launcher = new(starter, steam);
+        GameInstance instance = CreateInstance();
+        _ = CreateExeFor(instance);
+
+        LaunchOutcome outcome = await launcher.LaunchAsync(instance);
+
+        Assert.True(outcome.IsSuccess);
+    }
+
+    [Fact]
+    public async Task LaunchAsync_WithStarterFailure_ReturnsFailureFromStarter()
+    {
+        IProcessStarter starter = Substitute.For<IProcessStarter>();
+        string? outError = null;
+        starter
+            .TryStart(Arg.Any<string>(), Arg.Any<string>(), out outError)
+            .Returns(call =>
+            {
+                call[2] = "boom";
+                return false;
+            });
+        ISteamClient steam = Substitute.For<ISteamClient>();
+        steam.IsSteamRunning().Returns(true);
+        InstanceLauncher launcher = new(starter, steam);
+        GameInstance instance = CreateInstance();
+        _ = CreateExeFor(instance);
+
+        LaunchOutcome outcome = await launcher.LaunchAsync(instance);
+
+        Assert.False(outcome.IsSuccess);
+        Assert.Equal("boom", outcome.Message);
+    }
+
+    [Fact]
+    public async Task LaunchAsync_WithCanceledToken_Throws()
+    {
+        IProcessStarter starter = Substitute.For<IProcessStarter>();
+        ISteamClient steam = Substitute.For<ISteamClient>();
+        InstanceLauncher launcher = new(starter, steam);
+        GameInstance instance = CreateInstance();
+        using CancellationTokenSource cts = new();
+        await cts.CancelAsync();
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() =>
+            launcher.LaunchAsync(instance, cts.Token)
+        );
+    }
+}
