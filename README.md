@@ -14,12 +14,6 @@
 > [!Note]
 > 项目持续开发中，某些功能可能尚未兑现...敬请期待！
 
-> [!Important]
-> 本应用与 Among Us 或 Innersloth LLC 无附属关系，其中包含的内容未获 Innersloth LLC 认可或以其他方式赞助。本文所含部分材料为 Innersloth LLC 的财产。© Innersloth LLC。
-> <Details><Summary>Original Copyright Notice</Summary>
-> This mod is not affiliated with Among Us or Innersloth LLC, and the content contained therein is not endorsed or otherwise sponsored by Innersloth LLC. Portions of the materials contained herein are property of Innersloth LLC. © Innersloth LLC.
-> </Details>
-
 ## 简介
 
 StarCrew Launcher (SCL) 是一个开源，适用于 Windows 平台的 Among Us 启动器。\

@@ -79,6 +79,10 @@
                         <FontIcon Glyph="&#xE8A7;" />
                     </controls:SettingsCard.ActionIcon>
                 </controls:SettingsCard>
+                <controls:SettingsCard
+                    Header="本应用与 Among Us 或 Innersloth LLC 无附属关系，其中包含的内容未获 Innersloth LLC 认可或以其他方式赞助。本文所含部分材料为 Innersloth LLC 的财产。© Innersloth LLC。"
+                    Description="This mod is not affiliated with Among Us or Innersloth LLC, and the content contained therein is not endorsed or otherwise sponsored by Innersloth LLC. Portions of the materials contained herein are property of Innersloth LLC. © Innersloth LLC."
+                ></controls:SettingsCard>
                 <TextBlock
                     Margin="1,12,0,6"
                     Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
