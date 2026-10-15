@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/_/husky.sh"
+
+# 门禁放在 push 前：全量测试从“每次 commit”改成“每次 push 跑一次”，
+# 分批提交时不再被反复拖慢，出错再回改即可（推送后 CI 仍兜底）。
+# 只在本批待推送提交涉及代码/构建文件时才跑；纯文档推送直接放行保速度。
+ZERO=0000000000000000000000000000000000000000
+PATTERN='\.(bat|config|cs|csproj|editorconfig|json|props|runsettings|sh|slnx|targets|xaml)$|^\.(config|github|husky)/'
+
+run=0
+while read -r local_ref local_oid remote_ref remote_oid; do
+  # 删除分支：无新代码可测，跳过。
+  if [ "$local_oid" = "$ZERO" ]; then
+    continue
+  fi
+  # 新分支远端无 base，无法取范围，直接跑；否则只比对本次推送的提交。
+  if [ "$remote_oid" = "$ZERO" ] || git diff --name-only "$remote_oid" "$local_oid" | grep -qE "$PATTERN"; then
+    run=1
+    break
+  fi
+done
+
+if [ "$run" = 1 ]; then
+  cmd //C test.bat
+else
+  echo "husky (pre-push): no code-related changes pushed, gates skipped."
+fi

@@ -17,9 +17,9 @@ dotnet husky install
 | `format.bat` | 一键执行格式化：CSharpier 排版 → dotnet format 修风格                                    |
 | `pack.bat`   | 一键打包：发布 → vpk 打包（用法：`pack.bat <版本> [rid]`）                               |
 
-提交前必须 `test.bat` 全绿。husky 的 pre-commit 会跑同一套门禁，
-但仅当暂存内容涉及代码/构建文件时才触发；
-纯文档、图片等杂项提交直接跳过以保速度，推送后由 CI 兜底。
+推送前必须 `test.bat` 全绿。husky 的 pre-push 会跑同一套门禁，
+但仅当本批待推送提交涉及代码/构建文件时才触发；
+纯文档、图片等杂项推送直接跳过以保速度，推送后由 CI 兜底。
 
 ## 工具链
 
