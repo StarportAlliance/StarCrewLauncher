@@ -32,7 +32,7 @@
             />
         </StackPanel>
 
-        <!-- 左下角显示当前实例名（标题级字号），无实例时提示去下载 -->
+        <!-- 左下角显示当前实例名（标题级字号），无实例时为空串即不显示 -->
         <TextBlock
             x:Name="CurrentInstanceNameBlock"
             Style="{StaticResource TitleTextBlockStyle}"

@@ -47,9 +47,6 @@
   <data name="Home_DownloadGame" xml:space="preserve">
     <value>下载游戏</value>
   </data>
-  <data name="Home_NoInstanceHint" xml:space="preserve">
-    <value>还没有实例，下载一个以开始游玩吧。</value>
-  </data>
 
   <!-- ===== 设置分区导航 ===== -->
   <data name="Settings_SectionTitle.Text" xml:space="preserve">

@@ -66,11 +66,8 @@ internal sealed partial class HomeViewModel : ObservableObject
             ? _strings.GetString("Home_LaunchGame")
             : _strings.GetString("Home_DownloadGame");
 
-    /// <summary>首页左下角的当前实例名，没有实例时给出下载提示。</summary>
-    public string CurrentInstanceName =>
-        SelectedInstance is not null
-            ? SelectedInstance.Name
-            : _strings.GetString("Home_NoInstanceHint");
+    /// <summary>首页左下角的当前实例名，没有实例时为空串（该处标题不显示）。</summary>
+    public string CurrentInstanceName => SelectedInstance?.Name ?? string.Empty;
 
     [RelayCommand]
     private async Task LaunchAsync()

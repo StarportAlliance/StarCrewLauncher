@@ -72,7 +72,7 @@ public sealed class HomeViewModelTests
         Assert.Empty(vm.Instances);
         Assert.False(vm.HasInstances);
         Assert.Equal("下载游戏", vm.LaunchButtonText);
-        Assert.Equal("还没有实例，下载一个以开始游玩吧。", vm.CurrentInstanceName);
+        Assert.Empty(vm.CurrentInstanceName);
     }
 
     [Fact]
