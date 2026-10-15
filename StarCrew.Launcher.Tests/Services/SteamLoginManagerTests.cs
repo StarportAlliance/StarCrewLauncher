@@ -30,7 +30,8 @@ public sealed class SteamLoginManagerTests : IDisposable
             new SteamLoginManager(
                 null!,
                 Substitute.For<IDepotDownloaderRunner>(),
-                Substitute.For<IInstanceStore>()
+                Substitute.For<IInstanceStore>(),
+                TestStrings.Instance
             )
         );
     }
@@ -42,7 +43,8 @@ public sealed class SteamLoginManagerTests : IDisposable
             new SteamLoginManager(
                 Substitute.For<IDepotDownloaderProvisioner>(),
                 null!,
-                Substitute.For<IInstanceStore>()
+                Substitute.For<IInstanceStore>(),
+                TestStrings.Instance
             )
         );
     }
@@ -54,7 +56,8 @@ public sealed class SteamLoginManagerTests : IDisposable
             new SteamLoginManager(
                 Substitute.For<IDepotDownloaderProvisioner>(),
                 Substitute.For<IDepotDownloaderRunner>(),
-                null!
+                null!,
+                TestStrings.Instance
             )
         );
     }
@@ -91,7 +94,8 @@ public sealed class SteamLoginManagerTests : IDisposable
         SteamLoginManager manager = new(
             provisioner,
             Substitute.For<IDepotDownloaderRunner>(),
-            store
+            store,
+            TestStrings.Instance
         );
 
         SteamLoginOutcome outcome = await manager.LoginAsync("user", "pw", null);
@@ -324,7 +328,7 @@ public sealed class SteamLoginManagerTests : IDisposable
                 .Returns(runnerOutcome);
         }
 
-        return new SteamLoginManager(provisioner, targetRunner, target);
+        return new SteamLoginManager(provisioner, targetRunner, target, TestStrings.Instance);
     }
 
     private sealed class FakeStore : IInstanceStore

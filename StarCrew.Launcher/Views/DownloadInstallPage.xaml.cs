@@ -12,6 +12,8 @@ namespace StarCrew.Launcher.Views;
 
 public sealed partial class DownloadInstallPage : Page
 {
+    private readonly IAppStrings _strings = App.Services.GetRequiredService<IAppStrings>();
+
     public DownloadInstallPage()
     {
         InitializeComponent();
@@ -58,15 +60,15 @@ public sealed partial class DownloadInstallPage : Page
         }
 
         ProgressBar bar = new() { Minimum = 0, Maximum = 100 };
-        TextBlock status = new() { Text = "准备下载..." };
-        DownloadProgressFooter footer = new();
+        TextBlock status = new() { Text = _strings.GetString("Account_PreparingDownload") };
+        DownloadProgressFooter footer = new(_strings);
         ContentDialog progressDialog = ContentDialogFactory.Create(
             XamlRoot,
             d =>
             {
-                d.Title = $"正在下载 {entry.VersionLabel}";
+                d.Title = _strings.Format("Install_DialogTitleFormat", entry.VersionLabel);
                 d.Content = new StackPanel { Spacing = 8, Children = { status, bar, footer.Root } };
-                d.CloseButtonText = "取消";
+                d.CloseButtonText = _strings.GetString("Common_Cancel");
             }
         );
 

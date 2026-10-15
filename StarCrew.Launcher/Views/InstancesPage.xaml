@@ -13,10 +13,10 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock
+                    x:Uid="Instances_SectionTitle"
                     Grid.Row="0"
                     Margin="0,0,0,4"
                     Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
-                    Text="我的实例"
                 />
 
                 <!-- 空状态引导：占满剩余空间并整体居中，形如 404 页 -->
@@ -26,19 +26,18 @@
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     Spacing="12"
-                    Visibility="Collapsed"
                 >
                     <TextBlock
+                        x:Uid="Instances_EmptyHint"
                         MaxWidth="480"
-                        Text="还没有任何实例。去「游戏下载」页下载一个原版 Among Us，实例就会出现在这里。"
                         TextAlignment="Center"
                         TextWrapping="Wrap"
                     />
                     <Button
+                        x:Uid="Instances_GoDownloadButton"
                         Width="200"
                         HorizontalAlignment="Center"
                         Command="{x:Bind ViewModel.GoDownloadCommand}"
-                        Content="前往下载"
                         Style="{StaticResource AccentButtonStyle}"
                     />
                 </StackPanel>

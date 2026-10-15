@@ -20,29 +20,38 @@ internal sealed class DepotDownloaderProvisioner : IDepotDownloaderProvisioner
     private readonly HttpClient _http;
     private readonly string _toolsDirectory;
     private readonly string? _expectedSha256Override;
+    private readonly IAppStrings _strings;
 
-    public DepotDownloaderProvisioner(INetworkSettings networkSettings)
-        : this(networkSettings, new HttpClient()) { }
+    public DepotDownloaderProvisioner(INetworkSettings networkSettings, IAppStrings strings)
+        : this(networkSettings, new HttpClient(), strings) { }
 
-    internal DepotDownloaderProvisioner(INetworkSettings networkSettings, HttpClient httpClient)
+    internal DepotDownloaderProvisioner(
+        INetworkSettings networkSettings,
+        HttpClient httpClient,
+        IAppStrings strings
+    )
         : this(
             networkSettings,
             httpClient,
             Path.Combine(AppPaths.ToolsDirectory, "DepotDownloader"),
-            null
+            null,
+            strings
         ) { }
 
     internal DepotDownloaderProvisioner(
         INetworkSettings networkSettings,
         HttpClient httpClient,
         string toolsDirectory,
-        string? expectedSha256Override
+        string? expectedSha256Override,
+        IAppStrings strings
     )
     {
         ArgumentNullException.ThrowIfNull(networkSettings);
+        ArgumentNullException.ThrowIfNull(strings);
         ArgumentNullException.ThrowIfNull(httpClient);
         ArgumentException.ThrowIfNullOrWhiteSpace(toolsDirectory);
         _networkSettings = networkSettings;
+        _strings = strings;
         _http = httpClient;
         _toolsDirectory = toolsDirectory;
         _expectedSha256Override = expectedSha256Override;
@@ -60,7 +69,7 @@ internal sealed class DepotDownloaderProvisioner : IDepotDownloaderProvisioner
         string execPath = GetExecutablePath();
         if (File.Exists(execPath))
         {
-            return new DepotDownloaderEnsureResult(true, "DepotDownloader 已就绪。", execPath);
+            return new DepotDownloaderEnsureResult(true, _strings.GetString("Dd_Ready"), execPath);
         }
 
         string tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -87,7 +96,7 @@ internal sealed class DepotDownloaderProvisioner : IDepotDownloaderProvisioner
                     new DownloadProgressInfo(
                         DownloadStage.PreparingTool,
                         0,
-                        "正在下载 DepotDownloader...",
+                        _strings.GetString("Dd_Downloading"),
                         total
                     )
                 );
@@ -119,7 +128,7 @@ internal sealed class DepotDownloaderProvisioner : IDepotDownloaderProvisioner
                                     new DownloadProgressInfo(
                                         DownloadStage.PreparingTool,
                                         percent,
-                                        $"正在下载 DepotDownloader...（{percent:F1}%）",
+                                        _strings.Format("Dd_DownloadingPercentFormat", percent),
                                         total
                                     )
                                 );
@@ -134,7 +143,7 @@ internal sealed class DepotDownloaderProvisioner : IDepotDownloaderProvisioner
             {
                 return new DepotDownloaderEnsureResult(
                     false,
-                    $"DepotDownloader 下载包 SHA-256 校验失败。",
+                    _strings.GetString("Dd_ShaMismatch"),
                     null
                 );
             }
@@ -153,7 +162,7 @@ internal sealed class DepotDownloaderProvisioner : IDepotDownloaderProvisioner
             {
                 return new DepotDownloaderEnsureResult(
                     false,
-                    "DepotDownloader 下载包结构不完整。",
+                    _strings.GetString("Dd_PackageIncomplete"),
                     null
                 );
             }
@@ -171,7 +180,7 @@ internal sealed class DepotDownloaderProvisioner : IDepotDownloaderProvisioner
 
             return new DepotDownloaderEnsureResult(
                 true,
-                "DepotDownloader 已下载并就绪。",
+                _strings.GetString("Dd_DownloadedReady"),
                 execPath
             );
         }
@@ -183,7 +192,7 @@ internal sealed class DepotDownloaderProvisioner : IDepotDownloaderProvisioner
         {
             return new DepotDownloaderEnsureResult(
                 false,
-                $"下载 DepotDownloader 失败：{ex.Message}",
+                _strings.Format("Dd_DownloadFailedFormat", ex.Message),
                 null
             );
         }

@@ -34,7 +34,13 @@ public sealed class DepotDownloaderProvisionerTests : IDisposable
         using HttpClient http = CreateClient(_ =>
             throw new InvalidOperationException("不应发起网络请求")
         );
-        DepotDownloaderProvisioner provisioner = new(OfficialSettings(), http, toolsDir, null);
+        DepotDownloaderProvisioner provisioner = new(
+            OfficialSettings(),
+            http,
+            toolsDir,
+            null,
+            TestStrings.Instance
+        );
 
         DepotDownloaderEnsureResult result = await provisioner.EnsureAsync();
 
@@ -46,7 +52,13 @@ public sealed class DepotDownloaderProvisionerTests : IDisposable
     public void IsInstalled_WhenExeMissing_ReturnsFalse()
     {
         using HttpClient http = new();
-        DepotDownloaderProvisioner provisioner = new(OfficialSettings(), http, NewToolsDir(), null);
+        DepotDownloaderProvisioner provisioner = new(
+            OfficialSettings(),
+            http,
+            NewToolsDir(),
+            null,
+            TestStrings.Instance
+        );
 
         Assert.False(provisioner.IsInstalled());
     }
@@ -57,7 +69,13 @@ public sealed class DepotDownloaderProvisionerTests : IDisposable
         string toolsDir = NewToolsDir();
         await File.WriteAllTextAsync(Path.Combine(toolsDir, "DepotDownloader.exe"), "x");
         using HttpClient http = new();
-        DepotDownloaderProvisioner provisioner = new(OfficialSettings(), http, toolsDir, null);
+        DepotDownloaderProvisioner provisioner = new(
+            OfficialSettings(),
+            http,
+            toolsDir,
+            null,
+            TestStrings.Instance
+        );
 
         Assert.True(provisioner.IsInstalled());
     }
@@ -69,7 +87,13 @@ public sealed class DepotDownloaderProvisionerTests : IDisposable
         string sha = Convert.ToHexString(SHA256.HashData(zip));
         SyncProgress progress = new();
         using HttpClient http = CreateClient(_ => Ok(zip));
-        DepotDownloaderProvisioner provisioner = new(OfficialSettings(), http, NewToolsDir(), sha);
+        DepotDownloaderProvisioner provisioner = new(
+            OfficialSettings(),
+            http,
+            NewToolsDir(),
+            sha,
+            TestStrings.Instance
+        );
 
         DepotDownloaderEnsureResult result = await provisioner.EnsureAsync(progress, default);
 
@@ -86,7 +110,13 @@ public sealed class DepotDownloaderProvisionerTests : IDisposable
     public async Task EnsureAsync_WithHttpError_ReturnsFailure()
     {
         using HttpClient http = CreateClient(_ => new HttpResponseMessage(HttpStatusCode.NotFound));
-        DepotDownloaderProvisioner provisioner = new(OfficialSettings(), http, NewToolsDir(), null);
+        DepotDownloaderProvisioner provisioner = new(
+            OfficialSettings(),
+            http,
+            NewToolsDir(),
+            null,
+            TestStrings.Instance
+        );
 
         DepotDownloaderEnsureResult result = await provisioner.EnsureAsync();
 
@@ -100,7 +130,13 @@ public sealed class DepotDownloaderProvisionerTests : IDisposable
     {
         byte[] zip = CreateZip();
         using HttpClient http = CreateClient(_ => Ok(zip));
-        DepotDownloaderProvisioner provisioner = new(OfficialSettings(), http, NewToolsDir(), null);
+        DepotDownloaderProvisioner provisioner = new(
+            OfficialSettings(),
+            http,
+            NewToolsDir(),
+            null,
+            TestStrings.Instance
+        );
 
         DepotDownloaderEnsureResult result = await provisioner.EnsureAsync();
 
@@ -115,7 +151,13 @@ public sealed class DepotDownloaderProvisionerTests : IDisposable
         string sha = Convert.ToHexString(SHA256.HashData(zip));
         string toolsDir = NewToolsDir();
         using HttpClient http = CreateClient(_ => Ok(zip));
-        DepotDownloaderProvisioner provisioner = new(OfficialSettings(), http, toolsDir, sha);
+        DepotDownloaderProvisioner provisioner = new(
+            OfficialSettings(),
+            http,
+            toolsDir,
+            sha,
+            TestStrings.Instance
+        );
 
         DepotDownloaderEnsureResult result = await provisioner.EnsureAsync();
 
@@ -163,7 +205,8 @@ public sealed class DepotDownloaderProvisionerTests : IDisposable
             SettingsWith(accelerator, prefix),
             http,
             NewToolsDir(),
-            null
+            null,
+            TestStrings.Instance
         );
 
         _ = await provisioner.EnsureAsync();
@@ -176,7 +219,13 @@ public sealed class DepotDownloaderProvisionerTests : IDisposable
     public async Task EnsureAsync_WithCanceledToken_ThrowsOperationCanceled()
     {
         using HttpClient http = CreateClient(_ => Ok(CreateZip()));
-        DepotDownloaderProvisioner provisioner = new(OfficialSettings(), http, NewToolsDir(), null);
+        DepotDownloaderProvisioner provisioner = new(
+            OfficialSettings(),
+            http,
+            NewToolsDir(),
+            null,
+            TestStrings.Instance
+        );
         using CancellationTokenSource cts = new();
         await cts.CancelAsync();
 

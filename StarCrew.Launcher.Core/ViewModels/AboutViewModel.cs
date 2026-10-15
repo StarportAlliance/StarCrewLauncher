@@ -12,27 +12,33 @@ internal sealed partial class AboutViewModel : ObservableObject
     private readonly IExternalLauncher _launcher;
     private readonly INotificationService _notifications;
     private readonly IAppInfo _appInfo;
+    private readonly IAppStrings _strings;
 
     public AboutViewModel(
         AppUpdater updater,
         IExternalLauncher launcher,
         INotificationService notifications,
-        IAppInfo appInfo
+        IAppInfo appInfo,
+        IAppStrings strings
     )
     {
         ArgumentNullException.ThrowIfNull(updater);
         ArgumentNullException.ThrowIfNull(launcher);
         ArgumentNullException.ThrowIfNull(notifications);
         ArgumentNullException.ThrowIfNull(appInfo);
+        ArgumentNullException.ThrowIfNull(strings);
         _updater = updater;
         _launcher = launcher;
         _notifications = notifications;
         _appInfo = appInfo;
+        _strings = strings;
     }
 
     /// <summary>版本描述，取自启动器自身程序集版本。</summary>
     public string VersionDescription =>
-        _appInfo.Version is null ? "版本 未知" : $"版本 {_appInfo.Version}";
+        _appInfo.Version is null
+            ? _strings.GetString("About_VersionUnknown")
+            : _strings.Format("About_VersionFormat", _appInfo.Version);
 
     /// <summary>检查到新版本时触发，由页面弹确认框。</summary>
     public event EventHandler<string>? UpdateAvailable;
@@ -83,7 +89,11 @@ internal sealed partial class AboutViewModel : ObservableObject
         }
         catch (OperationCanceledException)
         {
-            _notifications.Notify("已取消新版本下载。", null, NotificationSeverity.Informational);
+            _notifications.Notify(
+                _strings.GetString("About_UpdateDownloadCancelled"),
+                null,
+                NotificationSeverity.Informational
+            );
             return false;
         }
     }

@@ -18,7 +18,8 @@ public sealed class DownloadPageViewModelTests
                 Substitute.For<ISteamLoginManager>(),
                 Substitute.For<IDownloadCoordinator>(),
                 Substitute.For<IDepotDownloaderProvisioner>(),
-                Substitute.For<INotificationService>()
+                Substitute.For<INotificationService>(),
+                TestStrings.Instance
             )
         );
     }
@@ -33,7 +34,8 @@ public sealed class DownloadPageViewModelTests
                 Substitute.For<ISteamLoginManager>(),
                 Substitute.For<IDownloadCoordinator>(),
                 Substitute.For<IDepotDownloaderProvisioner>(),
-                Substitute.For<INotificationService>()
+                Substitute.For<INotificationService>(),
+                TestStrings.Instance
             )
         );
     }
@@ -48,7 +50,8 @@ public sealed class DownloadPageViewModelTests
                 null!,
                 Substitute.For<IDownloadCoordinator>(),
                 Substitute.For<IDepotDownloaderProvisioner>(),
-                Substitute.For<INotificationService>()
+                Substitute.For<INotificationService>(),
+                TestStrings.Instance
             )
         );
     }
@@ -63,7 +66,8 @@ public sealed class DownloadPageViewModelTests
                 Substitute.For<ISteamLoginManager>(),
                 null!,
                 Substitute.For<IDepotDownloaderProvisioner>(),
-                Substitute.For<INotificationService>()
+                Substitute.For<INotificationService>(),
+                TestStrings.Instance
             )
         );
     }
@@ -78,7 +82,8 @@ public sealed class DownloadPageViewModelTests
                 Substitute.For<ISteamLoginManager>(),
                 Substitute.For<IDownloadCoordinator>(),
                 Substitute.For<IDepotDownloaderProvisioner>(),
-                null!
+                null!,
+                TestStrings.Instance
             )
         );
     }
@@ -531,7 +536,8 @@ public sealed class DownloadPageViewModelTests
             loginTarget,
             coordinatorTarget,
             provisionerTarget,
-            notifications
+            notifications,
+            TestStrings.Instance
         );
         return (
             vm,

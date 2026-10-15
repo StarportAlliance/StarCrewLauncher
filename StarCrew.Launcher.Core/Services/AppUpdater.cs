@@ -7,11 +7,14 @@ namespace StarCrew.Launcher.Services;
 internal sealed class AppUpdater
 {
     private readonly IUpdateClient _client;
+    private readonly IAppStrings _strings;
 
-    public AppUpdater(IUpdateClient client)
+    public AppUpdater(IUpdateClient client, IAppStrings strings)
     {
         ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(strings);
         _client = client;
+        _strings = strings;
     }
 
     /// <summary>当前已安装版本，未经安装时为 null。</summary>
@@ -29,7 +32,7 @@ internal sealed class AppUpdater
             return new UpdateCheckResult(
                 UpdateState.NotInstalled,
                 null,
-                "当前为开发运行，未经安装，跳过更新检查。"
+                _strings.GetString("Update_DevRunSkip")
             );
         }
 
@@ -40,15 +43,20 @@ internal sealed class AppUpdater
                 .ConfigureAwait(false);
             if (version is null)
             {
-                string current = _client.CurrentVersion ?? "未知";
+                string current =
+                    _client.CurrentVersion ?? _strings.GetString("Update_UnknownVersion");
                 return new UpdateCheckResult(
                     UpdateState.UpToDate,
                     null,
-                    $"已是最新版本（{current}）。"
+                    _strings.Format("Update_UpToDateFormat", current)
                 );
             }
 
-            return new UpdateCheckResult(UpdateState.Available, version, $"发现新版本 {version}。");
+            return new UpdateCheckResult(
+                UpdateState.Available,
+                version,
+                _strings.Format("Update_AvailableFormat", version)
+            );
         }
         catch (OperationCanceledException)
         {
@@ -59,12 +67,16 @@ internal sealed class AppUpdater
             return new UpdateCheckResult(
                 UpdateState.NotInstalled,
                 null,
-                "当前未经 Velopack 安装，无法检查更新。"
+                _strings.GetString("Update_NotInstalledCheck")
             );
         }
         catch (Exception ex)
         {
-            return new UpdateCheckResult(UpdateState.Failed, null, $"检查更新失败：{ex.Message}");
+            return new UpdateCheckResult(
+                UpdateState.Failed,
+                null,
+                _strings.Format("Update_CheckFailedFormat", ex.Message)
+            );
         }
     }
 
@@ -83,7 +95,7 @@ internal sealed class AppUpdater
             return new UpdateCheckResult(
                 UpdateState.NotInstalled,
                 null,
-                "当前未经 Velopack 安装，无法下载更新。"
+                _strings.GetString("Update_NotInstalledDownload")
             );
         }
 
@@ -96,7 +108,7 @@ internal sealed class AppUpdater
             return new UpdateCheckResult(
                 UpdateState.ReadyToRestart,
                 version,
-                $"已下载新版本 {version}，重启后生效。"
+                _strings.Format("Update_DownloadedFormat", version)
             );
         }
         catch (OperationCanceledException)
@@ -105,7 +117,11 @@ internal sealed class AppUpdater
         }
         catch (Exception ex)
         {
-            return new UpdateCheckResult(UpdateState.Failed, null, $"下载更新失败：{ex.Message}");
+            return new UpdateCheckResult(
+                UpdateState.Failed,
+                null,
+                _strings.Format("Update_DownloadFailedFormat", ex.Message)
+            );
         }
     }
 }

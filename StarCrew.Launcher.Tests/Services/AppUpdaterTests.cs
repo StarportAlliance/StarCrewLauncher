@@ -12,7 +12,7 @@ public sealed class AppUpdaterTests
     [Fact]
     public void Ctor_WithNullClient_ThrowsArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>(() => new AppUpdater(null!));
+        Assert.Throws<ArgumentNullException>(() => new AppUpdater(null!, TestStrings.Instance));
     }
 
     [Fact]
@@ -20,7 +20,7 @@ public sealed class AppUpdaterTests
     {
         IUpdateClient client = Substitute.For<IUpdateClient>();
         client.CurrentVersion.Returns("0.3.0");
-        AppUpdater updater = new(client);
+        AppUpdater updater = new(client, TestStrings.Instance);
 
         Assert.Equal("0.3.0", updater.CurrentVersion);
     }
@@ -29,7 +29,7 @@ public sealed class AppUpdaterTests
     public async Task CheckOnly_WithCanceledToken_ThrowsOperationCanceled()
     {
         IUpdateClient client = Substitute.For<IUpdateClient>();
-        AppUpdater updater = new(client);
+        AppUpdater updater = new(client, TestStrings.Instance);
         using CancellationTokenSource cts = new();
         await cts.CancelAsync();
 
@@ -43,7 +43,7 @@ public sealed class AppUpdaterTests
     {
         IUpdateClient client = Substitute.For<IUpdateClient>();
         client.IsInstalled.Returns(false);
-        AppUpdater updater = new(client);
+        AppUpdater updater = new(client, TestStrings.Instance);
 
         UpdateCheckResult result = await updater.CheckOnlyAsync();
 
@@ -59,7 +59,7 @@ public sealed class AppUpdaterTests
         client.IsInstalled.Returns(true);
         client.CurrentVersion.Returns("0.3.0");
         client.CheckForUpdatesAsync(Arg.Any<CancellationToken>()).Returns((string?)null);
-        AppUpdater updater = new(client);
+        AppUpdater updater = new(client, TestStrings.Instance);
 
         UpdateCheckResult result = await updater.CheckOnlyAsync();
 
@@ -74,7 +74,7 @@ public sealed class AppUpdaterTests
         IUpdateClient client = Substitute.For<IUpdateClient>();
         client.IsInstalled.Returns(true);
         client.CheckForUpdatesAsync(Arg.Any<CancellationToken>()).Returns("0.4.0");
-        AppUpdater updater = new(client);
+        AppUpdater updater = new(client, TestStrings.Instance);
 
         UpdateCheckResult result = await updater.CheckOnlyAsync();
 
@@ -99,7 +99,7 @@ public sealed class AppUpdaterTests
         client
             .CheckForUpdatesAsync(Arg.Any<CancellationToken>())
             .Returns((Func<CallInfo, string?>)(_ => throw notInstalled));
-        AppUpdater updater = new(client);
+        AppUpdater updater = new(client, TestStrings.Instance);
 
         UpdateCheckResult result = await updater.CheckOnlyAsync();
 
@@ -115,7 +115,7 @@ public sealed class AppUpdaterTests
         client
             .CheckForUpdatesAsync(Arg.Any<CancellationToken>())
             .Returns((Func<CallInfo, string?>)(_ => throw new InvalidOperationException("boom")));
-        AppUpdater updater = new(client);
+        AppUpdater updater = new(client, TestStrings.Instance);
 
         UpdateCheckResult result = await updater.CheckOnlyAsync();
 
@@ -130,7 +130,7 @@ public sealed class AppUpdaterTests
     public async Task DownloadAndPrepare_WithBlankVersion_ThrowsArgumentException(string version)
     {
         IUpdateClient client = Substitute.For<IUpdateClient>();
-        AppUpdater updater = new(client);
+        AppUpdater updater = new(client, TestStrings.Instance);
 
         await Assert.ThrowsAsync<ArgumentException>(() => updater.DownloadAndPrepareAsync(version));
     }
@@ -139,7 +139,7 @@ public sealed class AppUpdaterTests
     public async Task DownloadAndPrepare_WithNullVersion_ThrowsArgumentNullException()
     {
         IUpdateClient client = Substitute.For<IUpdateClient>();
-        AppUpdater updater = new(client);
+        AppUpdater updater = new(client, TestStrings.Instance);
 
         await Assert.ThrowsAsync<ArgumentNullException>(() =>
             updater.DownloadAndPrepareAsync(null!)
@@ -150,7 +150,7 @@ public sealed class AppUpdaterTests
     public async Task DownloadAndPrepare_WithCanceledToken_ThrowsOperationCanceled()
     {
         IUpdateClient client = Substitute.For<IUpdateClient>();
-        AppUpdater updater = new(client);
+        AppUpdater updater = new(client, TestStrings.Instance);
         using CancellationTokenSource cts = new();
         await cts.CancelAsync();
 
@@ -164,7 +164,7 @@ public sealed class AppUpdaterTests
     {
         IUpdateClient client = Substitute.For<IUpdateClient>();
         client.IsInstalled.Returns(false);
-        AppUpdater updater = new(client);
+        AppUpdater updater = new(client, TestStrings.Instance);
 
         UpdateCheckResult result = await updater.DownloadAndPrepareAsync("0.4.0");
 
@@ -184,7 +184,7 @@ public sealed class AppUpdaterTests
     {
         IUpdateClient client = Substitute.For<IUpdateClient>();
         client.IsInstalled.Returns(true);
-        AppUpdater updater = new(client);
+        AppUpdater updater = new(client, TestStrings.Instance);
         Progress<int> progress = new();
 
         UpdateCheckResult result = await updater.DownloadAndPrepareAsync("0.4.0", progress);
@@ -210,7 +210,7 @@ public sealed class AppUpdaterTests
                 Arg.Any<CancellationToken>()
             )
             .Returns(_ => throw new IOException("net down"));
-        AppUpdater updater = new(client);
+        AppUpdater updater = new(client, TestStrings.Instance);
 
         UpdateCheckResult result = await updater.DownloadAndPrepareAsync("0.4.0");
 
@@ -232,7 +232,7 @@ public sealed class AppUpdaterTests
                 Arg.Any<CancellationToken>()
             )
             .Returns(_ => throw new OperationCanceledException());
-        AppUpdater updater = new(client);
+        AppUpdater updater = new(client, TestStrings.Instance);
 
         await Assert.ThrowsAsync<OperationCanceledException>(() =>
             updater.DownloadAndPrepareAsync("0.4.0")

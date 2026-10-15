@@ -21,20 +21,16 @@
             <Grid Padding="24,0,24,24">
                 <StackPanel MaxWidth="1000" HorizontalAlignment="Stretch" Spacing="4">
                     <InfoBar
+                        x:Uid="Install_NotLoggedInBar"
                         IsOpen="{x:Bind ViewModel.NeedsLogin, Mode=OneWay}"
-                        Message="下载原版 Among Us 需要账号凭据。返回后在「游戏下载」→「账号」页扫码登录。"
                         Severity="Warning"
-                        Title="尚未登录 Steam 账号"
                     />
 
-                    <controls:SettingsCard
-                        Description="下载完成后可在「实例管理」中启动。"
-                        Header="实例名称"
-                    >
+                    <controls:SettingsCard x:Uid="Install_InstanceNameCard">
                         <TextBox
+                            x:Uid="Install_InstanceNameBox"
                             Width="360"
                             HorizontalAlignment="Left"
-                            PlaceholderText="实例名称"
                             Text="{x:Bind ViewModel.InstanceName, Mode=TwoWay}"
                         />
                     </controls:SettingsCard>
@@ -45,9 +41,9 @@
         <!-- 主操作沉底：右下角放安装主按钮。 -->
         <Grid Grid.Row="1" Padding="24,8,24,16">
             <Button
+                x:Uid="Install_StartButton"
                 HorizontalAlignment="Right"
                 Click="InstallButton_Click"
-                Content="开始安装"
                 IsEnabled="{x:Bind ViewModel.CanStartInstall, Mode=OneWay}"
                 Style="{StaticResource AccentButtonStyle}"
             />

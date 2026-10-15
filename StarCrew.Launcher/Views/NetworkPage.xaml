@@ -12,14 +12,11 @@
                 Spacing="{StaticResource SettingsCardSpacing}"
             >
                 <TextBlock
+                    x:Uid="Network_SectionTitle"
                     Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
-                    Text="网络"
                 />
 
-                <controls:SettingsCard
-                    Header="下载加速源"
-                    Description="选择从 GitHub 拉取 DepotDownloader 等资源时使用的链路。"
-                >
+                <controls:SettingsCard x:Uid="Network_AcceleratorCard">
                     <ComboBox
                         x:Name="AcceleratorCombo"
                         Width="240"
@@ -28,14 +25,10 @@
                     />
                 </controls:SettingsCard>
 
-                <controls:SettingsCard
-                    x:Name="CustomPrefixCard"
-                    Header="自定义前缀"
-                    Description="仅在选择「自定义前缀」时生效。留空则退回官方直连。"
-                >
+                <controls:SettingsCard x:Name="CustomPrefixCard" x:Uid="Network_CustomPrefixCard">
                     <TextBox
+                        x:Uid="Network_CustomPrefixBox"
                         Width="240"
-                        PlaceholderText="https://example.com"
                         Text="{x:Bind ViewModel.CustomPrefix, Mode=TwoWay}"
                     />
                 </controls:SettingsCard>

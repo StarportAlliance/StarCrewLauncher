@@ -12,22 +12,26 @@ internal sealed partial class HomeViewModel : ObservableObject
     private readonly IInstanceLauncher _launcher;
     private readonly INavigationService _navigation;
     private readonly INotificationService _notifications;
+    private readonly IAppStrings _strings;
 
     public HomeViewModel(
         IInstanceStore store,
         IInstanceLauncher launcher,
         INavigationService navigation,
-        INotificationService notifications
+        INotificationService notifications,
+        IAppStrings strings
     )
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(launcher);
         ArgumentNullException.ThrowIfNull(navigation);
         ArgumentNullException.ThrowIfNull(notifications);
+        ArgumentNullException.ThrowIfNull(strings);
         _store = store;
         _launcher = launcher;
         _navigation = navigation;
         _notifications = notifications;
+        _strings = strings;
 
         LauncherState state = _store.Load();
         Instances = state.Instances;
@@ -57,11 +61,16 @@ internal sealed partial class HomeViewModel : ObservableObject
     public bool HasInstances => Instances.Count > 0;
 
     /// <summary>启动按钮文案。</summary>
-    public string LaunchButtonText => HasInstances ? "启动游戏" : "下载游戏";
+    public string LaunchButtonText =>
+        HasInstances
+            ? _strings.GetString("Home_LaunchGame")
+            : _strings.GetString("Home_DownloadGame");
 
     /// <summary>首页左下角的当前实例名，没有实例时给出下载提示。</summary>
     public string CurrentInstanceName =>
-        SelectedInstance is not null ? SelectedInstance.Name : "还没有实例，下载一个以开始游玩吧。";
+        SelectedInstance is not null
+            ? SelectedInstance.Name
+            : _strings.GetString("Home_NoInstanceHint");
 
     [RelayCommand]
     private async Task LaunchAsync()

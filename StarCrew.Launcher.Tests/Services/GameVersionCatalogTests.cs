@@ -41,7 +41,7 @@ public sealed class GameVersionCatalogTests : IDisposable
             }
             """;
         using HttpClient http = CreateClient(_ => Ok(remote));
-        GameVersionCatalog catalog = new(http, _cacheDir);
+        GameVersionCatalog catalog = new(http, _cacheDir, TestStrings.Instance);
 
         VersionCatalog result = await catalog.LoadAsync();
 
@@ -73,7 +73,7 @@ public sealed class GameVersionCatalogTests : IDisposable
             """
         );
         using HttpClient http = CreateClient(_ => NotFound());
-        GameVersionCatalog catalog = new(http, _cacheDir);
+        GameVersionCatalog catalog = new(http, _cacheDir, TestStrings.Instance);
 
         VersionCatalog result = await catalog.LoadAsync();
 
@@ -91,7 +91,7 @@ public sealed class GameVersionCatalogTests : IDisposable
             """{"version": 5, "versions": []}"""
         );
         using HttpClient http = CreateClient(_ => Ok("{ not json"));
-        GameVersionCatalog catalog = new(http, _cacheDir);
+        GameVersionCatalog catalog = new(http, _cacheDir, TestStrings.Instance);
 
         VersionCatalog result = await catalog.LoadAsync();
 
@@ -103,7 +103,7 @@ public sealed class GameVersionCatalogTests : IDisposable
     public async Task LoadAsync_WithoutRemoteOrCache_ThrowsFailure()
     {
         using HttpClient http = CreateClient(_ => NotFound());
-        GameVersionCatalog catalog = new(http, _cacheDir);
+        GameVersionCatalog catalog = new(http, _cacheDir, TestStrings.Instance);
 
         Exception failure = await Assert.ThrowsAsync<InvalidOperationException>(() =>
             catalog.LoadAsync()
@@ -117,7 +117,7 @@ public sealed class GameVersionCatalogTests : IDisposable
     {
         await File.WriteAllTextAsync(Path.Combine(_cacheDir, "versions.json"), "{ corrupt");
         using HttpClient http = CreateClient(_ => NotFound());
-        GameVersionCatalog catalog = new(http, _cacheDir);
+        GameVersionCatalog catalog = new(http, _cacheDir, TestStrings.Instance);
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => catalog.LoadAsync());
     }
@@ -126,7 +126,7 @@ public sealed class GameVersionCatalogTests : IDisposable
     public async Task LoadAsync_WithCanceledToken_ThrowsOperationCanceled()
     {
         using HttpClient http = CreateClient(_ => Ok("{}"));
-        GameVersionCatalog catalog = new(http, _cacheDir);
+        GameVersionCatalog catalog = new(http, _cacheDir, TestStrings.Instance);
         using CancellationTokenSource cts = new();
         await cts.CancelAsync();
 

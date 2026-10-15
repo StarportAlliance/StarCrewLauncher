@@ -33,7 +33,8 @@ public sealed class InstancesViewModelTests : IDisposable
                 Substitute.For<IInstanceLauncher>(),
                 Substitute.For<IExternalLauncher>(),
                 Substitute.For<INotificationService>(),
-                Substitute.For<INavigationService>()
+                Substitute.For<INavigationService>(),
+                TestStrings.Instance
             )
         );
     }
@@ -49,7 +50,8 @@ public sealed class InstancesViewModelTests : IDisposable
             Substitute.For<IInstanceLauncher>(),
             Substitute.For<IExternalLauncher>(),
             Substitute.For<INotificationService>(),
-            Substitute.For<INavigationService>()
+            Substitute.For<INavigationService>(),
+            TestStrings.Instance
         );
 
         Assert.Equal(2, vm.Items.Count);
@@ -67,7 +69,8 @@ public sealed class InstancesViewModelTests : IDisposable
             Substitute.For<IInstanceLauncher>(),
             Substitute.For<IExternalLauncher>(),
             Substitute.For<INotificationService>(),
-            Substitute.For<INavigationService>()
+            Substitute.For<INavigationService>(),
+            TestStrings.Instance
         );
 
         Assert.False(vm.HasInstances);
@@ -84,7 +87,8 @@ public sealed class InstancesViewModelTests : IDisposable
             Substitute.For<IInstanceLauncher>(),
             Substitute.For<IExternalLauncher>(),
             Substitute.For<INotificationService>(),
-            Substitute.For<INavigationService>()
+            Substitute.For<INavigationService>(),
+            TestStrings.Instance
         );
         GameInstance? raised = null;
         vm.DeleteRequested += (_, inst) => raised = inst;
@@ -108,7 +112,8 @@ public sealed class InstancesViewModelTests : IDisposable
             Substitute.For<IInstanceLauncher>(),
             Substitute.For<IExternalLauncher>(),
             notifications,
-            Substitute.For<INavigationService>()
+            Substitute.For<INavigationService>(),
+            TestStrings.Instance
         );
 
         vm.ConfirmDelete(a, deleteFiles: false);
@@ -130,7 +135,8 @@ public sealed class InstancesViewModelTests : IDisposable
             Substitute.For<IInstanceLauncher>(),
             Substitute.For<IExternalLauncher>(),
             Substitute.For<INotificationService>(),
-            Substitute.For<INavigationService>()
+            Substitute.For<INavigationService>(),
+            TestStrings.Instance
         );
 
         vm.ConfirmDelete(a, deleteFiles: true);
@@ -149,7 +155,8 @@ public sealed class InstancesViewModelTests : IDisposable
             Substitute.For<IInstanceLauncher>(),
             Substitute.For<IExternalLauncher>(),
             Substitute.For<INotificationService>(),
-            Substitute.For<INavigationService>()
+            Substitute.For<INavigationService>(),
+            TestStrings.Instance
         );
 
         vm.ConfirmRename(a, "  新名字  ");
@@ -172,7 +179,8 @@ public sealed class InstancesViewModelTests : IDisposable
             Substitute.For<IInstanceLauncher>(),
             Substitute.For<IExternalLauncher>(),
             notifications,
-            Substitute.For<INavigationService>()
+            Substitute.For<INavigationService>(),
+            TestStrings.Instance
         );
 
         vm.ConfirmRename(a, blankName);
@@ -195,7 +203,8 @@ public sealed class InstancesViewModelTests : IDisposable
             Substitute.For<IInstanceLauncher>(),
             Substitute.For<IExternalLauncher>(),
             notifications,
-            Substitute.For<INavigationService>()
+            Substitute.For<INavigationService>(),
+            TestStrings.Instance
         );
 
         vm.ConfirmRename(a, "b");
@@ -216,7 +225,8 @@ public sealed class InstancesViewModelTests : IDisposable
             Substitute.For<IInstanceLauncher>(),
             Substitute.For<IExternalLauncher>(),
             Substitute.For<INotificationService>(),
-            navigation
+            navigation,
+            TestStrings.Instance
         );
 
         vm.GoDownloadCommand.Execute(null);

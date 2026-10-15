@@ -9,25 +9,26 @@ internal sealed class SteamLoginManager : ISteamLoginManager
     private const int AmongUsAppId = 945360;
     private const int AmongUsDepotId = 945361;
 
-    private const string NotInstalledMessage =
-        "DepotDownloader 尚未安装，请先在「账号」页的「组件」中安装。";
-
     private readonly IDepotDownloaderProvisioner _provisioner;
     private readonly IDepotDownloaderRunner _runner;
     private readonly IInstanceStore _store;
+    private readonly IAppStrings _strings;
 
     public SteamLoginManager(
         IDepotDownloaderProvisioner provisioner,
         IDepotDownloaderRunner runner,
-        IInstanceStore store
+        IInstanceStore store,
+        IAppStrings strings
     )
     {
         ArgumentNullException.ThrowIfNull(provisioner);
         ArgumentNullException.ThrowIfNull(runner);
         ArgumentNullException.ThrowIfNull(store);
+        ArgumentNullException.ThrowIfNull(strings);
         _provisioner = provisioner;
         _runner = runner;
         _store = store;
+        _strings = strings;
     }
 
     /// <inheritdoc />
@@ -43,7 +44,7 @@ internal sealed class SteamLoginManager : ISteamLoginManager
 
         if (!_provisioner.IsInstalled())
         {
-            return new SteamLoginOutcome(false, null, NotInstalledMessage);
+            return new SteamLoginOutcome(false, null, _strings.GetString("Login_DdNotInstalled"));
         }
 
         DepotDownloaderEnsureResult ensure = await _provisioner.EnsureAsync(
@@ -96,7 +97,7 @@ internal sealed class SteamLoginManager : ISteamLoginManager
             return new SteamLoginOutcome(
                 false,
                 null,
-                last ?? $"登录失败，退出码 {outcome.ExitCode}。"
+                last ?? _strings.Format("Login_FailedExitCodeFormat", outcome.ExitCode)
             );
         }
         finally
@@ -113,7 +114,7 @@ internal sealed class SteamLoginManager : ISteamLoginManager
     {
         if (!_provisioner.IsInstalled())
         {
-            return new SteamLoginOutcome(false, null, NotInstalledMessage);
+            return new SteamLoginOutcome(false, null, _strings.GetString("Login_DdNotInstalled"));
         }
 
         DepotDownloaderEnsureResult ensure = await _provisioner.EnsureAsync(
@@ -156,7 +157,7 @@ internal sealed class SteamLoginManager : ISteamLoginManager
                 return new SteamLoginOutcome(
                     false,
                     null,
-                    lastQr ?? $"登录失败，退出码 {outcome.ExitCode}。"
+                    lastQr ?? _strings.Format("Login_FailedExitCodeFormat", outcome.ExitCode)
                 );
             }
 
@@ -164,7 +165,11 @@ internal sealed class SteamLoginManager : ISteamLoginManager
             string? accountName = ExtractAccountName(outcome.OutputLines);
             if (accountName is null)
             {
-                return new SteamLoginOutcome(false, null, "登录成功但无法解析账号名。");
+                return new SteamLoginOutcome(
+                    false,
+                    null,
+                    _strings.GetString("Login_AccountNameParseFailed")
+                );
             }
 
             LauncherState state = _store.Load();

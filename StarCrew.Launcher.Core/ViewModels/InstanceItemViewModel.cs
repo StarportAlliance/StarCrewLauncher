@@ -10,22 +10,26 @@ internal sealed partial class InstanceItemViewModel
     private readonly IInstanceLauncher _launcher;
     private readonly IExternalLauncher _externalLauncher;
     private readonly INotificationService _notifications;
+    private readonly IAppStrings _strings;
 
     public InstanceItemViewModel(
         GameInstance instance,
         IInstanceLauncher launcher,
         IExternalLauncher externalLauncher,
-        INotificationService notifications
+        INotificationService notifications,
+        IAppStrings strings
     )
     {
         ArgumentNullException.ThrowIfNull(instance);
         ArgumentNullException.ThrowIfNull(launcher);
         ArgumentNullException.ThrowIfNull(externalLauncher);
         ArgumentNullException.ThrowIfNull(notifications);
+        ArgumentNullException.ThrowIfNull(strings);
         Instance = instance;
         _launcher = launcher;
         _externalLauncher = externalLauncher;
         _notifications = notifications;
+        _strings = strings;
     }
 
     public GameInstance Instance { get; private set; }
@@ -33,7 +37,14 @@ internal sealed partial class InstanceItemViewModel
     public string Name => Instance.Name;
 
     public string Summary =>
-        $"v{Instance.GameVersionLabel} · {(Instance.State == InstanceState.Ready ? "就绪" : "未完成")} · {Instance.InstallDirectory}";
+        _strings.Format(
+            "Instances_SummaryFormat",
+            Instance.GameVersionLabel,
+            Instance.State == InstanceState.Ready
+                ? _strings.GetString("Instances_StateReady")
+                : _strings.GetString("Instances_StateNotReady"),
+            Instance.InstallDirectory
+        );
 
     public bool CanLaunch => Instance.State == InstanceState.Ready;
 
@@ -49,7 +60,7 @@ internal sealed partial class InstanceItemViewModel
         if (!CanLaunch)
         {
             _notifications.Notify(
-                "无法启动：该实例尚未就绪，请先完成安装。",
+                _strings.GetString("Instances_NotReadyToLaunch"),
                 null,
                 NotificationSeverity.Warning
             );
@@ -80,7 +91,11 @@ internal sealed partial class InstanceItemViewModel
         }
         catch (Exception ex)
         {
-            _notifications.Notify($"打开失败：{ex.Message}", null, NotificationSeverity.Error);
+            _notifications.Notify(
+                _strings.Format("Instances_OpenFolderFailedFormat", ex.Message),
+                null,
+                NotificationSeverity.Error
+            );
         }
     }
 

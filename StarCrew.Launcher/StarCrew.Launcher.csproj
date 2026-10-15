@@ -10,6 +10,8 @@
         <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
         <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
         <UseWinUI>true</UseWinUI>
+        <!-- 应用文案仅提供简中资源：声明默认语言，让 zh-CN 资源兼作中性回退（消除 PRI263）。 -->
+        <DefaultLanguage>zh-CN</DefaultLanguage>
         <EnableMsixTooling>true</EnableMsixTooling>
         <WindowsPackageType>None</WindowsPackageType>
         <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>

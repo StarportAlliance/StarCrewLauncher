@@ -9,7 +9,7 @@ public sealed class ProcessRunnerTests
     [Fact]
     public async Task RunAsync_WithNullCommand_ThrowsArgumentNullException()
     {
-        ProcessRunner runner = new();
+        ProcessRunner runner = new(TestStrings.Instance);
 
         await Assert.ThrowsAsync<ArgumentNullException>(() => runner.RunAsync(null!));
     }
@@ -17,7 +17,7 @@ public sealed class ProcessRunnerTests
     [Fact]
     public async Task RunAsync_WithCanceledToken_ThrowsOperationCanceled()
     {
-        ProcessRunner runner = new();
+        ProcessRunner runner = new(TestStrings.Instance);
         using CancellationTokenSource cts = new();
         await cts.CancelAsync();
 
@@ -33,7 +33,7 @@ public sealed class ProcessRunnerTests
     [Fact]
     public async Task RunAsync_WithEcho_ReturnsZeroAndCapturesOutput()
     {
-        ProcessRunner runner = new();
+        ProcessRunner runner = new(TestStrings.Instance);
         List<string> seen = [];
         IProgress<string> output = new Progress<string>(seen.Add);
 
@@ -54,7 +54,7 @@ public sealed class ProcessRunnerTests
     [Fact]
     public async Task RunAsync_WithMissingExe_ReturnsNegativeOne()
     {
-        ProcessRunner runner = new();
+        ProcessRunner runner = new(TestStrings.Instance);
         string missing = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".exe");
 
         ExecutableOutcome outcome = await runner.RunAsync(new ExecutableCommand(missing, [], null));
@@ -66,7 +66,7 @@ public sealed class ProcessRunnerTests
     [Fact]
     public async Task RunAsync_WithStdin_ForwardsInputToProcess()
     {
-        ProcessRunner runner = new();
+        ProcessRunner runner = new(TestStrings.Instance);
 
         ExecutableOutcome outcome = await runner.RunAsync(
             new ExecutableCommand("cmd.exe", ["/c", "findstr", "stdin"], "hello-stdin\n")
@@ -83,7 +83,7 @@ public sealed class ProcessRunnerTests
     [Fact]
     public async Task RunAsync_WhenCanceled_KillsProcessAndThrows()
     {
-        ProcessRunner runner = new();
+        ProcessRunner runner = new(TestStrings.Instance);
         using CancellationTokenSource cts = new();
         Task<ExecutableOutcome> running = runner.RunAsync(
             new ExecutableCommand("ping.exe", ["-n", "30", "127.0.0.1"], null),

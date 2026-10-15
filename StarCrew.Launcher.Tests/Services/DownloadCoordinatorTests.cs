@@ -32,7 +32,8 @@ public sealed class DownloadCoordinatorTests : IDisposable
                 null!,
                 Substitute.For<IDepotDownloaderProvisioner>(),
                 Substitute.For<IDepotDownloaderRunner>(),
-                _root
+                _root,
+                TestStrings.Instance
             )
         );
     }
@@ -45,7 +46,8 @@ public sealed class DownloadCoordinatorTests : IDisposable
                 Substitute.For<IInstanceStore>(),
                 null!,
                 Substitute.For<IDepotDownloaderRunner>(),
-                _root
+                _root,
+                TestStrings.Instance
             )
         );
     }
@@ -58,7 +60,8 @@ public sealed class DownloadCoordinatorTests : IDisposable
                 Substitute.For<IInstanceStore>(),
                 Substitute.For<IDepotDownloaderProvisioner>(),
                 null!,
-                _root
+                _root,
+                TestStrings.Instance
             )
         );
     }
@@ -73,7 +76,8 @@ public sealed class DownloadCoordinatorTests : IDisposable
                 Substitute.For<IInstanceStore>(),
                 Substitute.For<IDepotDownloaderProvisioner>(),
                 Substitute.For<IDepotDownloaderRunner>(),
-                root
+                root,
+                TestStrings.Instance
             )
         );
     }
@@ -116,7 +120,8 @@ public sealed class DownloadCoordinatorTests : IDisposable
             store,
             provisioner,
             Substitute.For<IDepotDownloaderRunner>(),
-            _root
+            _root,
+            TestStrings.Instance
         );
 
         GameInstallResult result = await coordinator.InstallAsync("A", VersionEntry());
@@ -424,7 +429,8 @@ public sealed class DownloadCoordinatorTests : IDisposable
             store,
             provisioner,
             runner ?? Substitute.For<IDepotDownloaderRunner>(),
-            _root
+            _root,
+            TestStrings.Instance
         );
     }
 

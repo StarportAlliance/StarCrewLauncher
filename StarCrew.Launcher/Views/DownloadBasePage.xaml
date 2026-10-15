@@ -46,9 +46,9 @@
                 <!-- 顶部行：左侧版本列表标题，右侧搜索框 + 刷新 -->
                 <Grid Margin="0,0,0,8">
                     <TextBlock
+                        x:Uid="DownloadBase_SectionTitle"
                         Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
                         VerticalAlignment="Center"
-                        Text="版本列表"
                     />
                     <StackPanel
                         Orientation="Horizontal"
@@ -57,11 +57,14 @@
                         VerticalAlignment="Center"
                     >
                         <TextBox
+                            x:Uid="DownloadBase_SearchBox"
                             Width="260"
-                            PlaceholderText="搜索版本名称"
                             Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         />
-                        <Button Content="刷新" Command="{x:Bind ViewModel.RefreshCommand}" />
+                        <Button
+                            x:Uid="DownloadBase_RefreshButton"
+                            Command="{x:Bind ViewModel.RefreshCommand}"
+                        />
                     </StackPanel>
                 </Grid>
 

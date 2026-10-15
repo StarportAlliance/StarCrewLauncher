@@ -7,13 +7,20 @@ internal sealed class WindowsSteamClient : ISteamClient
 {
     private readonly ISteamEnvironment _environment;
     private readonly IProcessStarter _starter;
+    private readonly IAppStrings _strings;
 
-    public WindowsSteamClient(ISteamEnvironment environment, IProcessStarter starter)
+    public WindowsSteamClient(
+        ISteamEnvironment environment,
+        IProcessStarter starter,
+        IAppStrings strings
+    )
     {
         ArgumentNullException.ThrowIfNull(environment);
         ArgumentNullException.ThrowIfNull(starter);
+        ArgumentNullException.ThrowIfNull(strings);
         _environment = environment;
         _starter = starter;
+        _strings = strings;
     }
 
     public bool IsSteamRunning() => Process.GetProcessesByName("steam").Length > 0;
@@ -23,7 +30,7 @@ internal sealed class WindowsSteamClient : ISteamClient
         string? exePath = FindSteamExe();
         if (string.IsNullOrEmpty(exePath))
         {
-            error = "未找到 Steam 主程序，请确认已安装 Steam。";
+            error = _strings.GetString("Steam_NotFound");
             return false;
         }
 

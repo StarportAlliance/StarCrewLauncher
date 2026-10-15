@@ -16,7 +16,8 @@ public sealed class InstanceItemViewModelTests
                 null!,
                 Substitute.For<IInstanceLauncher>(),
                 Substitute.For<IExternalLauncher>(),
-                Substitute.For<INotificationService>()
+                Substitute.For<INotificationService>(),
+                TestStrings.Instance
             )
         );
     }
@@ -29,7 +30,8 @@ public sealed class InstanceItemViewModelTests
                 CreateInstance(),
                 null!,
                 Substitute.For<IExternalLauncher>(),
-                Substitute.For<INotificationService>()
+                Substitute.For<INotificationService>(),
+                TestStrings.Instance
             )
         );
     }
@@ -42,7 +44,8 @@ public sealed class InstanceItemViewModelTests
                 CreateInstance(),
                 Substitute.For<IInstanceLauncher>(),
                 null!,
-                Substitute.For<INotificationService>()
+                Substitute.For<INotificationService>(),
+                TestStrings.Instance
             )
         );
     }
@@ -55,7 +58,8 @@ public sealed class InstanceItemViewModelTests
                 CreateInstance(),
                 Substitute.For<IInstanceLauncher>(),
                 Substitute.For<IExternalLauncher>(),
-                null!
+                null!,
+                TestStrings.Instance
             )
         );
     }
@@ -67,7 +71,8 @@ public sealed class InstanceItemViewModelTests
             CreateInstance(InstanceState.Incomplete),
             Substitute.For<IInstanceLauncher>(),
             Substitute.For<IExternalLauncher>(),
-            Substitute.For<INotificationService>()
+            Substitute.For<INotificationService>(),
+            TestStrings.Instance
         );
 
         Assert.False(vm.CanLaunch);
@@ -83,7 +88,8 @@ public sealed class InstanceItemViewModelTests
             CreateInstance(InstanceState.Incomplete),
             launcher,
             Substitute.For<IExternalLauncher>(),
-            notifications
+            notifications,
+            TestStrings.Instance
         );
 
         await vm.LaunchCommand.ExecuteAsync(null);
@@ -106,7 +112,8 @@ public sealed class InstanceItemViewModelTests
             CreateInstance(),
             launcher,
             Substitute.For<IExternalLauncher>(),
-            notifications
+            notifications,
+            TestStrings.Instance
         );
 
         await vm.LaunchCommand.ExecuteAsync(null);
@@ -126,7 +133,8 @@ public sealed class InstanceItemViewModelTests
             CreateInstance(),
             launcher,
             Substitute.For<IExternalLauncher>(),
-            notifications
+            notifications,
+            TestStrings.Instance
         );
 
         await vm.LaunchCommand.ExecuteAsync(null);
@@ -146,7 +154,8 @@ public sealed class InstanceItemViewModelTests
             CreateInstance(),
             Substitute.For<IInstanceLauncher>(),
             externalLauncher,
-            notifications
+            notifications,
+            TestStrings.Instance
         );
 
         await vm.OpenFolderCommand.ExecuteAsync(null);
@@ -163,7 +172,8 @@ public sealed class InstanceItemViewModelTests
             instance,
             Substitute.For<IInstanceLauncher>(),
             Substitute.For<IExternalLauncher>(),
-            Substitute.For<INotificationService>()
+            Substitute.For<INotificationService>(),
+            TestStrings.Instance
         );
         vm.RenameRequested += (_, inst) => raised = inst;
 
@@ -181,7 +191,8 @@ public sealed class InstanceItemViewModelTests
             instance,
             Substitute.For<IInstanceLauncher>(),
             Substitute.For<IExternalLauncher>(),
-            Substitute.For<INotificationService>()
+            Substitute.For<INotificationService>(),
+            TestStrings.Instance
         );
         vm.DeleteRequested += (_, inst) => raised = inst;
 
@@ -199,7 +210,8 @@ public sealed class InstanceItemViewModelTests
             instance,
             Substitute.For<IInstanceLauncher>(),
             Substitute.For<IExternalLauncher>(),
-            Substitute.For<INotificationService>()
+            Substitute.For<INotificationService>(),
+            TestStrings.Instance
         );
         vm.DetailsRequested += (_, inst) => raised = inst;
 

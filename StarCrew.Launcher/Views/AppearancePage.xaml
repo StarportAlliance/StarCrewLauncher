@@ -13,10 +13,10 @@
                 Spacing="{StaticResource SettingsCardSpacing}"
             >
                 <TextBlock
+                    x:Uid="Appearance_SectionTitle"
                     Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
-                    Text="外观"
                 />
-                <controls:SettingsCard Header="主题" Description="选择启动器要显示哪种颜色的主题">
+                <controls:SettingsCard x:Uid="Appearance_ThemeCard">
                     <controls:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE790;" />
                     </controls:SettingsCard.HeaderIcon>
@@ -25,9 +25,9 @@
                         Width="200"
                         SelectedIndex="{x:Bind ViewModel.SelectedThemeIndex, Mode=TwoWay}"
                     >
-                        <ComboBoxItem Content="跟随系统" Tag="System" />
-                        <ComboBoxItem Content="浅色" Tag="Light" />
-                        <ComboBoxItem Content="深色" Tag="Dark" />
+                        <ComboBoxItem x:Uid="Appearance_ThemeSystem" Tag="System" />
+                        <ComboBoxItem x:Uid="Appearance_ThemeLight" Tag="Light" />
+                        <ComboBoxItem x:Uid="Appearance_ThemeDark" Tag="Dark" />
                     </ComboBox>
                 </controls:SettingsCard>
             </StackPanel>

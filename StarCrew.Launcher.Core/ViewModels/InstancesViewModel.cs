@@ -13,13 +13,15 @@ internal sealed partial class InstancesViewModel : ObservableObject
     private readonly IExternalLauncher _externalLauncher;
     private readonly INotificationService _notifications;
     private readonly INavigationService _navigation;
+    private readonly IAppStrings _strings;
 
     public InstancesViewModel(
         IInstanceStore store,
         IInstanceLauncher launcher,
         IExternalLauncher externalLauncher,
         INotificationService notifications,
-        INavigationService navigation
+        INavigationService navigation,
+        IAppStrings strings
     )
     {
         ArgumentNullException.ThrowIfNull(store);
@@ -27,11 +29,13 @@ internal sealed partial class InstancesViewModel : ObservableObject
         ArgumentNullException.ThrowIfNull(externalLauncher);
         ArgumentNullException.ThrowIfNull(notifications);
         ArgumentNullException.ThrowIfNull(navigation);
+        ArgumentNullException.ThrowIfNull(strings);
         _store = store;
         _launcher = launcher;
         _externalLauncher = externalLauncher;
         _notifications = notifications;
         _navigation = navigation;
+        _strings = strings;
 
         Items = [];
         HasInstances = false;
@@ -62,7 +66,8 @@ internal sealed partial class InstancesViewModel : ObservableObject
                 instance,
                 _launcher,
                 _externalLauncher,
-                _notifications
+                _notifications,
+                _strings
             );
             item.RenameRequested += (_, inst) => RenameRequested?.Invoke(this, inst);
             item.DeleteRequested += (_, inst) => DeleteRequested?.Invoke(this, inst);
@@ -90,7 +95,11 @@ internal sealed partial class InstancesViewModel : ObservableObject
             }
             catch (Exception ex)
             {
-                _notifications.Notify($"删除失败：{ex.Message}", null, NotificationSeverity.Error);
+                _notifications.Notify(
+                    _strings.Format("Instances_DeleteFailedFormat", ex.Message),
+                    null,
+                    NotificationSeverity.Error
+                );
                 return;
             }
         }
@@ -105,7 +114,7 @@ internal sealed partial class InstancesViewModel : ObservableObject
         );
         Reload();
         _notifications.Notify(
-            $"实例「{instance.Name}」已从列表移除。",
+            _strings.Format("Instances_RemovedFormat", instance.Name),
             null,
             NotificationSeverity.Informational
         );
@@ -118,7 +127,11 @@ internal sealed partial class InstancesViewModel : ObservableObject
         string? candidate = newName?.Trim();
         if (string.IsNullOrWhiteSpace(candidate))
         {
-            _notifications.Notify("重命名失败：实例名不能为空。", null, NotificationSeverity.Error);
+            _notifications.Notify(
+                _strings.GetString("Instances_RenameEmpty"),
+                null,
+                NotificationSeverity.Error
+            );
             return;
         }
 
@@ -129,7 +142,7 @@ internal sealed partial class InstancesViewModel : ObservableObject
         if (duplicate)
         {
             _notifications.Notify(
-                "重命名失败：已存在同名的实例。",
+                _strings.GetString("Instances_RenameDuplicate"),
                 null,
                 NotificationSeverity.Error
             );
@@ -146,7 +159,7 @@ internal sealed partial class InstancesViewModel : ObservableObject
         );
         Reload();
         _notifications.Notify(
-            $"实例已重命名为「{candidate}」。",
+            _strings.Format("Instances_RenamedFormat", candidate),
             null,
             NotificationSeverity.Success
         );

@@ -6,6 +6,14 @@ namespace StarCrew.Launcher.Services;
 /// <summary>基于 <see cref="Process" /> 的外部程序执行器。</summary>
 internal sealed class ProcessRunner : IDepotDownloaderRunner
 {
+    private readonly IAppStrings _strings;
+
+    public ProcessRunner(IAppStrings strings)
+    {
+        ArgumentNullException.ThrowIfNull(strings);
+        _strings = strings;
+    }
+
     /// <inheritdoc />
     public async Task<ExecutableOutcome> RunAsync(
         ExecutableCommand command,
@@ -51,7 +59,7 @@ internal sealed class ProcessRunner : IDepotDownloaderRunner
         {
             if (!process.Start())
             {
-                return new ExecutableOutcome(-1, ["进程启动失败。"]);
+                return new ExecutableOutcome(-1, [_strings.GetString("Runner_StartFailed")]);
             }
 
             process.BeginOutputReadLine();

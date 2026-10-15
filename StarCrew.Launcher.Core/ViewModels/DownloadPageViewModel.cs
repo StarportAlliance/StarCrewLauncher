@@ -14,6 +14,7 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     private readonly IDownloadCoordinator _coordinator;
     private readonly IDepotDownloaderProvisioner _provisioner;
     private readonly INotificationService _notifications;
+    private readonly IAppStrings _strings;
 
     public DownloadPageViewModel(
         IInstanceStore store,
@@ -21,7 +22,8 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         ISteamLoginManager loginManager,
         IDownloadCoordinator coordinator,
         IDepotDownloaderProvisioner provisioner,
-        INotificationService notifications
+        INotificationService notifications,
+        IAppStrings strings
     )
     {
         ArgumentNullException.ThrowIfNull(store);
@@ -30,16 +32,19 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         ArgumentNullException.ThrowIfNull(coordinator);
         ArgumentNullException.ThrowIfNull(provisioner);
         ArgumentNullException.ThrowIfNull(notifications);
+        ArgumentNullException.ThrowIfNull(strings);
         _store = store;
         _catalog = catalog;
         _loginManager = loginManager;
         _coordinator = coordinator;
         _provisioner = provisioner;
         _notifications = notifications;
+        _strings = strings;
 
         AccountName = _store.Load().SteamAccountName;
         Items = [];
         IsDepotDownloaderInstalled = _provisioner.IsInstalled();
+        StatusMessage = _strings.GetString("Download_Ready");
         _ = LoadVersionsAsync();
     }
 
@@ -66,13 +71,13 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     public partial string? AccountName { get; set; }
 
     /// <summary>账号状态文本：未登录/已登录 @ 用户名。</summary>
-    public string AccountLabel => AccountName ?? "未登录";
+    public string AccountLabel => AccountName ?? _strings.GetString("Download_NotLoggedIn");
 
     [ObservableProperty]
     public partial bool IsBusy { get; set; }
 
     [ObservableProperty]
-    public partial string StatusMessage { get; set; } = "准备就绪。";
+    public partial string StatusMessage { get; set; }
 
     [ObservableProperty]
     public partial double Progress { get; set; }
@@ -85,7 +90,9 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
 
     /// <summary>安装按钮文案：未安装时「安装」，已安装时「已安装」（禁用）。</summary>
     public string DepotDownloaderInstallButtonText =>
-        IsDepotDownloaderInstalled ? "已安装" : "安装";
+        IsDepotDownloaderInstalled
+            ? _strings.GetString("Download_DdInstalled")
+            : _strings.GetString("Download_InstallDd");
 
     /// <summary>未安装时才允许点安装。</summary>
     public bool CanInstallDepotDownloader => !IsDepotDownloaderInstalled;
@@ -113,12 +120,12 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         {
             VersionCatalog catalog = await _catalog.LoadAsync();
             Items = catalog.Versions;
-            StatusMessage = $"共 {catalog.Versions.Count} 个可安装版本。";
+            StatusMessage = _strings.Format("Download_VersionsCountFormat", catalog.Versions.Count);
         }
         catch (Exception ex)
         {
             Items = [];
-            StatusMessage = $"版本列表加载失败：{ex.Message}";
+            StatusMessage = _strings.Format("Download_VersionListFailedFormat", ex.Message);
         }
     }
 
@@ -131,11 +138,15 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
         {
-            return new SteamLoginOutcome(false, null, "请输入用户名和密码。");
+            return new SteamLoginOutcome(
+                false,
+                null,
+                _strings.GetString("Download_CredentialsRequired")
+            );
         }
 
         IsBusy = true;
-        StatusMessage = "正在登录 Steam 账号...";
+        StatusMessage = _strings.GetString("Download_LoggingIn");
         try
         {
             SteamLoginOutcome outcome = await _loginManager.LoginAsync(
@@ -147,20 +158,23 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
             {
                 AccountName = outcome.AccountName;
                 _notifications.Notify(
-                    $"已登录：{outcome.AccountName}",
+                    _strings.Format("Download_LoggedInFormat", outcome.AccountName),
                     null,
                     NotificationSeverity.Success
                 );
-                StatusMessage = $"已登录：{outcome.AccountName}";
+                StatusMessage = _strings.Format("Download_LoggedInFormat", outcome.AccountName);
             }
             else
             {
                 _notifications.Notify(
-                    $"登录失败：{outcome.ErrorMessage ?? "未知错误"}",
+                    _strings.Format(
+                        "Download_LoginFailedFormat",
+                        outcome.ErrorMessage ?? _strings.GetString("Download_UnknownError")
+                    ),
                     null,
                     NotificationSeverity.Error
                 );
-                StatusMessage = outcome.ErrorMessage ?? "登录失败";
+                StatusMessage = outcome.ErrorMessage ?? _strings.GetString("Download_LoginFailed");
             }
 
             return outcome;
@@ -178,7 +192,7 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     )
     {
         IsBusy = true;
-        StatusMessage = "等待扫码登录...";
+        StatusMessage = _strings.GetString("Download_WaitingQrLogin");
         try
         {
             SteamLoginOutcome outcome = await _loginManager.LoginWithQrAsync(
@@ -189,20 +203,23 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
             {
                 AccountName = outcome.AccountName;
                 _notifications.Notify(
-                    $"已登录：{outcome.AccountName}",
+                    _strings.Format("Download_LoggedInFormat", outcome.AccountName),
                     null,
                     NotificationSeverity.Success
                 );
-                StatusMessage = $"已登录：{outcome.AccountName}";
+                StatusMessage = _strings.Format("Download_LoggedInFormat", outcome.AccountName);
             }
             else
             {
                 _notifications.Notify(
-                    $"登录失败：{outcome.ErrorMessage ?? "未知错误"}",
+                    _strings.Format(
+                        "Download_LoginFailedFormat",
+                        outcome.ErrorMessage ?? _strings.GetString("Download_UnknownError")
+                    ),
                     null,
                     NotificationSeverity.Error
                 );
-                StatusMessage = outcome.ErrorMessage ?? "登录失败";
+                StatusMessage = outcome.ErrorMessage ?? _strings.GetString("Download_LoginFailed");
             }
 
             return outcome;
@@ -210,8 +227,8 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         catch (OperationCanceledException)
         {
             // 取消是用户主动行为，登录对话框自行关闭，不再弹通知。
-            StatusMessage = "登录已取消。";
-            return new SteamLoginOutcome(false, null, "已取消。");
+            StatusMessage = _strings.GetString("Download_LoginCancelled");
+            return new SteamLoginOutcome(false, null, _strings.GetString("Download_Cancelled"));
         }
         finally
         {
@@ -225,8 +242,12 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         LauncherState state = _store.Load();
         _store.Save(state with { SteamAccountName = null });
         AccountName = null;
-        StatusMessage = "已退出登录。下次登录时会复用 DD 的本地会话令牌。";
-        _notifications.Notify("已退出登录，账号已清除。", null, NotificationSeverity.Informational);
+        StatusMessage = _strings.GetString("Download_LoggedOutStatus");
+        _notifications.Notify(
+            _strings.GetString("Download_LoggedOutToast"),
+            null,
+            NotificationSeverity.Informational
+        );
     }
 
     /// <summary>显式安装 DepotDownloader 组件；结束（成功/失败）立即弹 Toast，取消静默返回。下载进度经 progress 上报给安装对话框。</summary>
@@ -236,7 +257,7 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     )
     {
         IsBusy = true;
-        StatusMessage = "正在下载 DepotDownloader 组件...";
+        StatusMessage = _strings.GetString("Download_DownloadingDd");
         try
         {
             DepotDownloaderEnsureResult result = await _provisioner.EnsureAsync(
@@ -256,8 +277,12 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         catch (OperationCanceledException)
         {
             // 取消是用户主动行为，安装对话框自行关闭，不再弹通知。
-            StatusMessage = "已取消组件安装。";
-            return new DepotDownloaderEnsureResult(false, "已取消。", null);
+            StatusMessage = _strings.GetString("Download_DdInstallCancelled");
+            return new DepotDownloaderEnsureResult(
+                false,
+                _strings.GetString("Download_Cancelled"),
+                null
+            );
         }
         finally
         {
@@ -275,18 +300,21 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(AccountName))
         {
-            return new GameInstallResult(false, "请先在「游戏下载」页登录 Steam 账号。");
+            return new GameInstallResult(
+                false,
+                _strings.GetString("Download_LoginRequiredForInstall")
+            );
         }
 
         string normalizedName = instanceName?.Trim() ?? string.Empty;
         if (string.IsNullOrEmpty(normalizedName))
         {
-            return new GameInstallResult(false, "实例名称不能为空。");
+            return new GameInstallResult(false, _strings.GetString("Download_InstanceNameEmpty"));
         }
 
         IsBusy = true;
         Progress = 0;
-        StatusMessage = $"开始安装「{normalizedName}」...";
+        StatusMessage = _strings.Format("Download_InstallStartFormat", normalizedName);
 
         try
         {

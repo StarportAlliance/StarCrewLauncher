@@ -13,13 +13,16 @@ internal sealed class InstanceLauncher : IInstanceLauncher
 
     private readonly IProcessStarter _starter;
     private readonly ISteamClient _steam;
+    private readonly IAppStrings _strings;
 
-    public InstanceLauncher(IProcessStarter starter, ISteamClient steam)
+    public InstanceLauncher(IProcessStarter starter, ISteamClient steam, IAppStrings strings)
     {
         ArgumentNullException.ThrowIfNull(starter);
         ArgumentNullException.ThrowIfNull(steam);
+        ArgumentNullException.ThrowIfNull(strings);
         _starter = starter;
         _steam = steam;
+        _strings = strings;
     }
 
     /// <inheritdoc />
@@ -33,13 +36,13 @@ internal sealed class InstanceLauncher : IInstanceLauncher
 
         if (instance.State != InstanceState.Ready)
         {
-            return new LaunchOutcome(false, "该实例尚未就绪，请先完成安装。");
+            return new LaunchOutcome(false, _strings.GetString("Launch_NotReady"));
         }
 
         string exePath = Path.Combine(instance.InstallDirectory, GameExecutableName);
         if (!File.Exists(exePath))
         {
-            return new LaunchOutcome(false, "未找到游戏文件，请重新下载或修复该实例。");
+            return new LaunchOutcome(false, _strings.GetString("Launch_GameFileMissing"));
         }
 
         await EnsureSteamOnlineAsync(cancellationToken);
@@ -47,8 +50,8 @@ internal sealed class InstanceLauncher : IInstanceLauncher
         try
         {
             return _starter.TryStart(exePath, instance.InstallDirectory, out string? error)
-                ? new LaunchOutcome(true, "已启动。")
-                : new LaunchOutcome(false, error ?? "启动失败。");
+                ? new LaunchOutcome(true, _strings.GetString("Launch_Started"))
+                : new LaunchOutcome(false, error ?? _strings.GetString("Launch_Failed"));
         }
         catch (Exception ex)
         {

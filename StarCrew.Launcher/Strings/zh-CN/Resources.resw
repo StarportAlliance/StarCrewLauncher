@@ -1,0 +1,619 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  启动器全部用户可见文案的唯一来源，供人工校对维护。
+  - XAML 侧经 x:Uid 引用（条目名后跟 .属性路径）；C# 侧经 IAppStrings.Get/Format("键") 引用。
+  - {0} {1} 为运行时占位符，请保留；\n 表示换行。
+  - 命名约定：功能分组前缀_用途，如 Nav_Home、Download_LoginFailed。
+-->
+<root>
+  <!-- ===== 通用按钮/短语 ===== -->
+  <data name="Common_Download" xml:space="preserve">
+    <value>下载</value>
+  </data>
+  <data name="Common_Later" xml:space="preserve">
+    <value>稍后</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="Common_Install" xml:space="preserve">
+    <value>安装</value>
+  </data>
+  <data name="Common_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Common_Delete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Common_Ok" xml:space="preserve">
+    <value>确定</value>
+  </data>
+
+  <!-- ===== 主窗口侧栏导航 ===== -->
+  <data name="Nav_Home.Content" xml:space="preserve">
+    <value>启动游戏</value>
+  </data>
+  <data name="Nav_Instances.Content" xml:space="preserve">
+    <value>实例管理</value>
+  </data>
+  <data name="Nav_Download.Content" xml:space="preserve">
+    <value>游戏下载</value>
+  </data>
+
+  <!-- ===== 首页 ===== -->
+  <data name="Home_LaunchGame" xml:space="preserve">
+    <value>启动游戏</value>
+  </data>
+  <data name="Home_DownloadGame" xml:space="preserve">
+    <value>下载游戏</value>
+  </data>
+  <data name="Home_NoInstanceHint" xml:space="preserve">
+    <value>还没有实例，下载一个以开始游玩吧。</value>
+  </data>
+
+  <!-- ===== 设置分区导航 ===== -->
+  <data name="Settings_SectionTitle.Text" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="SettingsSection_Appearance.Content" xml:space="preserve">
+    <value>通用</value>
+  </data>
+  <data name="SettingsSection_Network.Content" xml:space="preserve">
+    <value>网络</value>
+  </data>
+  <data name="SettingsSection_About.Content" xml:space="preserve">
+    <value>关于</value>
+  </data>
+
+  <!-- ===== 外观设置 ===== -->
+  <data name="Appearance_SectionTitle.Text" xml:space="preserve">
+    <value>外观</value>
+  </data>
+  <data name="Appearance_ThemeCard.Header" xml:space="preserve">
+    <value>主题</value>
+  </data>
+  <data name="Appearance_ThemeCard.Description" xml:space="preserve">
+    <value>选择启动器要显示哪种颜色的主题</value>
+  </data>
+  <data name="Appearance_ThemeSystem.Content" xml:space="preserve">
+    <value>跟随系统</value>
+  </data>
+  <data name="Appearance_ThemeLight.Content" xml:space="preserve">
+    <value>浅色</value>
+  </data>
+  <data name="Appearance_ThemeDark.Content" xml:space="preserve">
+    <value>深色</value>
+  </data>
+
+  <!-- ===== 网络设置 ===== -->
+  <data name="Network_SectionTitle.Text" xml:space="preserve">
+    <value>网络</value>
+  </data>
+  <data name="Network_AcceleratorCard.Header" xml:space="preserve">
+    <value>下载加速源</value>
+  </data>
+  <data name="Network_AcceleratorCard.Description" xml:space="preserve">
+    <value>选择从 GitHub 拉取 DepotDownloader 等资源时使用的链路。</value>
+  </data>
+  <data name="Network_CustomPrefixCard.Header" xml:space="preserve">
+    <value>自定义前缀</value>
+  </data>
+  <data name="Network_CustomPrefixCard.Description" xml:space="preserve">
+    <value>仅在选择「自定义前缀」时生效。留空则退回官方直连。</value>
+  </data>
+  <data name="Network_CustomPrefixBox.PlaceholderText" xml:space="preserve">
+    <value>https://example.com</value>
+  </data>
+  <data name="Network_OptionOfficial" xml:space="preserve">
+    <value>官方直连</value>
+  </data>
+  <data name="Network_OptionGhProxy" xml:space="preserve">
+    <value>gh-proxy.org（第三方加速）</value>
+  </data>
+  <data name="Network_OptionCustom" xml:space="preserve">
+    <value>自定义前缀</value>
+  </data>
+
+  <!-- ===== 关于页 ===== -->
+  <data name="About_SectionTitle.Text" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="About_CheckUpdateButton.Content" xml:space="preserve">
+    <value>检查更新</value>
+  </data>
+  <data name="About_WebsiteCard.Header" xml:space="preserve">
+    <value>官方网站</value>
+  </data>
+  <data name="About_WebsiteCard.Description" xml:space="preserve">
+    <value>查看教学文档、疑难解答，或是下载最新版本的 SCL 安装程序</value>
+  </data>
+  <data name="About_WebsiteCard.ActionIconToolTip" xml:space="preserve">
+    <value>在浏览器中打开</value>
+  </data>
+  <data name="About_FeedbackCard.Header" xml:space="preserve">
+    <value>问题反馈</value>
+  </data>
+  <data name="About_FeedbackCard.Description" xml:space="preserve">
+    <value>使用过程发现了 Bug？想要新的实用功能？欢迎在 GitHub Issues 反馈</value>
+  </data>
+  <data name="About_FeedbackCard.ActionIconToolTip" xml:space="preserve">
+    <value>在浏览器中打开</value>
+  </data>
+  <data name="About_LegalSection.Text" xml:space="preserve">
+    <value>法律声明</value>
+  </data>
+  <data name="About_LicenseCard.Header" xml:space="preserve">
+    <value>© 2026 StarportAlliance</value>
+  </data>
+  <data name="About_LicenseCard.Description" xml:space="preserve">
+    <value>StarCrewLauncher 以 AGPL-3.0 开源发布</value>
+  </data>
+  <data name="About_LicenseCard.ActionIconToolTip" xml:space="preserve">
+    <value>在浏览器中打开</value>
+  </data>
+  <data name="About_NoticeCard.Header" xml:space="preserve">
+    <value>本应用与 Among Us 或 Innersloth LLC 无附属关系，其中包含的内容未获 Innersloth LLC 认可或以其他方式赞助。本文所含部分材料为 Innersloth LLC 的财产。© Innersloth LLC。</value>
+  </data>
+  <data name="About_NoticeCard.Description" xml:space="preserve">
+    <value>This mod is not affiliated with Among Us or Innersloth LLC, and the content contained therein is not endorsed or otherwise sponsored by Innersloth LLC. Portions of the materials contained herein are property of Innersloth LLC. © Innersloth LLC.</value>
+  </data>
+  <data name="About_LicenseSection.Text" xml:space="preserve">
+    <value>三方许可与版权声明</value>
+  </data>
+  <data name="About_WasdkCard.Header" xml:space="preserve">
+    <value>Windows App SDK</value>
+  </data>
+  <data name="About_WasdkCard.Description" xml:space="preserve">
+    <value>© Microsoft Corporation, License under MIT.</value>
+  </data>
+  <data name="About_WasdkCard.ActionIconToolTip" xml:space="preserve">
+    <value>在浏览器中打开</value>
+  </data>
+  <data name="About_ToolkitCard.Header" xml:space="preserve">
+    <value>Windows Community Toolkit</value>
+  </data>
+  <data name="About_ToolkitCard.Description" xml:space="preserve">
+    <value>© .NET Foundation and Contributors, License under MIT.</value>
+  </data>
+  <data name="About_ToolkitCard.ActionIconToolTip" xml:space="preserve">
+    <value>在浏览器中打开</value>
+  </data>
+  <data name="About_VelopackCard.Header" xml:space="preserve">
+    <value>Velopack</value>
+  </data>
+  <data name="About_VelopackCard.Description" xml:space="preserve">
+    <value>© Velopack Ltd, License under MIT.</value>
+  </data>
+  <data name="About_VelopackCard.ActionIconToolTip" xml:space="preserve">
+    <value>在浏览器中打开</value>
+  </data>
+  <data name="About_DdCard.Header" xml:space="preserve">
+    <value>DepotDownloader</value>
+  </data>
+  <data name="About_DdCard.Description" xml:space="preserve">
+    <value>© DepotDownloader Contributors, License under GPL-2.0.</value>
+  </data>
+  <data name="About_DdCard.ActionIconToolTip" xml:space="preserve">
+    <value>在浏览器中打开</value>
+  </data>
+  <data name="About_VersionUnknown" xml:space="preserve">
+    <value>版本 未知</value>
+  </data>
+  <data name="About_VersionFormat" xml:space="preserve">
+    <value>版本 {0}</value>
+  </data>
+  <data name="About_UpdateAvailableTitle" xml:space="preserve">
+    <value>发现新版本</value>
+  </data>
+  <data name="About_UpdateAvailableContentFormat" xml:space="preserve">
+    <value>检测到新版本 {0}，是否下载？</value>
+  </data>
+  <data name="About_DownloadingFormat" xml:space="preserve">
+    <value>正在下载新版本 {0}</value>
+  </data>
+  <data name="About_UpdateDownloadCancelled" xml:space="preserve">
+    <value>已取消新版本下载。</value>
+  </data>
+
+  <!-- ===== 实例管理 ===== -->
+  <data name="Instances_SectionTitle.Text" xml:space="preserve">
+    <value>我的实例</value>
+  </data>
+  <data name="Instances_EmptyHint.Text" xml:space="preserve">
+    <value>还没有任何实例。去「游戏下载」页下载一个原版 Among Us，实例就会出现在这里。</value>
+  </data>
+  <data name="Instances_GoDownloadButton.Content" xml:space="preserve">
+    <value>前往下载</value>
+  </data>
+  <data name="Instances_CardLaunch" xml:space="preserve">
+    <value>启动</value>
+  </data>
+  <data name="Instances_CardOpenFolder" xml:space="preserve">
+    <value>打开目录</value>
+  </data>
+  <data name="Instances_CardMore" xml:space="preserve">
+    <value>更多</value>
+  </data>
+  <data name="Instances_CardRename" xml:space="preserve">
+    <value>重命名</value>
+  </data>
+  <data name="Instances_CardDetails" xml:space="preserve">
+    <value>详情</value>
+  </data>
+  <data name="Instances_CardDelete" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Instances_RenameTitle" xml:space="preserve">
+    <value>重命名实例</value>
+  </data>
+  <data name="Instances_RenameEmpty" xml:space="preserve">
+    <value>重命名失败：实例名不能为空。</value>
+  </data>
+  <data name="Instances_RenameDuplicate" xml:space="preserve">
+    <value>重命名失败：已存在同名的实例。</value>
+  </data>
+  <data name="Instances_RenamedFormat" xml:space="preserve">
+    <value>实例已重命名为「{0}」。</value>
+  </data>
+  <data name="Instances_DeleteTitle" xml:space="preserve">
+    <value>删除实例</value>
+  </data>
+  <data name="Instances_DeleteConfirmFormat" xml:space="preserve">
+    <value>确定要删除实例「{0}」吗？选中下方选项会同时删除该实例的游戏文件。</value>
+  </data>
+  <data name="Instances_DeleteFilesAlso" xml:space="preserve">
+    <value>同时删除游戏文件</value>
+  </data>
+  <data name="Instances_DeleteFailedFormat" xml:space="preserve">
+    <value>删除失败：{0}</value>
+  </data>
+  <data name="Instances_RemovedFormat" xml:space="preserve">
+    <value>实例「{0}」已从列表移除。</value>
+  </data>
+  <data name="Instances_DetailsTitleFormat" xml:space="preserve">
+    <value>实例详情：{0}</value>
+  </data>
+  <!-- {0}=版本 {1}=状态 {2}=安装目录 {3}=创建时间 {4}=上次启动 -->
+  <data name="Instances_DetailsFormat" xml:space="preserve">
+    <value>版本：v{0}&#10;状态：{1}&#10;安装目录：{2}&#10;创建时间：{3}&#10;上次启动：{4}</value>
+  </data>
+  <data name="Instances_NeverLaunched" xml:space="preserve">
+    <value>从未启动</value>
+  </data>
+  <data name="Instances_SummaryFormat" xml:space="preserve">
+    <value>v{0} · {1} · {2}</value>
+  </data>
+  <data name="Instances_StateReady" xml:space="preserve">
+    <value>就绪</value>
+  </data>
+  <data name="Instances_StateNotReady" xml:space="preserve">
+    <value>未完成</value>
+  </data>
+  <data name="Instances_NotReadyToLaunch" xml:space="preserve">
+    <value>无法启动：该实例尚未就绪，请先完成安装。</value>
+  </data>
+  <data name="Instances_OpenFolderFailedFormat" xml:space="preserve">
+    <value>打开失败：{0}</value>
+  </data>
+
+  <!-- ===== 游戏下载：分区导航与版本列表 ===== -->
+  <data name="DownloadSection_Base.Content" xml:space="preserve">
+    <value>基础游戏</value>
+  </data>
+  <data name="DownloadSection_Account.Content" xml:space="preserve">
+    <value>账号</value>
+  </data>
+  <data name="DownloadBase_SectionTitle.Text" xml:space="preserve">
+    <value>版本列表</value>
+  </data>
+  <data name="DownloadBase_SearchBox.PlaceholderText" xml:space="preserve">
+    <value>搜索版本名称</value>
+  </data>
+  <data name="DownloadBase_RefreshButton.Content" xml:space="preserve">
+    <value>刷新</value>
+  </data>
+  <data name="DownloadBase_UnavailableBadge" xml:space="preserve">
+    <value>暂不可用</value>
+  </data>
+  <data name="DownloadBase_PublishedAtFormat" xml:space="preserve">
+    <value>发布于 {0}</value>
+  </data>
+  <data name="DownloadBase_LoginHintTitle" xml:space="preserve">
+    <value>未登录 Steam 账号</value>
+  </data>
+  <data name="DownloadBase_LoginHintContent" xml:space="preserve">
+    <value>下载原版 Among Us 需要通过含有该游戏的 Steam 账号获取。请先前往「账号」页扫码登录（首次使用还需在「组件」中安装 DepotDownloader）。</value>
+  </data>
+  <data name="DownloadBase_GoLogin" xml:space="preserve">
+    <value>前往登录</value>
+  </data>
+  <data name="DownloadBase_Later" xml:space="preserve">
+    <value>稍后再说</value>
+  </data>
+  <data name="Download_VersionsCountFormat" xml:space="preserve">
+    <value>共 {0} 个可安装版本。</value>
+  </data>
+  <data name="Download_VersionListFailedFormat" xml:space="preserve">
+    <value>版本列表加载失败：{0}</value>
+  </data>
+  <data name="Download_NotLoggedIn" xml:space="preserve">
+    <value>未登录</value>
+  </data>
+  <data name="Download_Ready" xml:space="preserve">
+    <value>准备就绪。</value>
+  </data>
+  <data name="Download_DdInstalled" xml:space="preserve">
+    <value>已安装</value>
+  </data>
+  <data name="Download_InstallDd" xml:space="preserve">
+    <value>安装</value>
+  </data>
+
+  <!-- ===== 游戏下载：账号页 ===== -->
+  <data name="Account_SectionTitle.Text" xml:space="preserve">
+    <value>账号</value>
+  </data>
+  <data name="Account_SteamCard.Header" xml:space="preserve">
+    <value>Steam 账号</value>
+  </data>
+  <data name="Account_ToggleLogin" xml:space="preserve">
+    <value>登录</value>
+  </data>
+  <data name="Account_ToggleLogout" xml:space="preserve">
+    <value>登出</value>
+  </data>
+  <data name="Account_LogoutConfirm.Text" xml:space="preserve">
+    <value>确定要退出登录吗？</value>
+  </data>
+  <data name="Account_LogoutButton.Content" xml:space="preserve">
+    <value>退出登录</value>
+  </data>
+  <data name="Account_PrivacyNote.Text" xml:space="preserve">
+    <value>下载功能本身通过 Steam 网络进行，我们需要通过您的登录凭据才可请求 Steam 下载游戏。&#10;（但这不需要您的 Steam 客户端保持在线，我们不依赖它）</value>
+  </data>
+  <data name="Account_ComponentSection.Text" xml:space="preserve">
+    <value>组件</value>
+  </data>
+  <data name="Account_DdCard.Header" xml:space="preserve">
+    <value>DepotDownloader</value>
+  </data>
+  <data name="Account_DdCard.Description" xml:space="preserve">
+    <value>游戏下载核心组件：负责连接 Steam 并拉取游戏文件。</value>
+  </data>
+  <data name="Account_DownloadSourceSettings.Content" xml:space="preserve">
+    <value>下载源设置</value>
+  </data>
+  <data name="Account_DdRequiredTitle" xml:space="preserve">
+    <value>需要先安装 DepotDownloader</value>
+  </data>
+  <data name="Account_DdRequiredContent" xml:space="preserve">
+    <value>登录 Steam 账号依赖 DepotDownloader 组件，当前尚未安装。是否现在安装？</value>
+  </data>
+  <data name="Account_PreparingDownload" xml:space="preserve">
+    <value>准备下载...</value>
+  </data>
+  <data name="Account_DdInstallTitle" xml:space="preserve">
+    <value>安装 DepotDownloader 组件</value>
+  </data>
+  <data name="Account_FetchingQr" xml:space="preserve">
+    <value>正在获取登录二维码...</value>
+  </data>
+  <data name="Account_QrLoginTitle" xml:space="preserve">
+    <value>扫码登录 Steam 账号</value>
+  </data>
+  <data name="Account_ScanQrHint" xml:space="preserve">
+    <value>请用 Steam 手机 App 扫描二维码。</value>
+  </data>
+  <data name="Account_LoginSuccessFormat" xml:space="preserve">
+    <value>登录成功：{0}</value>
+  </data>
+  <data name="Account_LoginFailedRetry" xml:space="preserve">
+    <value>登录失败，请稍后重试。</value>
+  </data>
+  <data name="Login_DdNotInstalled" xml:space="preserve">
+    <value>DepotDownloader 尚未安装，请先在「账号」页的「组件」中安装。</value>
+  </data>
+  <data name="Login_FailedExitCodeFormat" xml:space="preserve">
+    <value>登录失败，退出码 {0}。</value>
+  </data>
+  <data name="Login_AccountNameParseFailed" xml:space="preserve">
+    <value>登录成功但无法解析账号名。</value>
+  </data>
+  <data name="Download_CredentialsRequired" xml:space="preserve">
+    <value>请输入用户名和密码。</value>
+  </data>
+  <data name="Download_LoggingIn" xml:space="preserve">
+    <value>正在登录 Steam 账号...</value>
+  </data>
+  <data name="Download_LoggedInFormat" xml:space="preserve">
+    <value>已登录：{0}</value>
+  </data>
+  <data name="Download_LoginFailedFormat" xml:space="preserve">
+    <value>登录失败：{0}</value>
+  </data>
+  <data name="Download_UnknownError" xml:space="preserve">
+    <value>未知错误</value>
+  </data>
+  <data name="Download_LoginFailed" xml:space="preserve">
+    <value>登录失败</value>
+  </data>
+  <data name="Download_WaitingQrLogin" xml:space="preserve">
+    <value>等待扫码登录...</value>
+  </data>
+  <data name="Download_LoginCancelled" xml:space="preserve">
+    <value>登录已取消。</value>
+  </data>
+  <data name="Download_Cancelled" xml:space="preserve">
+    <value>已取消。</value>
+  </data>
+  <data name="Download_LoggedOutStatus" xml:space="preserve">
+    <value>已退出登录。下次登录时会复用 DD 的本地会话令牌。</value>
+  </data>
+  <data name="Download_LoggedOutToast" xml:space="preserve">
+    <value>已退出登录，账号已清除。</value>
+  </data>
+  <data name="Download_DownloadingDd" xml:space="preserve">
+    <value>正在下载 DepotDownloader 组件...</value>
+  </data>
+  <data name="Download_DdInstallCancelled" xml:space="preserve">
+    <value>已取消组件安装。</value>
+  </data>
+
+  <!-- ===== 游戏下载：安装详情页 ===== -->
+  <data name="Install_NotLoggedInBar.Title" xml:space="preserve">
+    <value>尚未登录 Steam 账号</value>
+  </data>
+  <data name="Install_NotLoggedInBar.Message" xml:space="preserve">
+    <value>下载原版 Among Us 需要账号凭据。返回后在「游戏下载」→「账号」页扫码登录。</value>
+  </data>
+  <data name="Install_InstanceNameCard.Header" xml:space="preserve">
+    <value>实例名称</value>
+  </data>
+  <data name="Install_InstanceNameCard.Description" xml:space="preserve">
+    <value>下载完成后可在「实例管理」中启动。</value>
+  </data>
+  <data name="Install_InstanceNameBox.PlaceholderText" xml:space="preserve">
+    <value>实例名称</value>
+  </data>
+  <data name="Install_StartButton.Content" xml:space="preserve">
+    <value>开始安装</value>
+  </data>
+  <data name="Install_DialogTitleFormat" xml:space="preserve">
+    <value>正在下载 {0}</value>
+  </data>
+  <data name="Download_LoginRequiredForInstall" xml:space="preserve">
+    <value>请先在「游戏下载」页登录 Steam 账号。</value>
+  </data>
+  <data name="Download_InstanceNameEmpty" xml:space="preserve">
+    <value>实例名称不能为空。</value>
+  </data>
+  <data name="Download_InstallStartFormat" xml:space="preserve">
+    <value>开始安装「{0}」...</value>
+  </data>
+
+  <!-- ===== 安装流程（DownloadCoordinator） ===== -->
+  <data name="Install_LoginRequired" xml:space="preserve">
+    <value>请先在「游戏下载」页登录 Steam 账号。</value>
+  </data>
+  <data name="Install_PreparingTool" xml:space="preserve">
+    <value>准备下载工具...</value>
+  </data>
+  <data name="Install_CheckingSize" xml:space="preserve">
+    <value>正在核对资源大小...</value>
+  </data>
+  <data name="Install_DownloadingFormat" xml:space="preserve">
+    <value>正在下载：{0}（{1:F1}%）</value>
+  </data>
+  <data name="Install_ExeMissing" xml:space="preserve">
+    <value>下载完成，但未找到 Among Us.exe。</value>
+  </data>
+  <data name="Install_CompletedFormat" xml:space="preserve">
+    <value>「{0}」安装完成。</value>
+  </data>
+  <data name="Install_DownloadedFormat" xml:space="preserve">
+    <value>{0} 已下载完成。</value>
+  </data>
+  <data name="Install_Cancelled" xml:space="preserve">
+    <value>下载已取消。</value>
+  </data>
+  <data name="Install_FailedFormat" xml:space="preserve">
+    <value>下载失败：{0}</value>
+  </data>
+  <data name="Install_FailedExitCodeFormat" xml:space="preserve">
+    <value>下载失败，退出码：{0}。</value>
+  </data>
+  <data name="Install_FailedWithReasonFormat" xml:space="preserve">
+    <value>下载失败：{0}</value>
+  </data>
+
+  <!-- ===== DepotDownloader 组件供给 ===== -->
+  <data name="Dd_Ready" xml:space="preserve">
+    <value>DepotDownloader 已就绪。</value>
+  </data>
+  <data name="Dd_Downloading" xml:space="preserve">
+    <value>正在下载 DepotDownloader...</value>
+  </data>
+  <data name="Dd_DownloadingPercentFormat" xml:space="preserve">
+    <value>正在下载 DepotDownloader...（{0:F1}%）</value>
+  </data>
+  <data name="Dd_ShaMismatch" xml:space="preserve">
+    <value>DepotDownloader 下载包 SHA-256 校验失败。</value>
+  </data>
+  <data name="Dd_PackageIncomplete" xml:space="preserve">
+    <value>DepotDownloader 下载包结构不完整。</value>
+  </data>
+  <data name="Dd_DownloadedReady" xml:space="preserve">
+    <value>DepotDownloader 已下载并就绪。</value>
+  </data>
+  <data name="Dd_DownloadFailedFormat" xml:space="preserve">
+    <value>下载 DepotDownloader 失败：{0}</value>
+  </data>
+
+  <!-- ===== 实例启动 ===== -->
+  <data name="Launch_NotReady" xml:space="preserve">
+    <value>该实例尚未就绪，请先完成安装。</value>
+  </data>
+  <data name="Launch_GameFileMissing" xml:space="preserve">
+    <value>未找到游戏文件，请重新下载或修复该实例。</value>
+  </data>
+  <data name="Launch_Started" xml:space="preserve">
+    <value>已启动。</value>
+  </data>
+  <data name="Launch_Failed" xml:space="preserve">
+    <value>启动失败。</value>
+  </data>
+
+  <!-- ===== 应用更新 ===== -->
+  <data name="Update_DevRunSkip" xml:space="preserve">
+    <value>当前为开发运行，未经安装，跳过更新检查。</value>
+  </data>
+  <data name="Update_UnknownVersion" xml:space="preserve">
+    <value>未知</value>
+  </data>
+  <data name="Update_UpToDateFormat" xml:space="preserve">
+    <value>已是最新版本（{0}）。</value>
+  </data>
+  <data name="Update_AvailableFormat" xml:space="preserve">
+    <value>发现新版本 {0}。</value>
+  </data>
+  <data name="Update_NotInstalledCheck" xml:space="preserve">
+    <value>当前未经 Velopack 安装，无法检查更新。</value>
+  </data>
+  <data name="Update_CheckFailedFormat" xml:space="preserve">
+    <value>检查更新失败：{0}</value>
+  </data>
+  <data name="Update_NotInstalledDownload" xml:space="preserve">
+    <value>当前未经 Velopack 安装，无法下载更新。</value>
+  </data>
+  <data name="Update_DownloadedFormat" xml:space="preserve">
+    <value>已下载新版本 {0}，重启后生效。</value>
+  </data>
+  <data name="Update_DownloadFailedFormat" xml:space="preserve">
+    <value>下载更新失败：{0}</value>
+  </data>
+
+  <!-- ===== 版本目录 / 进程执行 / Steam / 打开文件夹 ===== -->
+  <data name="Catalog_FetchFailed" xml:space="preserve">
+    <value>版本目录获取失败，请检查网络连接后重试。</value>
+  </data>
+  <data name="Runner_StartFailed" xml:space="preserve">
+    <value>进程启动失败。</value>
+  </data>
+  <data name="Steam_NotFound" xml:space="preserve">
+    <value>未找到 Steam 主程序，请确认已安装 Steam。</value>
+  </data>
+  <data name="OpenFolder_NotFoundFormat" xml:space="preserve">
+    <value>文件夹不存在：{0}</value>
+  </data>
+
+  <!-- ===== 下载进度对话框底部状态行 ===== -->
+  <data name="Progress_MeasuringSpeed" xml:space="preserve">
+    <value>测速中...</value>
+  </data>
+  <data name="Progress_CheckingSize" xml:space="preserve">
+    <value>资源大小核对中...</value>
+  </data>
+  <data name="Progress_TotalsFormat" xml:space="preserve">
+    <value>{0} / {1}</value>
+  </data>
+</root>

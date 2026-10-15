@@ -13,8 +13,8 @@
                 Spacing="{StaticResource SettingsCardSpacing}"
             >
                 <TextBlock
+                    x:Uid="About_SectionTitle"
                     Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
-                    Text="关于"
                 />
                 <controls:SettingsCard
                     x:Name="AboutVersionCard"
@@ -30,16 +30,14 @@
                     </controls:SettingsCard.HeaderIcon>
                     <Button
                         x:Name="CheckUpdateButton"
+                        x:Uid="About_CheckUpdateButton"
                         Command="{x:Bind ViewModel.CheckUpdateCommand}"
-                        Content="检查更新"
                         Style="{StaticResource AccentButtonStyle}"
                     />
                 </controls:SettingsCard>
                 <controls:SettingsCard
-                    Header="官方网站"
-                    Description="查看教学文档、疑难解答，或是下载最新版本的 SCL 安装程序"
+                    x:Uid="About_WebsiteCard"
                     IsClickEnabled="True"
-                    ActionIconToolTip="在浏览器中打开"
                     Click="WebsiteCard_Click"
                 >
                     <controls:SettingsCard.HeaderIcon>
@@ -50,10 +48,8 @@
                     </controls:SettingsCard.ActionIcon>
                 </controls:SettingsCard>
                 <controls:SettingsCard
-                    Header="问题反馈"
-                    Description="使用过程发现了 Bug？想要新的实用功能？欢迎在 GitHub Issues 反馈"
+                    x:Uid="About_FeedbackCard"
                     IsClickEnabled="True"
-                    ActionIconToolTip="在浏览器中打开"
                     Click="FeedbackCard_Click"
                 >
                     <controls:SettingsCard.HeaderIcon>
@@ -64,35 +60,28 @@
                     </controls:SettingsCard.ActionIcon>
                 </controls:SettingsCard>
                 <TextBlock
+                    x:Uid="About_LegalSection"
                     Margin="1,12,0,6"
                     Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
-                    Text="法律声明"
                 />
                 <controls:SettingsCard
-                    Header="© 2026 StarportAlliance"
-                    Description="StarCrewLauncher 以 AGPL-3.0 开源发布"
+                    x:Uid="About_LicenseCard"
                     IsClickEnabled="True"
-                    ActionIconToolTip="在浏览器中打开"
                     Click="LicenseCard_Click"
                 >
                     <controls:SettingsCard.ActionIcon>
                         <FontIcon Glyph="&#xE8A7;" />
                     </controls:SettingsCard.ActionIcon>
                 </controls:SettingsCard>
-                <controls:SettingsCard
-                    Header="本应用与 Among Us 或 Innersloth LLC 无附属关系，其中包含的内容未获 Innersloth LLC 认可或以其他方式赞助。本文所含部分材料为 Innersloth LLC 的财产。© Innersloth LLC。"
-                    Description="This mod is not affiliated with Among Us or Innersloth LLC, and the content contained therein is not endorsed or otherwise sponsored by Innersloth LLC. Portions of the materials contained herein are property of Innersloth LLC. © Innersloth LLC."
-                ></controls:SettingsCard>
+                <controls:SettingsCard x:Uid="About_NoticeCard"></controls:SettingsCard>
                 <TextBlock
+                    x:Uid="About_LicenseSection"
                     Margin="1,12,0,6"
                     Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
-                    Text="三方许可与版权声明"
                 />
                 <controls:SettingsCard
-                    Header="Windows App SDK"
-                    Description="© Microsoft Corporation, License under MIT."
+                    x:Uid="About_WasdkCard"
                     IsClickEnabled="True"
-                    ActionIconToolTip="在浏览器中打开"
                     Click="WindowsAppSdkLicenseCard_Click"
                 >
                     <controls:SettingsCard.ActionIcon>
@@ -100,10 +89,8 @@
                     </controls:SettingsCard.ActionIcon>
                 </controls:SettingsCard>
                 <controls:SettingsCard
-                    Header="Windows Community Toolkit"
-                    Description="© .NET Foundation and Contributors, License under MIT."
+                    x:Uid="About_ToolkitCard"
                     IsClickEnabled="True"
-                    ActionIconToolTip="在浏览器中打开"
                     Click="CommunityToolkitLicenseCard_Click"
                 >
                     <controls:SettingsCard.ActionIcon>
@@ -111,10 +98,8 @@
                     </controls:SettingsCard.ActionIcon>
                 </controls:SettingsCard>
                 <controls:SettingsCard
-                    Header="Velopack"
-                    Description="© Velopack Ltd, License under MIT."
+                    x:Uid="About_VelopackCard"
                     IsClickEnabled="True"
-                    ActionIconToolTip="在浏览器中打开"
                     Click="VelopackLicenseCard_Click"
                 >
                     <controls:SettingsCard.ActionIcon>
@@ -123,10 +108,8 @@
                 </controls:SettingsCard>
                 <!-- BTW，GPL-2.0 其实不需要加 copyright，这里只是为了风格统一 -->
                 <controls:SettingsCard
-                    Header="DepotDownloader"
-                    Description="© DepotDownloader Contributors, License under GPL-2.0."
+                    x:Uid="About_DdCard"
                     IsClickEnabled="True"
-                    ActionIconToolTip="在浏览器中打开"
                     Click="DepotDownloaderLicenseCard_Click"
                 >
                     <controls:SettingsCard.ActionIcon>

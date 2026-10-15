@@ -10,7 +10,11 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <TextBlock Margin="24,16,24,12" Style="{StaticResource TitleTextBlockStyle}" Text="设置" />
+        <TextBlock
+            x:Uid="Settings_SectionTitle"
+            Margin="24,16,24,12"
+            Style="{StaticResource TitleTextBlockStyle}"
+        />
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -41,17 +45,21 @@
                     <Thickness x:Key="NavigationViewBorderThickness">0</Thickness>
                 </NavigationView.Resources>
                 <NavigationView.MenuItems>
-                    <NavigationViewItem Content="通用" Tag="Appearance" IsSelected="True">
+                    <NavigationViewItem
+                        x:Uid="SettingsSection_Appearance"
+                        Tag="Appearance"
+                        IsSelected="True"
+                    >
                         <NavigationViewItem.Icon>
                             <FontIcon Glyph="&#xE74C;" />
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
-                    <NavigationViewItem Content="网络" Tag="Network">
+                    <NavigationViewItem x:Uid="SettingsSection_Network" Tag="Network">
                         <NavigationViewItem.Icon>
                             <FontIcon Glyph="&#xE774;" />
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
-                    <NavigationViewItem Content="关于" Tag="About">
+                    <NavigationViewItem x:Uid="SettingsSection_About" Tag="About">
                         <NavigationViewItem.Icon>
                             <FontIcon Glyph="&#xE946;" />
                         </NavigationViewItem.Icon>

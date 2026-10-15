@@ -16,7 +16,8 @@ public sealed class HomeViewModelTests
                 null!,
                 Substitute.For<IInstanceLauncher>(),
                 Substitute.For<INavigationService>(),
-                Substitute.For<INotificationService>()
+                Substitute.For<INotificationService>(),
+                TestStrings.Instance
             )
         );
     }
@@ -29,7 +30,8 @@ public sealed class HomeViewModelTests
                 Substitute.For<IInstanceStore>(),
                 null!,
                 Substitute.For<INavigationService>(),
-                Substitute.For<INotificationService>()
+                Substitute.For<INotificationService>(),
+                TestStrings.Instance
             )
         );
     }
@@ -42,7 +44,8 @@ public sealed class HomeViewModelTests
                 Substitute.For<IInstanceStore>(),
                 Substitute.For<IInstanceLauncher>(),
                 null!,
-                Substitute.For<INotificationService>()
+                Substitute.For<INotificationService>(),
+                TestStrings.Instance
             )
         );
     }
@@ -55,7 +58,8 @@ public sealed class HomeViewModelTests
                 Substitute.For<IInstanceStore>(),
                 Substitute.For<IInstanceLauncher>(),
                 Substitute.For<INavigationService>(),
-                null!
+                null!,
+                TestStrings.Instance
             )
         );
     }
@@ -113,7 +117,7 @@ public sealed class HomeViewModelTests
             .Returns(new LaunchOutcome(true, "已启动。"));
         INavigationService navigation = Substitute.For<INavigationService>();
         INotificationService notifications = Substitute.For<INotificationService>();
-        HomeViewModel vm = new(store, launcher, navigation, notifications);
+        HomeViewModel vm = new(store, launcher, navigation, notifications, TestStrings.Instance);
 
         await vm.LaunchCommand.ExecuteAsync(null);
 
@@ -134,14 +138,16 @@ public sealed class HomeViewModelTests
             store,
             launcher,
             Substitute.For<INavigationService>(),
-            Substitute.For<INotificationService>()
+            Substitute.For<INotificationService>(),
+            TestStrings.Instance
         );
         INotificationService notifications = Substitute.For<INotificationService>();
         HomeViewModel vm2 = new(
             store,
             launcher,
             Substitute.For<INavigationService>(),
-            notifications
+            notifications,
+            TestStrings.Instance
         );
 
         await vm2.LaunchCommand.ExecuteAsync(null);
@@ -159,7 +165,8 @@ public sealed class HomeViewModelTests
             store,
             Substitute.For<IInstanceLauncher>(),
             Substitute.For<INavigationService>(),
-            Substitute.For<INotificationService>()
+            Substitute.For<INotificationService>(),
+            TestStrings.Instance
         );
 
         vm.SelectedInstance = b;
@@ -179,7 +186,7 @@ public sealed class HomeViewModelTests
         IInstanceLauncher launcher = Substitute.For<IInstanceLauncher>();
         INavigationService navigation = Substitute.For<INavigationService>();
         INotificationService notifications = Substitute.For<INotificationService>();
-        HomeViewModel vm = new(store, launcher, navigation, notifications);
+        HomeViewModel vm = new(store, launcher, navigation, notifications, TestStrings.Instance);
         return (vm, store, launcher, navigation, notifications);
     }
 

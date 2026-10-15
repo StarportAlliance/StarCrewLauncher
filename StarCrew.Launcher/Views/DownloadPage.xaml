@@ -32,14 +32,14 @@
                 <Thickness x:Key="NavigationViewBorderThickness">0</Thickness>
             </NavigationView.Resources>
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="基础游戏" Tag="Base" IsSelected="True">
+                <NavigationViewItem x:Uid="DownloadSection_Base" Tag="Base" IsSelected="True">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE74C;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
             <NavigationView.FooterMenuItems>
-                <NavigationViewItem Content="账号" Tag="Account">
+                <NavigationViewItem x:Uid="DownloadSection_Account" Tag="Account">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE716;" />
                     </NavigationViewItem.Icon>

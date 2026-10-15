@@ -10,7 +10,9 @@ public sealed class NetworkViewModelTests
     [Fact]
     public void Ctor_WithNullSettings_ThrowsArgumentNullException()
     {
-        Assert.Throws<ArgumentNullException>(() => new NetworkViewModel(null!));
+        Assert.Throws<ArgumentNullException>(() =>
+            new NetworkViewModel(null!, TestStrings.Instance)
+        );
     }
 
     [Theory]
@@ -24,7 +26,7 @@ public sealed class NetworkViewModelTests
         settings.Accelerator.Returns(accelerator);
         settings.CustomPrefix.Returns("https://acc.example.com");
 
-        NetworkViewModel vm = new(settings);
+        NetworkViewModel vm = new(settings, TestStrings.Instance);
 
         Assert.Equal(expected, vm.SelectedIndex);
         Assert.Equal("https://acc.example.com", vm.CustomPrefix);
@@ -40,7 +42,7 @@ public sealed class NetworkViewModelTests
     {
         DownloadAccelerator expected = Enum.Parse<DownloadAccelerator>(expectedName);
         INetworkSettings settings = Substitute.For<INetworkSettings>();
-        NetworkViewModel vm = new(settings);
+        NetworkViewModel vm = new(settings, TestStrings.Instance);
 
         vm.SelectedIndex = index;
 
@@ -56,7 +58,7 @@ public sealed class NetworkViewModelTests
         INetworkSettings settings = Substitute.For<INetworkSettings>();
         settings.Accelerator.Returns(DownloadAccelerator.GhProxy);
         settings.CustomPrefix.Returns(string.Empty);
-        NetworkViewModel vm = new(settings);
+        NetworkViewModel vm = new(settings, TestStrings.Instance);
         // 先切到一个不同的下标，避免“写入的值与当前相同但没有引发通知”的空操作
         vm.SelectedIndex = index == 2 ? 0 : 2;
         List<string?> changed = [];
@@ -72,7 +74,7 @@ public sealed class NetworkViewModelTests
     public void CustomPrefix_WritesToSettings()
     {
         INetworkSettings settings = Substitute.For<INetworkSettings>();
-        NetworkViewModel vm = new(settings);
+        NetworkViewModel vm = new(settings, TestStrings.Instance);
 
         vm.CustomPrefix = "https://acc.example.com";
 

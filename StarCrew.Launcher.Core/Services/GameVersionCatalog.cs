@@ -17,12 +17,15 @@ internal sealed class GameVersionCatalog : IGameVersionCatalog
 
     private readonly HttpClient _http;
     private readonly string _cacheDirectory;
+    private readonly IAppStrings _strings;
 
-    public GameVersionCatalog()
-        : this(new HttpClient(), AppPaths.CacheDirectory) { }
+    public GameVersionCatalog(IAppStrings strings)
+        : this(new HttpClient(), AppPaths.CacheDirectory, strings) { }
 
-    internal GameVersionCatalog(HttpClient httpClient, string cacheDirectory)
+    internal GameVersionCatalog(HttpClient httpClient, string cacheDirectory, IAppStrings strings)
     {
+        ArgumentNullException.ThrowIfNull(strings);
+        _strings = strings;
         _http = httpClient;
         _cacheDirectory = cacheDirectory;
     }
@@ -42,7 +45,7 @@ internal sealed class GameVersionCatalog : IGameVersionCatalog
             return cached;
         }
 
-        throw new InvalidOperationException("版本目录获取失败，请检查网络连接后重试。");
+        throw new InvalidOperationException(_strings.GetString("Catalog_FetchFailed"));
     }
 
     private async Task<VersionCatalog?> TryFetchRemoteAsync(CancellationToken cancellationToken)

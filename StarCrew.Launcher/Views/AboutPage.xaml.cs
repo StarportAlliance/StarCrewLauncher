@@ -1,12 +1,16 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using StarCrew.Launcher.Services;
 using StarCrew.Launcher.ViewModels;
 
 namespace StarCrew.Launcher.Views;
 
 public sealed partial class AboutPage : Page
 {
+    private readonly IAppStrings _strings = App.Services.GetRequiredService<IAppStrings>();
+
     public AboutPage()
     {
         InitializeComponent();
@@ -71,10 +75,10 @@ public sealed partial class AboutPage : Page
             XamlRoot,
             d =>
             {
-                d.Title = "发现新版本";
-                d.Content = $"检测到新版本 {version}，是否下载？";
-                d.PrimaryButtonText = "下载";
-                d.CloseButtonText = "稍后";
+                d.Title = _strings.GetString("About_UpdateAvailableTitle");
+                d.Content = _strings.Format("About_UpdateAvailableContentFormat", version);
+                d.PrimaryButtonText = _strings.GetString("Common_Download");
+                d.CloseButtonText = _strings.GetString("Common_Later");
                 d.DefaultButton = ContentDialogButton.Primary;
             }
         );
@@ -93,9 +97,9 @@ public sealed partial class AboutPage : Page
             XamlRoot,
             d =>
             {
-                d.Title = $"正在下载新版本 {version}";
+                d.Title = _strings.Format("About_DownloadingFormat", version);
                 d.Content = bar;
-                d.CloseButtonText = "取消";
+                d.CloseButtonText = _strings.GetString("Common_Cancel");
             }
         );
         using CancellationTokenSource cts = new();

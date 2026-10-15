@@ -14,6 +14,8 @@ namespace StarCrew.Launcher.Views;
 
 public sealed partial class DownloadAccountPage : Page
 {
+    private readonly IAppStrings _strings = App.Services.GetRequiredService<IAppStrings>();
+
     public DownloadAccountPage()
     {
         InitializeComponent();
@@ -63,7 +65,9 @@ public sealed partial class DownloadAccountPage : Page
     private void UpdateAccountToggle()
     {
         bool loggedIn = !string.IsNullOrWhiteSpace(ViewModel?.AccountName);
-        AccountToggleText.Text = loggedIn ? "登出" : "登录";
+        AccountToggleText.Text = _strings.GetString(
+            loggedIn ? "Account_ToggleLogout" : "Account_ToggleLogin"
+        );
         // 已登录用默认 subtle 样式，未登录用 accent。
         AccountToggle.Style = loggedIn ? null : (Style)Resources["AccountButtonAccentStyle"];
     }
@@ -91,11 +95,10 @@ public sealed partial class DownloadAccountPage : Page
                 XamlRoot,
                 d =>
                 {
-                    d.Title = "需要先安装 DepotDownloader";
-                    d.Content =
-                        "登录 Steam 账号依赖 DepotDownloader 组件，当前尚未安装。是否现在安装？";
-                    d.PrimaryButtonText = "安装";
-                    d.CloseButtonText = "取消";
+                    d.Title = _strings.GetString("Account_DdRequiredTitle");
+                    d.Content = _strings.GetString("Account_DdRequiredContent");
+                    d.PrimaryButtonText = _strings.GetString("Common_Install");
+                    d.CloseButtonText = _strings.GetString("Common_Cancel");
                     d.DefaultButton = ContentDialogButton.Primary;
                 }
             );
@@ -146,15 +149,15 @@ public sealed partial class DownloadAccountPage : Page
         }
 
         ProgressBar bar = new() { Minimum = 0, Maximum = 100 };
-        TextBlock status = new() { Text = "准备下载..." };
-        DownloadProgressFooter footer = new();
+        TextBlock status = new() { Text = _strings.GetString("Account_PreparingDownload") };
+        DownloadProgressFooter footer = new(_strings);
         ContentDialog dialog = ContentDialogFactory.Create(
             XamlRoot,
             d =>
             {
-                d.Title = "安装 DepotDownloader 组件";
+                d.Title = _strings.GetString("Account_DdInstallTitle");
                 d.Content = new StackPanel { Spacing = 8, Children = { status, bar, footer.Root } };
-                d.CloseButtonText = "取消";
+                d.CloseButtonText = _strings.GetString("Common_Cancel");
             }
         );
 
@@ -215,7 +218,7 @@ public sealed partial class DownloadAccountPage : Page
         };
         TextBlock status = new()
         {
-            Text = "正在获取登录二维码...",
+            Text = _strings.GetString("Account_FetchingQr"),
             TextWrapping = TextWrapping.Wrap,
             HorizontalAlignment = HorizontalAlignment.Center,
             MaxWidth = 280,
@@ -229,9 +232,9 @@ public sealed partial class DownloadAccountPage : Page
             XamlRoot,
             d =>
             {
-                d.Title = "扫码登录 Steam 账号";
+                d.Title = _strings.GetString("Account_QrLoginTitle");
                 d.Content = panel;
-                d.CloseButtonText = "取消";
+                d.CloseButtonText = _strings.GetString("Common_Cancel");
             }
         );
 
@@ -255,7 +258,7 @@ public sealed partial class DownloadAccountPage : Page
                     qrRing.IsActive = false;
                     qrRing.Visibility = Visibility.Collapsed;
                     qrContainer.Background = new SolidColorBrush(Colors.White);
-                    status.Text = "请用 Steam 手机 App 扫描二维码。";
+                    status.Text = _strings.GetString("Account_ScanQrHint");
                 }
             }
             else
@@ -271,12 +274,12 @@ public sealed partial class DownloadAccountPage : Page
 
         if (outcome.IsSuccess)
         {
-            status.Text = $"登录成功：{outcome.AccountName}";
+            status.Text = _strings.Format("Account_LoginSuccessFormat", outcome.AccountName);
             await Task.Delay(800);
         }
         else
         {
-            status.Text = outcome.ErrorMessage ?? "登录失败，请稍后重试。";
+            status.Text = outcome.ErrorMessage ?? _strings.GetString("Account_LoginFailedRetry");
             await Task.Delay(1200);
         }
 

@@ -16,7 +16,8 @@ public sealed class AboutViewModelTests
                 null!,
                 Substitute.For<IExternalLauncher>(),
                 Substitute.For<INotificationService>(),
-                Substitute.For<IAppInfo>()
+                Substitute.For<IAppInfo>(),
+                TestStrings.Instance
             )
         );
     }
@@ -26,10 +27,11 @@ public sealed class AboutViewModelTests
     {
         Assert.Throws<ArgumentNullException>(() =>
             new AboutViewModel(
-                new AppUpdater(Substitute.For<IUpdateClient>()),
+                new AppUpdater(Substitute.For<IUpdateClient>(), TestStrings.Instance),
                 null!,
                 Substitute.For<INotificationService>(),
-                Substitute.For<IAppInfo>()
+                Substitute.For<IAppInfo>(),
+                TestStrings.Instance
             )
         );
     }
@@ -39,10 +41,11 @@ public sealed class AboutViewModelTests
     {
         Assert.Throws<ArgumentNullException>(() =>
             new AboutViewModel(
-                new AppUpdater(Substitute.For<IUpdateClient>()),
+                new AppUpdater(Substitute.For<IUpdateClient>(), TestStrings.Instance),
                 Substitute.For<IExternalLauncher>(),
                 null!,
-                Substitute.For<IAppInfo>()
+                Substitute.For<IAppInfo>(),
+                TestStrings.Instance
             )
         );
     }
@@ -52,10 +55,11 @@ public sealed class AboutViewModelTests
     {
         Assert.Throws<ArgumentNullException>(() =>
             new AboutViewModel(
-                new AppUpdater(Substitute.For<IUpdateClient>()),
+                new AppUpdater(Substitute.For<IUpdateClient>(), TestStrings.Instance),
                 Substitute.For<IExternalLauncher>(),
                 Substitute.For<INotificationService>(),
-                null!
+                null!,
+                TestStrings.Instance
             )
         );
     }
@@ -216,9 +220,9 @@ public sealed class AboutViewModelTests
         INotificationService notifications = Substitute.For<INotificationService>();
         IAppInfo appInfo = Substitute.For<IAppInfo>();
         appInfo.Version.Returns("0.3.0");
-        AppUpdater updater = new(client);
+        AppUpdater updater = new(client, TestStrings.Instance);
         return (
-            new AboutViewModel(updater, launcher, notifications, appInfo),
+            new AboutViewModel(updater, launcher, notifications, appInfo, TestStrings.Instance),
             client,
             launcher,
             notifications,

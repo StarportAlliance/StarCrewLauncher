@@ -8,16 +8,22 @@ internal sealed partial class NetworkViewModel : ObservableObject
 {
     private readonly INetworkSettings _settings;
 
-    public NetworkViewModel(INetworkSettings settings)
+    public NetworkViewModel(INetworkSettings settings, IAppStrings strings)
     {
         ArgumentNullException.ThrowIfNull(settings);
+        ArgumentNullException.ThrowIfNull(strings);
         _settings = settings;
+        Options =
+        [
+            strings.GetString("Network_OptionOfficial"),
+            strings.GetString("Network_OptionGhProxy"),
+            strings.GetString("Network_OptionCustom"),
+        ];
         SelectedIndex = Math.Clamp((int)_settings.Accelerator, 0, 2);
         CustomPrefix = _settings.CustomPrefix ?? string.Empty;
     }
 
-    public IReadOnlyList<string> Options { get; } =
-    ["官方直连", "gh-proxy.org（第三方加速）", "自定义前缀"];
+    public IReadOnlyList<string> Options { get; }
 
     /// <summary>0=官方直连，1=gh-proxy，2=自定义前缀。</summary>
     [ObservableProperty]

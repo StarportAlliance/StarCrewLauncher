@@ -12,13 +12,18 @@ namespace StarCrew.Launcher.Views;
 /// </summary>
 internal sealed class DownloadProgressFooter
 {
-    private readonly TextBlock _speed = new() { Text = "测速中..." };
-    private readonly TextBlock _totals = new() { Text = "资源大小核对中..." };
+    private readonly IAppStrings _strings;
+    private readonly TextBlock _speed;
+    private readonly TextBlock _totals;
     private double _lastBytes;
     private long _lastMeasuredAt;
 
-    internal DownloadProgressFooter()
+    internal DownloadProgressFooter(IAppStrings strings)
     {
+        ArgumentNullException.ThrowIfNull(strings);
+        _strings = strings;
+        _speed = new TextBlock { Text = strings.GetString("Progress_MeasuringSpeed") };
+        _totals = new TextBlock { Text = strings.GetString("Progress_CheckingSize") };
         Grid grid = new() { Margin = new Thickness(0, 4, 0, 0) };
         grid.ColumnDefinitions.Add(
             new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }
@@ -54,6 +59,10 @@ internal sealed class DownloadProgressFooter
 
         _lastBytes = downloaded;
         _lastMeasuredAt = now;
-        _totals.Text = $"{ByteFormat.Describe(downloaded)} / {ByteFormat.Describe(total)}";
+        _totals.Text = _strings.Format(
+            "Progress_TotalsFormat",
+            ByteFormat.Describe(downloaded),
+            ByteFormat.Describe(total)
+        );
     }
 }

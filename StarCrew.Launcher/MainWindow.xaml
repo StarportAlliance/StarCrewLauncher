@@ -78,9 +78,9 @@
                 />
             </NavigationView.Resources>
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="启动游戏" Tag="Home" Icon="Play" IsSelected="True" />
-                <NavigationViewItem Content="实例管理" Tag="Instances" Icon="Folder" />
-                <NavigationViewItem Content="游戏下载" Tag="Download" Icon="Download" />
+                <NavigationViewItem x:Uid="Nav_Home" Tag="Home" Icon="Play" IsSelected="True" />
+                <NavigationViewItem x:Uid="Nav_Instances" Tag="Instances" Icon="Folder" />
+                <NavigationViewItem x:Uid="Nav_Download" Tag="Download" Icon="Download" />
             </NavigationView.MenuItems>
 
             <Grid>

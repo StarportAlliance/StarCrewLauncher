@@ -13,28 +13,33 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
     private readonly IDepotDownloaderProvisioner _provisioner;
     private readonly IDepotDownloaderRunner _runner;
     private readonly string _instancesRoot;
+    private readonly IAppStrings _strings;
 
     public DownloadCoordinator(
         IInstanceStore store,
         IDepotDownloaderProvisioner provisioner,
-        IDepotDownloaderRunner runner
+        IDepotDownloaderRunner runner,
+        IAppStrings strings
     )
-        : this(store, provisioner, runner, AppPaths.InstancesDirectory) { }
+        : this(store, provisioner, runner, AppPaths.InstancesDirectory, strings) { }
 
     internal DownloadCoordinator(
         IInstanceStore store,
         IDepotDownloaderProvisioner provisioner,
         IDepotDownloaderRunner runner,
-        string instancesRoot
+        string instancesRoot,
+        IAppStrings strings
     )
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(provisioner);
         ArgumentNullException.ThrowIfNull(runner);
+        ArgumentNullException.ThrowIfNull(strings);
         ArgumentException.ThrowIfNullOrWhiteSpace(instancesRoot);
         _store = store;
         _provisioner = provisioner;
         _runner = runner;
+        _strings = strings;
         _instancesRoot = instancesRoot;
     }
 
@@ -53,11 +58,15 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
         string? accountName = state.SteamAccountName;
         if (string.IsNullOrWhiteSpace(accountName))
         {
-            return new GameInstallResult(false, "请先在「游戏下载」页登录 Steam 账号。");
+            return new GameInstallResult(false, _strings.GetString("Install_LoginRequired"));
         }
 
         progress?.Report(
-            new DownloadProgressInfo(DownloadStage.PreparingTool, 0, "准备下载工具...")
+            new DownloadProgressInfo(
+                DownloadStage.PreparingTool,
+                0,
+                _strings.GetString("Install_PreparingTool")
+            )
         );
         DepotDownloaderEnsureResult ensure = await _provisioner.EnsureAsync(
             progress,
@@ -76,7 +85,11 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
 
         // manifest-only 预跑是唯一能提前拿到总大小的通道：DD 只在那一模式把 manifest 摘要落成文本。
         progress?.Report(
-            new DownloadProgressInfo(DownloadStage.PreparingTool, 0, "正在核对资源大小...")
+            new DownloadProgressInfo(
+                DownloadStage.PreparingTool,
+                0,
+                _strings.GetString("Install_CheckingSize")
+            )
         );
         long? totalBytes = null;
         List<string> arguments =
@@ -103,7 +116,11 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
                     new DownloadProgressInfo(
                         DownloadStage.DownloadingGame,
                         percent.Value,
-                        $"正在下载：{version.VersionLabel}（{percent.Value:F1}%）",
+                        _strings.Format(
+                            "Install_DownloadingFormat",
+                            version.VersionLabel,
+                            percent.Value
+                        ),
                         totalBytes
                     )
                 );
@@ -134,7 +151,7 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
             string exePath = Path.Combine(instanceDirectory, "Among Us.exe");
             if (!File.Exists(exePath))
             {
-                return await FailAsync("下载完成，但未找到 Among Us.exe。");
+                return await FailAsync(_strings.GetString("Install_ExeMissing"));
             }
 
             GameInstance ready = new(
@@ -157,18 +174,22 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
                 new DownloadProgressInfo(
                     DownloadStage.Completed,
                     100,
-                    $"「{version.VersionLabel}」安装完成。"
+                    _strings.Format("Install_CompletedFormat", version.VersionLabel)
                 )
             );
-            return new GameInstallResult(true, $"{version.VersionLabel} 已下载完成。", ready);
+            return new GameInstallResult(
+                true,
+                _strings.Format("Install_DownloadedFormat", version.VersionLabel),
+                ready
+            );
         }
         catch (OperationCanceledException)
         {
-            return await FailAsync("下载已取消。");
+            return await FailAsync(_strings.GetString("Install_Cancelled"));
         }
         catch (Exception ex)
         {
-            return await FailAsync($"下载失败：{ex.Message}");
+            return await FailAsync(_strings.Format("Install_FailedFormat", ex.Message));
         }
 
         // 取消、报错、校验失败一律清掉目录且不落库：实例列表里看不到，重装即是重新开始。
@@ -200,10 +221,12 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
         }
     }
 
-    private static string ComposeFailureText(ExecutableOutcome outcome)
+    private string ComposeFailureText(ExecutableOutcome outcome)
     {
         string? tail = outcome.OutputLines.LastOrDefault(l => !string.IsNullOrWhiteSpace(l));
-        return tail is null ? $"下载失败，退出码：{outcome.ExitCode}。" : $"下载失败：{tail}";
+        return tail is null
+            ? _strings.Format("Install_FailedExitCodeFormat", outcome.ExitCode)
+            : _strings.Format("Install_FailedWithReasonFormat", tail);
     }
 
     /// <summary>

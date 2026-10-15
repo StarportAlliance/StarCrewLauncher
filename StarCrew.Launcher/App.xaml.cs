@@ -31,6 +31,7 @@ public sealed partial class App : Application
     {
         ServiceCollection services = [];
         services.AddSingleton<IDictionary<string, object>>(_ => CreateSettingsStore());
+        services.AddSingleton<IAppStrings, Services.AppStrings>();
         services.AddSingleton<IThemeSettings>(sp => new ThemeSettings(
             sp.GetRequiredService<IDictionary<string, object>>()
         ));

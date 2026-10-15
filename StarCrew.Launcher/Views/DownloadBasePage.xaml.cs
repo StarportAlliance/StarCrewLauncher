@@ -16,6 +16,8 @@ namespace StarCrew.Launcher.Views;
 
 public sealed partial class DownloadBasePage : Page
 {
+    private readonly IAppStrings _strings = App.Services.GetRequiredService<IAppStrings>();
+
     public DownloadBasePage()
     {
         InitializeComponent();
@@ -93,7 +95,11 @@ public sealed partial class DownloadBasePage : Page
         if (entry.Unavailable)
         {
             header.Children.Add(
-                new InfoBadge { Style = (Style)Resources["TagInfoBadgeStyle"], Tag = "暂不可用" }
+                new InfoBadge
+                {
+                    Style = (Style)Resources["TagInfoBadgeStyle"],
+                    Tag = _strings.GetString("DownloadBase_UnavailableBadge"),
+                }
             );
         }
         foreach (string tag in entry.Tags)
@@ -106,14 +112,14 @@ public sealed partial class DownloadBasePage : Page
         SettingsCard card = new()
         {
             Header = header,
-            Description = $"发布于 {dateText}",
+            Description = _strings.Format("DownloadBase_PublishedAtFormat", dateText),
             // 整卡可点（与设置页关于卡片同款）：点击进入安装详情页，右侧 chevron 只作「可进入」的暗示。
             // 同一版本可以装多个实例，这里只挡暂不可用的版本。
             IsClickEnabled = true,
             IsEnabled = !entry.Unavailable,
         };
         card.ActionIcon = new FontIcon { Glyph = "\uE76C" };
-        card.ActionIconToolTip = "安装";
+        card.ActionIconToolTip = _strings.GetString("Common_Install");
         card.Click += (_, _) =>
         {
             viewModel.SelectedVersion = entry;
@@ -169,11 +175,10 @@ public sealed partial class DownloadBasePage : Page
             XamlRoot,
             d =>
             {
-                d.Title = "未登录 Steam 账号";
-                d.Content =
-                    "下载原版 Among Us 需要通过含有该游戏的 Steam 账号获取。请先前往「账号」页扫码登录（首次使用还需在「组件」中安装 DepotDownloader）。";
-                d.PrimaryButtonText = "前往登录";
-                d.CloseButtonText = "稍后再说";
+                d.Title = _strings.GetString("DownloadBase_LoginHintTitle");
+                d.Content = _strings.GetString("DownloadBase_LoginHintContent");
+                d.PrimaryButtonText = _strings.GetString("DownloadBase_GoLogin");
+                d.CloseButtonText = _strings.GetString("DownloadBase_Later");
                 d.DefaultButton = ContentDialogButton.Primary;
             }
         );

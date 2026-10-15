@@ -5,6 +5,14 @@ namespace StarCrew.Launcher.Services;
 /// <summary>用系统默认程序打开链接或文件夹。</summary>
 internal sealed class ExternalLauncher : IExternalLauncher
 {
+    private readonly IAppStrings _strings;
+
+    public ExternalLauncher(IAppStrings strings)
+    {
+        ArgumentNullException.ThrowIfNull(strings);
+        _strings = strings;
+    }
+
     public async Task OpenUriAsync(string uri)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(uri);
@@ -16,7 +24,9 @@ internal sealed class ExternalLauncher : IExternalLauncher
         ArgumentException.ThrowIfNullOrWhiteSpace(folderPath);
         if (!Directory.Exists(folderPath))
         {
-            throw new DirectoryNotFoundException($"文件夹不存在：{folderPath}");
+            throw new DirectoryNotFoundException(
+                _strings.Format("OpenFolder_NotFoundFormat", folderPath)
+            );
         }
 
         await Task.Run(() =>

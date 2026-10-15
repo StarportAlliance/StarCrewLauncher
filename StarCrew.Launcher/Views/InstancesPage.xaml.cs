@@ -1,15 +1,19 @@
 using System.ComponentModel;
 using CommunityToolkit.WinUI.Controls;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using StarCrew.Launcher.Models;
+using StarCrew.Launcher.Services;
 using StarCrew.Launcher.ViewModels;
 
 namespace StarCrew.Launcher.Views;
 
 public sealed partial class InstancesPage : Page
 {
+    private readonly IAppStrings _strings = App.Services.GetRequiredService<IAppStrings>();
+
     public InstancesPage()
     {
         InitializeComponent();
@@ -76,7 +80,7 @@ public sealed partial class InstancesPage : Page
         }
     }
 
-    private static SettingsCard BuildCard(InstanceItemViewModel item)
+    private SettingsCard BuildCard(InstanceItemViewModel item)
     {
         SettingsCard card = new() { Header = item.Name, Description = item.Summary };
 
@@ -97,7 +101,7 @@ public sealed partial class InstancesPage : Page
         Button launchButton = new()
         {
             Command = item.LaunchCommand,
-            Content = "启动",
+            Content = _strings.GetString("Instances_CardLaunch"),
             IsEnabled = item.CanLaunch,
         };
         try
@@ -109,17 +113,35 @@ public sealed partial class InstancesPage : Page
             // 资源不存在时退回默认按钮样式
         }
 
-        Button openFolderButton = new() { Command = item.OpenFolderCommand, Content = "打开目录" };
+        Button openFolderButton = new()
+        {
+            Command = item.OpenFolderCommand,
+            Content = _strings.GetString("Instances_CardOpenFolder"),
+        };
 
-        DropDownButton moreButton = new() { Content = "更多" };
+        DropDownButton moreButton = new() { Content = _strings.GetString("Instances_CardMore") };
         MenuFlyout flyout = new();
         flyout.Items.Add(
-            new MenuFlyoutItem { Text = "重命名", Command = item.RequestRenameCommand }
+            new MenuFlyoutItem
+            {
+                Text = _strings.GetString("Instances_CardRename"),
+                Command = item.RequestRenameCommand,
+            }
         );
         flyout.Items.Add(
-            new MenuFlyoutItem { Text = "详情", Command = item.RequestDetailsCommand }
+            new MenuFlyoutItem
+            {
+                Text = _strings.GetString("Instances_CardDetails"),
+                Command = item.RequestDetailsCommand,
+            }
         );
-        flyout.Items.Add(new MenuFlyoutItem { Text = "删除", Command = item.RequestDeleteCommand });
+        flyout.Items.Add(
+            new MenuFlyoutItem
+            {
+                Text = _strings.GetString("Instances_CardDelete"),
+                Command = item.RequestDeleteCommand,
+            }
+        );
         moreButton.Flyout = flyout;
 
         card.Content = new StackPanel
@@ -144,10 +166,10 @@ public sealed partial class InstancesPage : Page
             XamlRoot,
             d =>
             {
-                d.Title = "重命名实例";
+                d.Title = _strings.GetString("Instances_RenameTitle");
                 d.Content = input;
-                d.PrimaryButtonText = "保存";
-                d.CloseButtonText = "取消";
+                d.PrimaryButtonText = _strings.GetString("Common_Save");
+                d.CloseButtonText = _strings.GetString("Common_Cancel");
                 d.DefaultButton = ContentDialogButton.Primary;
             }
         );
@@ -166,12 +188,16 @@ public sealed partial class InstancesPage : Page
             return;
         }
 
-        CheckBox deleteFilesBox = new() { Content = "同时删除游戏文件", IsChecked = true };
+        CheckBox deleteFilesBox = new()
+        {
+            Content = _strings.GetString("Instances_DeleteFilesAlso"),
+            IsChecked = true,
+        };
         ContentDialog dialog = ContentDialogFactory.Create(
             XamlRoot,
             d =>
             {
-                d.Title = "删除实例";
+                d.Title = _strings.GetString("Instances_DeleteTitle");
                 d.Content = new StackPanel
                 {
                     Spacing = 12,
@@ -179,15 +205,14 @@ public sealed partial class InstancesPage : Page
                     {
                         new TextBlock
                         {
-                            Text =
-                                $"确定要删除实例「{instance.Name}」吗？选中下方选项会同时删除该实例的游戏文件。",
+                            Text = _strings.Format("Instances_DeleteConfirmFormat", instance.Name),
                             TextWrapping = TextWrapping.Wrap,
                         },
                         deleteFilesBox,
                     },
                 };
-                d.PrimaryButtonText = "删除";
-                d.CloseButtonText = "取消";
+                d.PrimaryButtonText = _strings.GetString("Common_Delete");
+                d.CloseButtonText = _strings.GetString("Common_Cancel");
                 d.DefaultButton = ContentDialogButton.Close;
             }
         );
@@ -213,21 +238,30 @@ public sealed partial class InstancesPage : Page
             instance
                 .LastLaunchedAt?.ToLocalTime()
                 .ToString("yyyy-MM-dd HH:mm", System.Globalization.CultureInfo.InvariantCulture)
-            ?? "从未启动";
-        string stateText = instance.State == InstanceState.Ready ? "就绪" : "未完成";
+            ?? _strings.GetString("Instances_NeverLaunched");
+        string stateText =
+            instance.State == InstanceState.Ready
+                ? _strings.GetString("Instances_StateReady")
+                : _strings.GetString("Instances_StateNotReady");
 
         ContentDialog dialog = ContentDialogFactory.Create(
             XamlRoot,
             d =>
             {
-                d.Title = $"实例详情：{instance.Name}";
+                d.Title = _strings.Format("Instances_DetailsTitleFormat", instance.Name);
                 d.Content = new TextBlock
                 {
-                    Text =
-                        $"版本：v{instance.GameVersionLabel}\n状态：{stateText}\n安装目录：{instance.InstallDirectory}\n创建时间：{created}\n上次启动：{lastLaunched}",
+                    Text = _strings.Format(
+                        "Instances_DetailsFormat",
+                        instance.GameVersionLabel,
+                        stateText,
+                        instance.InstallDirectory,
+                        created,
+                        lastLaunched
+                    ),
                     TextWrapping = TextWrapping.Wrap,
                 };
-                d.CloseButtonText = "确定";
+                d.CloseButtonText = _strings.GetString("Common_Ok");
             }
         );
         _ = dialog.ShowAsync();
