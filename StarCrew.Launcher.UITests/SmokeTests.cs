@@ -11,6 +11,8 @@ public sealed class SmokeTests
     private const string SolutionFileName = "StarCrew.Launcher.slnx";
     private const string LauncherExeFileName = "StarCrew.Launcher.exe";
     private const string DownloadButtonText = "下载游戏";
+    private const string TargetFramework = "net10.0-windows10.0.26100.0";
+    private const string Architecture = "win-x64";
 
     [Fact]
     public void MainWindow_Shows_WithLaunchButton()
@@ -65,7 +67,7 @@ public sealed class SmokeTests
             || value.Contains(DownloadButtonText, StringComparison.Ordinal)
         );
 
-    /// <summary>以 slnx 为标记找仓库根，拼主程序 exe 路径；优先 Release，其次 Debug。</summary>
+    /// <summary>以 slnx 为标记找仓库根，拼主程序 exe 路径；按 Release、ReleaseGate、Debug 顺序找。</summary>
     private static string ResolveLauncherExe()
     {
         string repositoryRoot = FindRepositoryRoot();
@@ -74,8 +76,8 @@ public sealed class SmokeTests
             "StarCrew.Launcher",
             "bin",
             "Release",
-            "net10.0-windows10.0.26100.0",
-            "win-x64",
+            TargetFramework,
+            Architecture,
             LauncherExeFileName
         );
         if (File.Exists(releaseExe))
@@ -83,18 +85,32 @@ public sealed class SmokeTests
             return releaseExe;
         }
 
+        string releaseGateExe = Path.Combine(
+            repositoryRoot,
+            "StarCrew.Launcher",
+            "bin",
+            "ReleaseGate",
+            TargetFramework,
+            Architecture,
+            LauncherExeFileName
+        );
+        if (File.Exists(releaseGateExe))
+        {
+            return releaseGateExe;
+        }
+
         string debugExe = Path.Combine(
             repositoryRoot,
             "StarCrew.Launcher",
             "bin",
             "Debug",
-            "net10.0-windows10.0.26100.0",
-            "win-x64",
+            TargetFramework,
+            Architecture,
             LauncherExeFileName
         );
         Assert.True(
             File.Exists(debugExe),
-            "StarCrew.Launcher.exe not found in Release or Debug output. Build the main project first (test-ui.bat does this)."
+            "StarCrew.Launcher.exe not found in Release, ReleaseGate or Debug output. Build the main project first (check.bat does this)."
         );
         return debugExe;
     }

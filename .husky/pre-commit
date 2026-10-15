@@ -1,4 +1,10 @@
 #!/usr/bin/env sh
 . "$(dirname "$0")/_/husky.sh"
 
-dotnet husky run --group pre-commit
+# 全部门禁（排版 -> 风格 -> 构建 -> 全套测试）只在暂存内容涉及代码/构建文件时跑；
+# 纯文档、图片等杂项提交直接放行，免得每次 commit 都等一遍构建 + 测试（推送后 CI 仍会兜底）。
+if git diff --cached --name-only | grep -qE '\.(bat|config|cs|csproj|editorconfig|json|props|runsettings|sh|slnx|targets|xaml)$|^\.(config|github|husky)/'; then
+  cmd //C test.bat
+else
+  echo "husky (pre-commit): no code-related changes staged, gates skipped."
+fi
