@@ -56,10 +56,6 @@
             <Link>Assets\icon.svg</Link>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-        <Content Include="..\Assets\icon-dark.svg">
-            <Link>Assets\icon-dark.svg</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
         <Content Include="..\Assets\background.png">
             <Link>Assets\background.png</Link>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

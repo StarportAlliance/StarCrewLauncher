@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using StarCrew.Launcher.Services;
 using StarCrew.Launcher.ViewModels;
@@ -28,9 +27,6 @@ public sealed partial class AboutPage : Page
         {
             ViewModel.UpdateAvailable += OnUpdateAvailable;
         }
-
-        ActualThemeChanged += OnActualThemeChanged;
-        UpdateAppIcon();
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -40,22 +36,6 @@ public sealed partial class AboutPage : Page
         {
             ViewModel.UpdateAvailable -= OnUpdateAvailable;
         }
-
-        ActualThemeChanged -= OnActualThemeChanged;
-    }
-
-    private void OnActualThemeChanged(FrameworkElement sender, object args) => UpdateAppIcon();
-
-    private void UpdateAppIcon()
-    {
-        // SvgImageSource 不响应主题，按实际主题手动切换浅/深两套品牌图标。
-        AppIcon.Source = new SvgImageSource(
-            new Uri(
-                ActualTheme == ElementTheme.Dark
-                    ? "ms-appx:///Assets/icon-dark.svg"
-                    : "ms-appx:///Assets/icon.svg"
-            )
-        );
     }
 
     private async void WebsiteCard_Click(object sender, RoutedEventArgs e) =>
