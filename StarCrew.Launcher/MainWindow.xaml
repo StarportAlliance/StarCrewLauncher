@@ -11,12 +11,25 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
+        <!-- 全窗口背景图：横跨标题栏与内容区，首页直接透出。
+             非首页时其上整块亚克力层由代码隐藏点亮：单层笔刷覆盖全窗口，顶栏/侧栏/内容天然连贯。 -->
+        <Image
+            Grid.RowSpan="2"
+            Source="ms-appx:///Assets/background.png"
+            Stretch="UniformToFill"
+        />
+        <Border
+            x:Name="AcrylicLayer"
+            Grid.RowSpan="2"
+            Background="{ThemeResource LauncherAcrylicBrush}"
+            Opacity="0"
+        />
+
         <!-- 顶层标题栏，48 高锁定 Tall 高度；汉堡按钮由 TitleBar 接管，品牌区用 LeftHeader 恢复 24px 图标 + BodyStrong 标题。
              返回按钮由 TitleBar 承接主页面/设置分区的回退，可用性随导航历史在代码隐藏里同步。 -->
         <TitleBar
             x:Name="AppTitleBar"
             Height="48"
-            Background="Transparent"
             IsBackButtonVisible="True"
             IsBackButtonEnabled="False"
             IsPaneToggleButtonVisible="True"
@@ -62,9 +75,7 @@
             SelectionChanged="NavView_SelectionChanged"
         >
             <NavigationView.Resources>
-                <!-- WinUI 3 的侧边栏背景走 NavigationViewExpandedPaneBackground（折叠/展开态同一个 key，
-                     文档里 LeftCompact 对应的 NavigationViewDefaultPaneBackground 模板并未引用）。
-                     默认是不透明 LayerFill，会和 Mica 标题栏割裂，故改成透明：侧边栏与标题栏共用同一层 Mica。 -->
+                <!-- 侧边栏与内容区全部透明：首页整窗透出背景图，非首页由全窗口亚克力层统一铺底。 -->
                 <StaticResource
                     x:Key="NavigationViewExpandedPaneBackground"
                     ResourceKey="SolidBackgroundFillColorTransparent"

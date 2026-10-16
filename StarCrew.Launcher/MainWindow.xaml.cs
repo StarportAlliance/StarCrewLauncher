@@ -66,6 +66,8 @@ public sealed partial class MainWindow : Window
         _subclassProc = WndSubclassProc;
         SetWindowSubclass(_hwnd, _subclassProc, 0, 0);
 
+        AcrylicLayer.OpacityTransition = new ScalarTransition { Duration = TimeSpan.FromMilliseconds(150) };
+
         Activated += OnFirstActivated;
         ToastBar.RegisterPropertyChangedCallback(InfoBar.IsOpenProperty, OnToastIsOpenChanged);
     }
@@ -107,10 +109,11 @@ public sealed partial class MainWindow : Window
         _navigation.GoBack();
     }
 
-    /// <summary>TitleBar 返回按钮可用性：分区或主页面任一还有历史即可退；分区内的回退仍在设置页内，主栈不会弹空。</summary>
+    /// <summary>TitleBar 返回按钮可用性：分区或主页面任一还有历史即可退；分区内的回退仍在设置页内，主栈不会弹空。
+    /// 同时切换全窗口亚克力层透明度（ScalarTransition 自动过渡）：首页整窗透出背景图，其余页面统一铺连贯亚克力。</summary>
     private void OnMainFrameNavigated(NavigationTarget target)
     {
-        _ = target;
+        AcrylicLayer.Opacity = target == NavigationTarget.Home ? 0 : 1;
         SyncBackButton();
     }
 
