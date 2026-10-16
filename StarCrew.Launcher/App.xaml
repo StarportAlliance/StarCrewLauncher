@@ -8,6 +8,28 @@
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
+            <!--  品牌 accent 色板：浅色主题主色 #1E96E8 落在 Light2（浅色主题 accent 笔刷的解析槽位），
+                  深色主题主色 #7FCCFF 落在 Dark1（深色主题 accent 笔刷的解析槽位），其余槽位为品牌色的明暗梯度。  -->
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <Color x:Key="SystemAccentColor">#1A83CB</Color>
+                    <Color x:Key="SystemAccentColorLight1">#1C8DDA</Color>
+                    <Color x:Key="SystemAccentColorLight2">#1E96E8</Color>
+                    <Color x:Key="SystemAccentColorLight3">#4BAFEE</Color>
+                    <Color x:Key="SystemAccentColorDark1">#1771AE</Color>
+                    <Color x:Key="SystemAccentColorDark2">#115380</Color>
+                    <Color x:Key="SystemAccentColorDark3">#0B3551</Color>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <Color x:Key="SystemAccentColor">#8ED1FF</Color>
+                    <Color x:Key="SystemAccentColorLight1">#9FD9FF</Color>
+                    <Color x:Key="SystemAccentColorLight2">#B9E3FF</Color>
+                    <Color x:Key="SystemAccentColorLight3">#D2EDFF</Color>
+                    <Color x:Key="SystemAccentColorDark1">#7FCCFF</Color>
+                    <Color x:Key="SystemAccentColorDark2">#6CADD9</Color>
+                    <Color x:Key="SystemAccentColorDark3">#598FB3</Color>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
             <x:Double x:Key="SettingsCardSpacing">4</x:Double>
             <Style
                 x:Key="SettingsSectionHeaderTextBlockStyle"
