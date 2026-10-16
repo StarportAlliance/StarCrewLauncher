@@ -1,5 +1,8 @@
 <div align="center">
-    <img src="Assets/icon.svg" alt="StarCrew Launcher" width="128" height="128" />
+    <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="Assets/icon-dark.svg" />
+        <img src="Assets/icon.svg" alt="StarCrew Launcher" width="128" height="128" />
+    </picture>
     <h1>StarCrew Launcher</h1>
     <p>简洁、易上手、现代化的 Among Us 启动器。</p>
     <img alt="GitHub Release" src="https://img.shields.io/github/v/release/StarportAlliance/StarCrewLauncher?sort=date&display_name=release&style=flat-square&cacheSeconds=43200">
@@ -7,6 +10,9 @@
     <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/StarportAlliance/StarCrewLauncher?style=flat-square&cacheSeconds=43200">
     <img alt="GitHub Issues" src="https://img.shields.io/github/issues/StarportAlliance/StarCrewLauncher?style=flat-square&cacheSeconds=43200">
     <img alt="GitHub License" src="https://img.shields.io/github/license/StarportAlliance/StarCrewLauncher?style=flat-square&cacheSeconds=31536000" />
+    <br>
+    <img alt="Support System" src="https://img.shields.io/badge/Windows_11-1?style=flat-square&label=Support%20System&color=%23146AFF&cacheSeconds=31536000">
+    <img alt="Support Among Us Platform" src="https://img.shields.io/badge/Steam-1?style=flat-square&label=Support%20Game%20Platform&color=%2300adee&cacheSeconds=31536000">
     <br>
     <a href="https://stcrew.app" target="_blank">官方网站</a> | <a href="https://github.com/StarportAlliance/StarCrewLauncher/issues" target="_blank">问题反馈</a>
 </div>
