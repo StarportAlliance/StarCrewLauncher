@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
+using Microsoft.UI.Xaml.Media.Imaging;
 using StarCrew.Launcher.Models;
 using StarCrew.Launcher.Services;
 using Windows.Graphics;
@@ -198,6 +199,8 @@ public sealed partial class MainWindow : Window
     {
         if (Content is FrameworkElement root)
         {
+            root.ActualThemeChanged -= OnRootActualThemeChanged;
+            root.ActualThemeChanged += OnRootActualThemeChanged;
             root.RequestedTheme = theme switch
             {
                 AppTheme.Light => ElementTheme.Light,
@@ -205,6 +208,20 @@ public sealed partial class MainWindow : Window
                 _ => ElementTheme.Default,
             };
         }
+
+        UpdateAppIcon();
+    }
+
+    private void OnRootActualThemeChanged(FrameworkElement sender, object args) => UpdateAppIcon();
+
+    private void UpdateAppIcon()
+    {
+        // SvgImageSource 不响应主题，按实际主题手动切换浅/深两套品牌图标。
+        string uri =
+            Content is FrameworkElement { ActualTheme: ElementTheme.Dark }
+                ? "ms-appx:///Assets/icon-dark.svg"
+                : "ms-appx:///Assets/icon.svg";
+        AppIcon.Source = new SvgImageSource(new Uri(uri));
     }
 
     /// <summary>按主显示器工作区取 16:9 默认尺寸并居中。</summary>

@@ -17,6 +17,8 @@ public sealed partial class InstancesPage : Page
     public InstancesPage()
     {
         InitializeComponent();
+        // SvgImageSource 不响应主题：主题切换时重建卡片以换用对应色调的品牌图标。
+        ActualThemeChanged += (_, _) => RebuildCards();
     }
 
     internal InstancesViewModel? ViewModel { get; private set; }
@@ -88,7 +90,11 @@ public sealed partial class InstancesPage : Page
         try
         {
             icon.Source = new Microsoft.UI.Xaml.Media.Imaging.SvgImageSource(
-                new Uri("ms-appx:///Assets/icon.svg")
+                new Uri(
+                    ActualTheme == ElementTheme.Dark
+                        ? "ms-appx:///Assets/icon-dark.svg"
+                        : "ms-appx:///Assets/icon.svg"
+                )
             );
         }
         catch (Exception)

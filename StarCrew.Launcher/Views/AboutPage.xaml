@@ -22,7 +22,7 @@
                     Description="{x:Bind ViewModel.VersionDescription}"
                 >
                     <controls:SettingsCard.HeaderIcon>
-                        <ImageIcon>
+                        <ImageIcon x:Name="AppIcon">
                             <ImageIcon.Source>
                                 <SvgImageSource UriSource="ms-appx:///Assets/icon.svg" />
                             </ImageIcon.Source>
