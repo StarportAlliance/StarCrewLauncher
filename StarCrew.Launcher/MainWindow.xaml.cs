@@ -217,10 +217,9 @@ public sealed partial class MainWindow : Window
     private void UpdateAppIcon()
     {
         // SvgImageSource 不响应主题，按实际主题手动切换浅/深两套品牌图标。
-        string uri =
-            Content is FrameworkElement { ActualTheme: ElementTheme.Dark }
-                ? "ms-appx:///Assets/icon-dark.svg"
-                : "ms-appx:///Assets/icon.svg";
+        string uri = Content is FrameworkElement { ActualTheme: ElementTheme.Dark }
+            ? "ms-appx:///Assets/icon-dark.svg"
+            : "ms-appx:///Assets/icon.svg";
         AppIcon.Source = new SvgImageSource(new Uri(uri));
     }
 
