@@ -65,7 +65,10 @@ public sealed partial class MainWindow : Window
         _subclassProc = WndSubclassProc;
         SetWindowSubclass(_hwnd, _subclassProc, 0, 0);
 
-        AcrylicLayer.OpacityTransition = new ScalarTransition { Duration = TimeSpan.FromMilliseconds(150) };
+        AcrylicLayer.OpacityTransition = new ScalarTransition
+        {
+            Duration = TimeSpan.FromMilliseconds(150),
+        };
 
         Activated += OnFirstActivated;
         ToastBar.RegisterPropertyChangedCallback(InfoBar.IsOpenProperty, OnToastIsOpenChanged);

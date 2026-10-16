@@ -13,11 +13,7 @@
 
         <!-- 全窗口背景图：横跨标题栏与内容区，首页直接透出。
              非首页时其上整块亚克力层由代码隐藏点亮：单层笔刷覆盖全窗口，顶栏/侧栏/内容天然连贯。 -->
-        <Image
-            Grid.RowSpan="2"
-            Source="ms-appx:///Assets/background.png"
-            Stretch="UniformToFill"
-        />
+        <Image Grid.RowSpan="2" Source="ms-appx:///Assets/background.png" Stretch="UniformToFill" />
         <Border
             x:Name="AcrylicLayer"
             Grid.RowSpan="2"
