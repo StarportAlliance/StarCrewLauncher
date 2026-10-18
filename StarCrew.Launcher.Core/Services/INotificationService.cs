@@ -2,12 +2,12 @@ using StarCrew.Launcher.Models;
 
 namespace StarCrew.Launcher.Services;
 
-/// <summary>应用内通知接缝：视图模型经此发 Toast，不直接接触 UI。</summary>
+/// <summary>Toast 通知服务。</summary>
 internal interface INotificationService
 {
-    /// <summary>有通知待展示；事件在发起通知的线程上触发。</summary>
+    /// <summary>界面层订阅此事件弹 Toast。</summary>
     event EventHandler<NotificationMessage>? Requested;
 
-    /// <summary>发起一条通知，展示由界面层负责；<paramref name="message"/> 与标题重复时可传 null 省略。</summary>
+    /// <summary>发送一条 Toast 通知。</summary>
     void Notify(string title, string? message, NotificationSeverity severity);
 }

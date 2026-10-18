@@ -1,11 +1,9 @@
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 using StarCrew.Launcher.Models;
 using StarCrew.Launcher.Services;
 
 namespace StarCrew.Launcher.Tests.Services;
 
-/// <summary>InstanceLauncher 的单元测试：Steam 检测、exe 检查与启动调用。</summary>
 public sealed class InstanceLauncherTests : IDisposable
 {
     private readonly string _root;
@@ -27,9 +25,8 @@ public sealed class InstanceLauncherTests : IDisposable
     private GameInstance CreateInstance(
         string name = "A",
         InstanceState state = InstanceState.Ready
-    )
-    {
-        return new GameInstance(
+    ) =>
+        new(
             Guid.NewGuid(),
             name,
             Path.Combine(_root, name.Replace(' ', '_')),
@@ -41,7 +38,6 @@ public sealed class InstanceLauncherTests : IDisposable
             DateTimeOffset.UtcNow,
             null
         );
-    }
 
     private static string CreateExeFor(GameInstance instance)
     {
@@ -107,8 +103,7 @@ public sealed class InstanceLauncherTests : IDisposable
     public async Task LaunchAsync_WithSteamRunningAndExe_StarterSucceeded_ReturnsSuccess()
     {
         IProcessStarter starter = Substitute.For<IProcessStarter>();
-        string? outError = null;
-        starter.TryStart(Arg.Any<string>(), Arg.Any<string>(), out outError).Returns(true);
+        starter.TryStart(Arg.Any<string>(), Arg.Any<string>(), out _).Returns(true);
         ISteamClient steam = Substitute.For<ISteamClient>();
         steam.IsSteamRunning().Returns(true);
         InstanceLauncher launcher = new(starter, steam, TestStrings.Instance);
@@ -125,8 +120,7 @@ public sealed class InstanceLauncherTests : IDisposable
     public async Task LaunchAsync_WhenStartSteamFails_ContinuesLaunching()
     {
         IProcessStarter starter = Substitute.For<IProcessStarter>();
-        string? outError = null;
-        starter.TryStart(Arg.Any<string>(), Arg.Any<string>(), out outError).Returns(true);
+        starter.TryStart(Arg.Any<string>(), Arg.Any<string>(), out _).Returns(true);
         ISteamClient steam = Substitute.For<ISteamClient>();
         steam.IsSteamRunning().Returns(false);
         steam.TryStartSteam(out _).Returns(false);
@@ -144,8 +138,7 @@ public sealed class InstanceLauncherTests : IDisposable
     public async Task LaunchAsync_WhenStartSteamSucceeds_WaitsForProcess()
     {
         IProcessStarter starter = Substitute.For<IProcessStarter>();
-        string? outError = null;
-        starter.TryStart(Arg.Any<string>(), Arg.Any<string>(), out outError).Returns(true);
+        starter.TryStart(Arg.Any<string>(), Arg.Any<string>(), out _).Returns(true);
         ISteamClient steam = Substitute.For<ISteamClient>();
         // 首次 false，之后 true（启动成功后视为已在线）
         steam.IsSteamRunning().Returns(false, true);
@@ -163,9 +156,8 @@ public sealed class InstanceLauncherTests : IDisposable
     public async Task LaunchAsync_WithStarterFailure_ReturnsFailureFromStarter()
     {
         IProcessStarter starter = Substitute.For<IProcessStarter>();
-        string? outError = null;
         starter
-            .TryStart(Arg.Any<string>(), Arg.Any<string>(), out outError)
+            .TryStart(Arg.Any<string>(), Arg.Any<string>(), out string? outError)
             .Returns(call =>
             {
                 call[2] = "boom";

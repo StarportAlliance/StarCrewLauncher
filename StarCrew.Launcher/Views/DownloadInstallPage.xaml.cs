@@ -24,7 +24,6 @@ public sealed partial class DownloadInstallPage : Page
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         ArgumentNullException.ThrowIfNull(e);
-        // 参数由版本列表传入：直接复用下载页视图模型，安装动作与校验只有一份实现。
         ViewModel = e.Parameter as DownloadPageViewModel;
         Bindings.Update();
     }
@@ -36,8 +35,6 @@ public sealed partial class DownloadInstallPage : Page
         _ = RunInstallAsync();
     }
 
-    // Esc 与点击空白处同一路径：焦点交给可接焦点的滚动区，输入框收起键盘焦点。
-    // 用 Pointer 而非 Programmatic：后者在键盘输入后会被强制改写成 Keyboard，凭空画出焦点框（像按了次 Tab）。
     private void ContentScroll_KeyDown(object sender, KeyRoutedEventArgs e)
     {
         _ = sender;
@@ -48,7 +45,6 @@ public sealed partial class DownloadInstallPage : Page
         }
     }
 
-    /// <summary>开始安装：进度对话框跟踪下载，安装完成后退回版本列表。</summary>
     private async Task RunInstallAsync()
     {
         if (
@@ -93,8 +89,6 @@ public sealed partial class DownloadInstallPage : Page
 
         if (result.IsSuccess)
         {
-            // 实例已落库，退回版本列表：页面重建、视图模型复用切走前那份（Frame 回退栈存的是同一实例），
-            // 版本列表取的是远端目录快照，安装落库不改变它，无需刷新。
             App.Services.GetRequiredService<FrameNavigationService>().GoBack();
         }
     }

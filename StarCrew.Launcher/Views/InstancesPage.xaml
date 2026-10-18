@@ -19,7 +19,6 @@
                     Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
                 />
 
-                <!-- 空状态引导：占满剩余空间并整体居中，形如 404 页 -->
                 <StackPanel
                     Grid.Row="1"
                     x:Name="EmptyPanel"
@@ -42,7 +41,6 @@
                     />
                 </StackPanel>
 
-                <!-- 卡片列表：页面代码里按状态生成，不经 DataTemplate -->
                 <StackPanel Grid.Row="1" x:Name="InstancesList" Spacing="4" />
             </Grid>
         </Grid>

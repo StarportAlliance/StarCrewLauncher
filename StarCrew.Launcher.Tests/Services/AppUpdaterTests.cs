@@ -6,14 +6,11 @@ using Velopack.Exceptions;
 
 namespace StarCrew.Launcher.Tests.Services;
 
-/// <summary>AppUpdater 的单元测试：全流程用 IUpdateClient 替身覆盖，无真实网络。</summary>
 public sealed class AppUpdaterTests
 {
     [Fact]
-    public void Ctor_WithNullClient_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullClient_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() => new AppUpdater(null!, TestStrings.Instance));
-    }
 
     [Fact]
     public void CurrentVersion_DelegatesToClient()
@@ -94,7 +91,7 @@ public sealed class AppUpdaterTests
     {
         IUpdateClient client = Substitute.For<IUpdateClient>();
         client.IsInstalled.Returns(true);
-        // NotInstalledException 无公开构造器，只能用 Velopack 真抛出的实例做替身行为。
+        // NotInstalledException 无公开构造器，只能用 Velopack 真抛出的实例做替身行为
         NotInstalledException notInstalled = await CaptureNotInstalledAsync();
         client
             .CheckForUpdatesAsync(Arg.Any<CancellationToken>())
@@ -240,7 +237,7 @@ public sealed class AppUpdaterTests
         client.DidNotReceive().PrepareUpdateForRestart(Arg.Any<string>());
     }
 
-    /// <summary>抓取 Velopack 真抛出的 NotInstalledException，该类型无公开构造器，只能接住现成的。</summary>
+    // NotInstalledException 无公开构造器，只能接住 Velopack 真抛出的实例
     private static async Task<NotInstalledException> CaptureNotInstalledAsync()
     {
         VelopackUpdateClient real = new("https://example.com/updates");

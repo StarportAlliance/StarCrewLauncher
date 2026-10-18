@@ -4,7 +4,6 @@ using StarCrew.Launcher.Services;
 
 namespace StarCrew.Launcher.Tests.Services;
 
-/// <summary>SteamLoginManager 的单元测试：工具、进程与存储全部走替身。</summary>
 public sealed class SteamLoginManagerTests : IDisposable
 {
     private readonly string _root;
@@ -24,8 +23,7 @@ public sealed class SteamLoginManagerTests : IDisposable
     }
 
     [Fact]
-    public void Ctor_WithNullProvisioner_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullProvisioner_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new SteamLoginManager(
                 null!,
@@ -34,11 +32,9 @@ public sealed class SteamLoginManagerTests : IDisposable
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
-    public void Ctor_WithNullRunner_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullRunner_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new SteamLoginManager(
                 Substitute.For<IDepotDownloaderProvisioner>(),
@@ -47,11 +43,9 @@ public sealed class SteamLoginManagerTests : IDisposable
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
-    public void Ctor_WithNullStore_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullStore_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new SteamLoginManager(
                 Substitute.For<IDepotDownloaderProvisioner>(),
@@ -60,7 +54,6 @@ public sealed class SteamLoginManagerTests : IDisposable
                 TestStrings.Instance
             )
         );
-    }
 
     [Theory]
     [InlineData("")]
@@ -331,14 +324,9 @@ public sealed class SteamLoginManagerTests : IDisposable
         return new SteamLoginManager(provisioner, targetRunner, target, TestStrings.Instance);
     }
 
-    private sealed class FakeStore : IInstanceStore
+    private sealed class FakeStore(LauncherState state) : IInstanceStore
     {
-        public FakeStore(LauncherState state)
-        {
-            Current = state;
-        }
-
-        public LauncherState Current { get; private set; }
+        public LauncherState Current { get; private set; } = state;
 
         public LauncherState Load() => Current;
 

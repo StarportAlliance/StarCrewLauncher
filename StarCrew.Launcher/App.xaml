@@ -9,8 +9,6 @@
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
             </ResourceDictionary.MergedDictionaries>
-            <!--  品牌 accent 色板：浅色主题主色 #1E96E8 落在 Light2（浅色主题 accent 笔刷的解析槽位），
-                  深色主题主色 #7FCCFF 落在 Dark1（深色主题 accent 笔刷的解析槽位），其余槽位为品牌色的明暗梯度。  -->
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">
                     <Color x:Key="SystemAccentColor">#1A83CB</Color>
@@ -20,7 +18,6 @@
                     <Color x:Key="SystemAccentColorDark1">#1771AE</Color>
                     <Color x:Key="SystemAccentColorDark2">#115380</Color>
                     <Color x:Key="SystemAccentColorDark3">#0B3551</Color>
-                    <!-- 自绘亚克力：模糊度固定为 18（系统内置是 30，整体调弱），着色随主题切换。 -->
                     <media:AcrylicBrush
                         x:Key="LauncherAcrylicBrush"
                         BlurAmount="18"

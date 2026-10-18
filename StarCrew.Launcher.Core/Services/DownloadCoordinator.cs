@@ -3,7 +3,6 @@ using StarCrew.Launcher.Models;
 
 namespace StarCrew.Launcher.Services;
 
-/// <summary>下载协调者：选定版本 → 确认工具可用 → 创建目录与实例 → 跑 DD。</summary>
 internal sealed class DownloadCoordinator : IDownloadCoordinator
 {
     private const int AmongUsAppId = 945360;
@@ -43,7 +42,6 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
         _instancesRoot = instancesRoot;
     }
 
-    /// <inheritdoc />
     public async Task<GameInstallResult> InstallAsync(
         string instanceName,
         GameVersionEntry version,
@@ -77,13 +75,11 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
             return new GameInstallResult(false, ensure.Message);
         }
 
-        // 新实例：直接用 GUID 当目录。记录只在下载完成后落库：任何原因打断都不留记录。
         Guid instanceGuid = Guid.NewGuid();
         string instanceId = instanceGuid.ToString("N");
         string instanceDirectory = Path.Combine(_instancesRoot, instanceId);
         Directory.CreateDirectory(instanceDirectory);
 
-        // manifest-only 预跑是唯一能提前拿到总大小的通道：DD 只在那一模式把 manifest 摘要落成文本。
         progress?.Report(
             new DownloadProgressInfo(
                 DownloadStage.PreparingTool,
@@ -192,7 +188,6 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
             return await FailAsync(_strings.Format("Install_FailedFormat", ex.Message));
         }
 
-        // 取消、报错、校验失败一律清掉目录且不落库：实例列表里看不到，重装即是重新开始。
         async Task<GameInstallResult> FailAsync(string message)
         {
             TryDeleteDirectory(instanceDirectory);
@@ -201,7 +196,6 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
         }
     }
 
-    /// <summary>尽力删除中断下载留下的目录；失败（文件被占用等）只留下无记录的孤儿目录，不影响流程。</summary>
     private static void TryDeleteDirectory(string directory)
     {
         try
@@ -213,11 +207,11 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
         }
         catch (IOException)
         {
-            // 文件被占用等：删不掉就算了，目录里没有实例记录，用户侧不可见。
+            // 删不掉就算了，反正用户看不到。。
         }
         catch (UnauthorizedAccessException)
         {
-            // 同上。
+            // 同上
         }
     }
 
@@ -229,11 +223,6 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
             : _strings.Format("Install_FailedWithReasonFormat", tail);
     }
 
-    /// <summary>
-    /// 跑一次 -manifest-only：DD 会把 manifest 摘要写成 manifest_{depot}_{manifest}.txt，
-    /// 其中的 "Total bytes on disk" 就是本次要下载的总字节数（与 DD 算百分比的分母同源）。
-    /// 失败一律返回 null，调用方退回只显示百分比。
-    /// </summary>
     private async Task<long?> ReadTotalBytesAsync(
         string executablePath,
         string accountName,
@@ -268,7 +257,6 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
         return outcome.ExitCode == 0 ? ExtractTotalBytes(instanceDirectory) : null;
     }
 
-    /// <summary>从实例目录的 manifest 摘要文本读总大小；读不到或解析不出都返回 null。</summary>
     private static long? ExtractTotalBytes(string instanceDirectory)
     {
         const string Prefix = "Total bytes on disk";
@@ -305,17 +293,18 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
         }
         catch (IOException)
         {
-            // 摘要缺失或占用中时放弃大小展示，不影响下载本身。
+            // 摘要缺失或占用中时放弃大小展示，不影响下载本身
         }
         catch (UnauthorizedAccessException)
         {
-            // 同上。
+            // 同上
         }
 
         return null;
     }
 
-    /// <summary>DD 的输出中大部分行是 "  12.34% 文件名"，这里摘出百分比。</summary>
+    /// <summary>尝试从字符串中解析百分比。</summary>
+    /// <remarks>DepotDownloader 的输出中大部分行是 "  12.34% 文件名"，这里摘出百分比。</remarks>
     private static double? TryParsePercent(string? line)
     {
         if (string.IsNullOrWhiteSpace(line))

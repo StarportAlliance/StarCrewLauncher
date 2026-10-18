@@ -22,7 +22,6 @@
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <!-- 分组用内层 NavigationView：和外层侧栏同一控件，选中竖条动画天然一致。 -->
             <NavigationView
                 x:Name="SectionNav"
                 Grid.Column="0"
@@ -37,7 +36,6 @@
                 SelectionChanged="SectionNav_SelectionChanged"
             >
                 <NavigationView.Resources>
-                    <!-- 和外层侧栏一致：pane 透明共用 Mica，去边框。 -->
                     <StaticResource
                         x:Key="NavigationViewExpandedPaneBackground"
                         ResourceKey="SolidBackgroundFillColorTransparent"
@@ -67,8 +65,6 @@
                 </NavigationView.MenuItems>
             </NavigationView>
 
-            <!-- 内容区走 Frame：与 MatchWindow 一致地用 Windows 原生页面切换动画，内层 NavigationView 选中项触发导航。
-                 历史栈保持开启：分区内返回交给 Frame.GoBack，自动取进场过渡反向播放。 -->
             <Frame x:Name="SectionFrame" Grid.Column="1" IsNavigationStackEnabled="True">
                 <Frame.ContentTransitions>
                     <TransitionCollection>

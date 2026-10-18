@@ -5,7 +5,6 @@ using StarCrew.Launcher.Services;
 
 namespace StarCrew.Launcher.Tests.Services;
 
-/// <summary>DownloadCoordinator 的单元测试：工具、进程与存储全部走替身。</summary>
 public sealed class DownloadCoordinatorTests : IDisposable
 {
     private readonly string _root;
@@ -25,8 +24,7 @@ public sealed class DownloadCoordinatorTests : IDisposable
     }
 
     [Fact]
-    public void Ctor_WithNullStore_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullStore_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new DownloadCoordinator(
                 null!,
@@ -36,11 +34,9 @@ public sealed class DownloadCoordinatorTests : IDisposable
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
-    public void Ctor_WithNullProvisioner_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullProvisioner_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new DownloadCoordinator(
                 Substitute.For<IInstanceStore>(),
@@ -50,11 +46,9 @@ public sealed class DownloadCoordinatorTests : IDisposable
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
-    public void Ctor_WithNullRunner_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullRunner_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new DownloadCoordinator(
                 Substitute.For<IInstanceStore>(),
@@ -64,13 +58,11 @@ public sealed class DownloadCoordinatorTests : IDisposable
                 TestStrings.Instance
             )
         );
-    }
 
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    public void Ctor_WithBlankRoot_ThrowsArgumentException(string root)
-    {
+    public void Ctor_WithBlankRoot_ThrowsArgumentException(string root) =>
         Assert.Throws<ArgumentException>(() =>
             new DownloadCoordinator(
                 Substitute.For<IInstanceStore>(),
@@ -80,7 +72,6 @@ public sealed class DownloadCoordinatorTests : IDisposable
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
     public async Task InstallAsync_WithoutAccount_ReturnsFailure()
@@ -360,7 +351,7 @@ public sealed class DownloadCoordinatorTests : IDisposable
 
                 if (command.Arguments.Contains("-manifest-only", StringComparer.Ordinal))
                 {
-                    // DD 只在 -manifest-only 时把摘要落成文本，剩下的一切都靠它。
+                    // DD 只在 -manifest-only 时把摘要落成文本
                     int dirIndex = Array.IndexOf([.. command.Arguments], "-dir");
                     File.WriteAllText(
                         Path.Combine(
@@ -434,21 +425,11 @@ public sealed class DownloadCoordinatorTests : IDisposable
         );
     }
 
-    private static FakeStore StoreWithAccount(string account = "user")
-    {
-        return new FakeStore(new LauncherState(1, null, account, []));
-    }
+    private static FakeStore StoreWithAccount(string account = "user") =>
+        new(new LauncherState(1, null, account, []));
 
-    private static GameVersionEntry VersionEntry()
-    {
-        return new GameVersionEntry(
-            "2026.9.5",
-            990035194164819049L,
-            DateTimeOffset.UtcNow,
-            [],
-            false
-        );
-    }
+    private static GameVersionEntry VersionEntry() =>
+        new("2026.9.5", 990035194164819049L, DateTimeOffset.UtcNow, [], false);
 
     private sealed class FakeStore : IInstanceStore
     {
@@ -464,15 +445,10 @@ public sealed class DownloadCoordinatorTests : IDisposable
         public void Save(LauncherState state) => Current = state;
     }
 
-    /// <summary>同步版 IProgress：在当前调用栈里立即执行回调，避免线程池异步延迟。</summary>
-    private sealed class SyncProgress<T> : IProgress<T>
+    // 同步执行回调，避免线程池异步延迟
+    private sealed class SyncProgress<T>(Action<T> handler) : IProgress<T>
     {
-        private readonly Action<T> _handler;
-
-        public SyncProgress(Action<T> handler)
-        {
-            _handler = handler;
-        }
+        private readonly Action<T> _handler = handler;
 
         public void Report(T value) => _handler(value);
     }

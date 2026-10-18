@@ -2,14 +2,11 @@ using StarCrew.Launcher.Services;
 
 namespace StarCrew.Launcher.Tests.Services;
 
-/// <summary>NetworkSettings 的单元测试：以内存字典代替 LocalSettings。</summary>
 public sealed class NetworkSettingsTests
 {
     [Fact]
-    public void Ctor_WithNullStore_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullStore_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() => new NetworkSettings(null!));
-    }
 
     [Fact]
     public void Accelerator_WithEmptyStore_ReturnsGhProxy()
@@ -90,10 +87,8 @@ public sealed class NetworkSettingsTests
     [Fact]
     public void CustomPrefix_RoundTrip_PersistsValue()
     {
-        Dictionary<string, object> store = new();
-        NetworkSettings settings = new(store);
-
-        settings.CustomPrefix = "https://acc.example.com";
+        Dictionary<string, object> store = [];
+        NetworkSettings settings = new(store) { CustomPrefix = "https://acc.example.com" };
 
         Assert.Equal("https://acc.example.com", settings.CustomPrefix);
         Assert.Equal("https://acc.example.com", store["DownloadAcceleratorCustomPrefix"]);
@@ -102,9 +97,7 @@ public sealed class NetworkSettingsTests
     [Fact]
     public void CustomPrefix_SetNull_StoresEmpty()
     {
-        NetworkSettings settings = new(new Dictionary<string, object>());
-
-        settings.CustomPrefix = null!;
+        NetworkSettings settings = new(new Dictionary<string, object>()) { CustomPrefix = null! };
 
         Assert.Equal(string.Empty, settings.CustomPrefix);
     }

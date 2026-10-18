@@ -4,7 +4,6 @@ using StarCrew.Launcher.Models;
 
 namespace StarCrew.Launcher.Services;
 
-/// <summary>全局实例状态存储：以 instances.json 存放于用户数据目录，损坏时当无数据处理。</summary>
 internal sealed class InstanceStore : IInstanceStore
 {
     private readonly string _filePath;
@@ -21,7 +20,6 @@ internal sealed class InstanceStore : IInstanceStore
         _filePath = filePath;
     }
 
-    /// <inheritdoc />
     public LauncherState Load()
     {
         try
@@ -36,13 +34,11 @@ internal sealed class InstanceStore : IInstanceStore
         }
         catch (Exception)
         {
-            // 状态文件损坏时按无数据处理，副本留给人工排查
             TryBackupCorruptFile();
             return LauncherState.Empty;
         }
     }
 
-    /// <inheritdoc />
     public void Save(LauncherState state)
     {
         ArgumentNullException.ThrowIfNull(state);
@@ -61,7 +57,7 @@ internal sealed class InstanceStore : IInstanceStore
         }
         catch (IOException)
         {
-            // 写入失败不影响当前会话，只记日志：实际环境中最常见的原因是目录权限问题
+            // 写入失败不影响当前会话
         }
     }
 

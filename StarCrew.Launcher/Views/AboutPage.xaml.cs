@@ -2,7 +2,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using StarCrew.Launcher.Services;
 using StarCrew.Launcher.ViewModels;
 
 namespace StarCrew.Launcher.Views;
@@ -23,10 +22,7 @@ public sealed partial class AboutPage : Page
         ArgumentNullException.ThrowIfNull(e);
         ViewModel = e.Parameter as AboutViewModel;
         Bindings.Update();
-        if (ViewModel is not null)
-        {
-            ViewModel.UpdateAvailable += OnUpdateAvailable;
-        }
+        ViewModel?.UpdateAvailable += OnUpdateAvailable;
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -63,7 +59,6 @@ public sealed partial class AboutPage : Page
 
     private Task OpenUriAsync(string uri) => ViewModel?.OpenUriAsync(uri) ?? Task.CompletedTask;
 
-    /// <summary>命中新版本时先弹窗确认，确认后弹进度框下载，成功后直接退出触发自动重启。</summary>
     private async void OnUpdateAvailable(object? sender, string version)
     {
         if (ViewModel is null)

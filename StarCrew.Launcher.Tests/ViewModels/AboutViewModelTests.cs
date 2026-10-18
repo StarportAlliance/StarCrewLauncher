@@ -5,12 +5,10 @@ using StarCrew.Launcher.ViewModels;
 
 namespace StarCrew.Launcher.Tests.ViewModels;
 
-/// <summary>AboutViewModel 的单元测试：更新检查/下载的提示与事件全部走替身。</summary>
 public sealed class AboutViewModelTests
 {
     [Fact]
-    public void Ctor_WithNullUpdater_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullUpdater_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new AboutViewModel(
                 null!,
@@ -20,11 +18,9 @@ public sealed class AboutViewModelTests
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
-    public void Ctor_WithNullLauncher_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullLauncher_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new AboutViewModel(
                 new AppUpdater(Substitute.For<IUpdateClient>(), TestStrings.Instance),
@@ -34,11 +30,9 @@ public sealed class AboutViewModelTests
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
-    public void Ctor_WithNullNotifications_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullNotifications_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new AboutViewModel(
                 new AppUpdater(Substitute.For<IUpdateClient>(), TestStrings.Instance),
@@ -48,11 +42,9 @@ public sealed class AboutViewModelTests
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
-    public void Ctor_WithNullAppInfo_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullAppInfo_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new AboutViewModel(
                 new AppUpdater(Substitute.For<IUpdateClient>(), TestStrings.Instance),
@@ -62,7 +54,6 @@ public sealed class AboutViewModelTests
                 TestStrings.Instance
             )
         );
-    }
 
     [Theory]
     [InlineData(null, "版本 未知")]

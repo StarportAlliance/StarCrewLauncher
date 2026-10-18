@@ -5,7 +5,6 @@ using StarCrew.Launcher.Services;
 
 namespace StarCrew.Launcher.ViewModels;
 
-/// <summary>实例页的视图模型：实例列表、更新/删除/重命名。</summary>
 internal sealed partial class InstancesViewModel : ObservableObject
 {
     private readonly IInstanceStore _store;
@@ -42,7 +41,6 @@ internal sealed partial class InstancesViewModel : ObservableObject
         Reload();
     }
 
-    /// <summary>全部实例的卡片视图模型。</summary>
     [ObservableProperty]
     public partial IReadOnlyList<InstanceItemViewModel> Items { get; set; }
 
@@ -55,7 +53,6 @@ internal sealed partial class InstancesViewModel : ObservableObject
 
     public event EventHandler<GameInstance>? DetailsRequested;
 
-    /// <summary>按存储里的状态重新生成卡片列表。</summary>
     public void Reload()
     {
         LauncherState state = _store.Load();
@@ -82,7 +79,6 @@ internal sealed partial class InstancesViewModel : ObservableObject
     [RelayCommand]
     private void GoDownload() => _navigation.NavigateTo(NavigationTarget.Download);
 
-    /// <summary>删除实例；deleteFiles 指定是否把该实例的游戏文件一并从磁盘删除。</summary>
     public void ConfirmDelete(GameInstance instance, bool deleteFiles)
     {
         ArgumentNullException.ThrowIfNull(instance);
@@ -120,7 +116,6 @@ internal sealed partial class InstancesViewModel : ObservableObject
         );
     }
 
-    /// <summary>重命名实例；非法名称会被打回并提示原因。</summary>
     public void ConfirmRename(GameInstance instance, string newName)
     {
         ArgumentNullException.ThrowIfNull(instance);
@@ -152,9 +147,12 @@ internal sealed partial class InstancesViewModel : ObservableObject
         _store.Save(
             state with
             {
-                Instances = state
-                    .Instances.Select(i => i.Id == instance.Id ? i with { Name = candidate } : i)
-                    .ToList(),
+                Instances =
+                [
+                    .. state.Instances.Select(i =>
+                        i.Id == instance.Id ? i with { Name = candidate } : i
+                    ),
+                ],
             }
         );
         Reload();

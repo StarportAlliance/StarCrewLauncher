@@ -2,10 +2,9 @@ using Microsoft.Win32;
 
 namespace StarCrew.Launcher.Services;
 
-/// <summary>基于真实注册表与文件系统的生产实现。</summary>
+/// <summary>适用于 Windows 的 Steam 定位所需的注册表与文件系统环境接口。</summary>
 internal sealed class WindowsSteamEnvironment : ISteamEnvironment
 {
-    /// <inheritdoc />
     public IEnumerable<string?> GetRegistrySteamPaths()
     {
         yield return ReadRegistrySteamPath(RegistryHive.CurrentUser, @"Software\Valve\Steam");
@@ -16,13 +15,10 @@ internal sealed class WindowsSteamEnvironment : ISteamEnvironment
         );
     }
 
-    /// <inheritdoc />
     public bool DirectoryExists(string path) => Directory.Exists(path);
 
-    /// <inheritdoc />
     public bool FileExists(string path) => File.Exists(path);
 
-    /// <inheritdoc />
     public string? ReadAllTextOrNull(string path)
     {
         try
@@ -35,11 +31,9 @@ internal sealed class WindowsSteamEnvironment : ISteamEnvironment
         }
     }
 
-    /// <inheritdoc />
     public string GetProgramFilesX86() =>
         Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
 
-    /// <inheritdoc />
     public string GetProgramFiles() =>
         Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
 

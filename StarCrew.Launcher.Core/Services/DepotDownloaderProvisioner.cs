@@ -5,7 +5,6 @@ using StarCrew.Launcher.Models;
 
 namespace StarCrew.Launcher.Services;
 
-/// <summary>DepotDownloader 下载分发员：首次确保工具在位（下载+SHA-256 校验+解压+源文件移动）。</summary>
 internal sealed class DepotDownloaderProvisioner : IDepotDownloaderProvisioner
 {
     private const string ReleaseTag = "DepotDownloader_3.4.0";
@@ -57,10 +56,8 @@ internal sealed class DepotDownloaderProvisioner : IDepotDownloaderProvisioner
         _expectedSha256Override = expectedSha256Override;
     }
 
-    /// <inheritdoc />
     public bool IsInstalled() => File.Exists(GetExecutablePath());
 
-    /// <inheritdoc />
     public async Task<DepotDownloaderEnsureResult> EnsureAsync(
         IProgress<DownloadProgressInfo>? progress = null,
         CancellationToken cancellationToken = default
@@ -112,7 +109,6 @@ internal sealed class DepotDownloaderProvisioner : IDepotDownloaderProvisioner
                         }
                         else
                         {
-                            // 分块拷贝只为上报百分比；DD 安装包只有几 MB，不值得上更花的流封装。
                             byte[] buffer = new byte[81920];
                             long received = 0;
                             int read;
@@ -216,19 +212,14 @@ internal sealed class DepotDownloaderProvisioner : IDepotDownloaderProvisioner
         };
     }
 
-    private static (string AssetName, string Sha256) SelectForCurrentPlatform()
-    {
-        return RuntimeInformation.ProcessArchitecture switch
+    private static (string AssetName, string Sha256) SelectForCurrentPlatform() =>
+        RuntimeInformation.ProcessArchitecture switch
         {
             Architecture.Arm64 => (Arm64AssetName, Arm64Sha256),
             _ => (X64AssetName, X64Sha256),
         };
-    }
 
-    private string GetExecutablePath()
-    {
-        return Path.Combine(_toolsDirectory, "DepotDownloader.exe");
-    }
+    private string GetExecutablePath() => Path.Combine(_toolsDirectory, "DepotDownloader.exe");
 
     private static async Task<string> ComputeSha256Async(
         string filePath,

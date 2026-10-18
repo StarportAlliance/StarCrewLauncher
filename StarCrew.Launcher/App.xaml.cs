@@ -11,7 +11,6 @@ public sealed partial class App : Application
 {
     private Window? _window;
 
-    /// <summary>组合根：页面代码隐藏只经此取界面层基础件，业务依赖一律走构造注入。</summary>
     internal static IServiceProvider Services { get; private set; } = null!;
 
     public App()
@@ -30,8 +29,8 @@ public sealed partial class App : Application
     private static ServiceProvider BuildServices()
     {
         ServiceCollection services = [];
-        services.AddSingleton<IDictionary<string, object>>(_ => CreateSettingsStore());
-        services.AddSingleton<IAppStrings, Services.AppStrings>();
+        services.AddSingleton(_ => CreateSettingsStore());
+        services.AddSingleton<IAppStrings, AppStrings>();
         services.AddSingleton<IThemeSettings>(sp => new ThemeSettings(
             sp.GetRequiredService<IDictionary<string, object>>()
         ));
@@ -66,7 +65,7 @@ public sealed partial class App : Application
         services.AddTransient<InstancesViewModel>();
         services.AddTransient<DownloadPageViewModel>();
         services.AddTransient<NetworkViewModel>();
-        services.AddSingleton<MainWindow>(sp => new MainWindow(
+        services.AddSingleton(sp => new MainWindow(
             sp.GetRequiredService<IThemeSettings>(),
             sp.GetRequiredService<INotificationService>(),
             sp.GetRequiredService<FrameNavigationService>(),
@@ -75,11 +74,11 @@ public sealed partial class App : Application
         return services.BuildServiceProvider();
     }
 
-    // LocalSettings.Values 即 IDictionary，开发期取不到时用内存回退。
     private static IDictionary<string, object> CreateSettingsStore()
     {
         try
         {
+            // LocalSettings.Values 即 IDictionary，开发期取不到时用内存回退
             if (ApplicationData.Current?.LocalSettings.Values is IDictionary<string, object> store)
             {
                 return store;

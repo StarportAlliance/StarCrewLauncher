@@ -3,7 +3,6 @@ using StarCrew.Launcher.Models;
 
 namespace StarCrew.Launcher.Tests.Models;
 
-/// <summary>更新检查结果记录的行为契约：值语义 + 全量解构，UI 展示依赖它。</summary>
 public sealed class UpdateCheckResultTests
 {
     [Fact]

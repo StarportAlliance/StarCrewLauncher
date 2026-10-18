@@ -4,7 +4,6 @@ using StarCrew.Launcher.Services;
 
 namespace StarCrew.Launcher.ViewModels;
 
-/// <summary>列表中每个实例的视图模型：启动、打开目录、重命名/删除/详情请求。</summary>
 internal sealed partial class InstanceItemViewModel
 {
     private readonly IInstanceLauncher _launcher;

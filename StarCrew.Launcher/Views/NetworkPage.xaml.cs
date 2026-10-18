@@ -31,10 +31,7 @@ public sealed partial class NetworkPage : Page
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
         ArgumentNullException.ThrowIfNull(e);
-        if (ViewModel is not null)
-        {
-            ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
-        }
+        ViewModel?.PropertyChanged -= OnViewModelPropertyChanged;
     }
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -47,10 +44,7 @@ public sealed partial class NetworkPage : Page
 
     private void UpdateCustomCard()
     {
-        if (CustomPrefixCard is not null)
-        {
-            CustomPrefixCard.Visibility =
-                ViewModel?.CustomVisible == true ? Visibility.Visible : Visibility.Collapsed;
-        }
+        CustomPrefixCard?.Visibility =
+            ViewModel?.CustomVisible == true ? Visibility.Visible : Visibility.Collapsed;
     }
 }

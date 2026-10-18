@@ -106,7 +106,6 @@
                         <FontIcon Glyph="&#xE8A7;" />
                     </controls:SettingsCard.ActionIcon>
                 </controls:SettingsCard>
-                <!-- BTW，GPL-2.0 其实不需要加 copyright，这里只是为了风格统一 -->
                 <controls:SettingsCard
                     x:Uid="About_DdCard"
                     IsClickEnabled="True"

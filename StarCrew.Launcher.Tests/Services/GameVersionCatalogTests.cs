@@ -4,7 +4,6 @@ using StarCrew.Launcher.Services;
 
 namespace StarCrew.Launcher.Tests.Services;
 
-/// <summary>GameVersionCatalog 的单元测试：远端 → 缓存两级读取，全失败时抛异常。</summary>
 public sealed class GameVersionCatalogTests : IDisposable
 {
     private readonly string _cacheDir;
@@ -133,27 +132,18 @@ public sealed class GameVersionCatalogTests : IDisposable
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => catalog.LoadAsync(cts.Token));
     }
 
-    private static HttpClient CreateClient(Func<HttpRequestMessage, HttpResponseMessage> respond)
-    {
-        return new HttpClient(new FakeHandler(respond))
-        {
-            BaseAddress = new Uri("https://localhost/"),
-        };
-    }
+    private static HttpClient CreateClient(Func<HttpRequestMessage, HttpResponseMessage> respond) =>
+        new HttpClient(new FakeHandler(respond)) { BaseAddress = new Uri("https://localhost/") };
 
     private static HttpResponseMessage Ok(string body) =>
         new(HttpStatusCode.OK) { Content = new StringContent(body) };
 
     private static HttpResponseMessage NotFound() => new(HttpStatusCode.NotFound);
 
-    private sealed class FakeHandler : HttpMessageHandler
+    private sealed class FakeHandler(Func<HttpRequestMessage, HttpResponseMessage> respond)
+        : HttpMessageHandler
     {
-        private readonly Func<HttpRequestMessage, HttpResponseMessage> _respond;
-
-        public FakeHandler(Func<HttpRequestMessage, HttpResponseMessage> respond)
-        {
-            _respond = respond;
-        }
+        private readonly Func<HttpRequestMessage, HttpResponseMessage> _respond = respond;
 
         protected override Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request,

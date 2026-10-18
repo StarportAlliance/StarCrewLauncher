@@ -52,7 +52,7 @@ public sealed partial class DownloadPage : Page
 
     private void SectionFrame_Navigate(Type pageType, NavigationTransitionInfo transitionInfo)
     {
-        if (Type.Equals(_currentSectionPageType, pageType))
+        if (Equals(_currentSectionPageType, pageType))
         {
             return;
         }
@@ -61,7 +61,6 @@ public sealed partial class DownloadPage : Page
         SectionFrame.Navigate(pageType, ViewModel, transitionInfo);
     }
 
-    /// <summary>把内部分区切到「账号」页；供基础游戏页的「前往登录」调用。</summary>
     internal void ShowAccountSection()
     {
         foreach (object item in SectionNav.FooterMenuItems)

@@ -11,8 +11,6 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- 全窗口背景图：横跨标题栏与内容区，首页直接透出。
-             非首页时其上整块亚克力层由代码隐藏点亮：单层笔刷覆盖全窗口，顶栏/侧栏/内容天然连贯。 -->
         <Image Grid.RowSpan="2" Source="ms-appx:///Assets/background.png" Stretch="UniformToFill" />
         <Border
             x:Name="AcrylicLayer"
@@ -21,8 +19,6 @@
             Opacity="0"
         />
 
-        <!-- 顶层标题栏，48 高锁定 Tall 高度；汉堡按钮由 TitleBar 接管，品牌区用 LeftHeader 恢复 24px 图标 + BodyStrong 标题。
-             返回按钮由 TitleBar 承接主页面/设置分区的回退，可用性随导航历史在代码隐藏里同步。 -->
         <TitleBar
             x:Name="AppTitleBar"
             Height="48"
@@ -33,7 +29,6 @@
             PaneToggleRequested="AppTitleBar_PaneToggleRequested"
         >
             <TitleBar.Resources>
-                <!-- WinUI 默认给禁用的返回按钮铺 ControlFillColorDisabledBrush 整块发灰；系统设置只灰化图标，故改透明。 -->
                 <SolidColorBrush x:Key="TitleBarBackButtonBackgroundDisabled" Color="Transparent" />
             </TitleBar.Resources>
             <TitleBar.LeftHeader>
@@ -71,7 +66,6 @@
             SelectionChanged="NavView_SelectionChanged"
         >
             <NavigationView.Resources>
-                <!-- 侧边栏与内容区全部透明：首页整窗透出背景图，非首页由全窗口亚克力层统一铺底。 -->
                 <StaticResource
                     x:Key="NavigationViewExpandedPaneBackground"
                     ResourceKey="SolidBackgroundFillColorTransparent"
@@ -92,7 +86,6 @@
 
             <Grid>
                 <Grid.Resources>
-                    <!-- Toast 进场：右侧滑入 + 淡入；退场：右侧滑出 + 淡出。位移与透明度走合成器，不触发布局。 -->
                     <Storyboard x:Name="ToastEnterStoryboard">
                         <DoubleAnimation
                             Storyboard.TargetName="ToastBar"
@@ -143,8 +136,6 @@
                         </DoubleAnimation>
                     </Storyboard>
                 </Grid.Resources>
-                <!-- 页面容器走 Frame：导航自带 NavigationThemeTransition（PageRefresh = 上滑 + 淡入），切换时传 RecommendedNavigationTransitionInfo 即可。
-                     历史栈保持开启：返回交给 Frame.GoBack，自动取进场过渡反向播放，动画方向无需应用侧指定。 -->
                 <Frame x:Name="ContentFrame" IsNavigationStackEnabled="True">
                     <Frame.ContentTransitions>
                         <TransitionCollection>
@@ -152,8 +143,6 @@
                         </TransitionCollection>
                     </Frame.ContentTransitions>
                 </Frame>
-                <!-- 应用内通知走 Toolkit 的 StackedNotificationsBehavior：排队逐条展示、Duration 到期自动关闭、悬停暂停计时。
-                     进退场动画由 IsOpen 回调与 Closing 驱动（Closing 里取消关闭、播完退场再真正关闭，不断排队逻辑）。 -->
                 <InfoBar
                     x:Name="ToastBar"
                     Width="360"

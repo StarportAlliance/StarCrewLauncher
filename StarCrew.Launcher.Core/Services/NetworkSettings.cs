@@ -1,6 +1,5 @@
 namespace StarCrew.Launcher.Services;
 
-/// <summary>网络加速设置持久化：复用现有设置字典。</summary>
 internal sealed class NetworkSettings : INetworkSettings
 {
     private const string AcceleratorKey = "DownloadAccelerator";

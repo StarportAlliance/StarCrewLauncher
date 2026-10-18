@@ -7,7 +7,6 @@ using StarCrew.Launcher.Services;
 
 namespace StarCrew.Launcher.Tests.Services;
 
-/// <summary>DepotDownloaderProvisioner 的单元测试：下载、校验与解压全走替身 HTTP。</summary>
 public sealed class DepotDownloaderProvisionerTests : IDisposable
 {
     private readonly string _root;
@@ -102,7 +101,7 @@ public sealed class DepotDownloaderProvisionerTests : IDisposable
             progress.Reports,
             info => info.Stage == DownloadStage.PreparingTool && info.Percent > 0
         );
-        // 大小来自 Content-Length：装机页的进度条靠它算出「已下载/总大小」。
+        // 大小来自 Content-Length
         Assert.All(progress.Reports, info => Assert.Equal(zip.Length, info.TotalBytes));
     }
 
@@ -252,18 +251,13 @@ public sealed class DepotDownloaderProvisionerTests : IDisposable
         return settings;
     }
 
-    private static HttpClient CreateClient(Func<HttpRequestMessage, HttpResponseMessage> respond)
-    {
-        return new HttpClient(new FakeHandler(respond))
-        {
-            BaseAddress = new Uri("https://localhost/"),
-        };
-    }
+    private static HttpClient CreateClient(Func<HttpRequestMessage, HttpResponseMessage> respond) =>
+        new(new FakeHandler(respond)) { BaseAddress = new Uri("https://localhost/") };
 
     private static HttpResponseMessage Ok(byte[] body) =>
         new(HttpStatusCode.OK) { Content = new ByteArrayContent(body) };
 
-    /// <summary>同步上报的 IProgress，避免 Progress&lt;T&gt; 的回调被抛到别的线程导致断言竞态。</summary>
+    // 同步上报
     private sealed class SyncProgress : IProgress<DownloadProgressInfo>
     {
         public List<DownloadProgressInfo> Reports { get; } = [];
@@ -281,23 +275,17 @@ public sealed class DepotDownloaderProvisionerTests : IDisposable
                 exe.Write("fake-exe");
             }
 
-            using (StreamWriter license = new(archive.CreateEntry("LICENSE").Open()))
-            {
-                license.Write("fake-license");
-            }
+            using StreamWriter license = new(archive.CreateEntry("LICENSE").Open());
+            license.Write("fake-license");
         }
 
         return stream.ToArray();
     }
 
-    private sealed class FakeHandler : HttpMessageHandler
+    private sealed class FakeHandler(Func<HttpRequestMessage, HttpResponseMessage> respond)
+        : HttpMessageHandler
     {
-        private readonly Func<HttpRequestMessage, HttpResponseMessage> _respond;
-
-        public FakeHandler(Func<HttpRequestMessage, HttpResponseMessage> respond)
-        {
-            _respond = respond;
-        }
+        private readonly Func<HttpRequestMessage, HttpResponseMessage> _respond = respond;
 
         protected override Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request,

@@ -3,7 +3,6 @@ using StarCrew.Launcher.Models;
 
 namespace StarCrew.Launcher.Services;
 
-/// <summary>版本目录读取器：远端 JSON（asset.stcrew.app）→ 本地缓存，均不可用时抛异常由调用方提示。</summary>
 internal sealed class GameVersionCatalog : IGameVersionCatalog
 {
     private const string CatalogUrl = "https://asset.stcrew.app/versions.json";
@@ -30,7 +29,6 @@ internal sealed class GameVersionCatalog : IGameVersionCatalog
         _cacheDirectory = cacheDirectory;
     }
 
-    /// <inheritdoc />
     public async Task<VersionCatalog> LoadAsync(CancellationToken cancellationToken = default)
     {
         VersionCatalog? remote = await TryFetchRemoteAsync(cancellationToken);

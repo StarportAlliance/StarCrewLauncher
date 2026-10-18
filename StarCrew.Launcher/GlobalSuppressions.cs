@@ -1,7 +1,5 @@
-// 分析器压制集中登记处：每条压制必须写清理由，禁止无理由压制。
-// 新增压制前先确认：是规则不适用（留压制），还是代码真有问题（改代码）。
-// 业务类型的压制已随类型搬入 StarCrew.Launcher.Core/GlobalSuppressions.cs，
-// 这里只保留 XAML 外壳与第三方包相关的压制。
+// 分析器压制集中登记处。
+// 新增压制前先确认：是规则不适用还是代码真有问题。
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage(

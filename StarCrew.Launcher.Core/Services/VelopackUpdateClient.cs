@@ -2,10 +2,10 @@ using Velopack;
 
 namespace StarCrew.Launcher.Services;
 
-/// <summary>Velopack 转接：远端检查/下载/应用转字符串版本语义。</summary>
+/// <summary>基于 Velopack 的客户端更新检查相关接口。</summary>
 internal sealed class VelopackUpdateClient : IUpdateClient
 {
-    /// <summary>自建静态更新源；vpk 产物 Releases/ 部署到该目录即生效。</summary>
+    /// <summary>默认更新源 URL。</summary>
     public const string DefaultFeedUrl = "https://asset.starbridge.ink/launcher/updates";
 
     private readonly UpdateManager _manager;
@@ -17,13 +17,10 @@ internal sealed class VelopackUpdateClient : IUpdateClient
         _manager = new UpdateManager(feedUrl);
     }
 
-    /// <inheritdoc />
     public bool IsInstalled => _manager.IsInstalled;
 
-    /// <inheritdoc />
     public string? CurrentVersion => _manager.CurrentVersion?.ToString();
 
-    /// <inheritdoc />
     public async Task<string?> CheckForUpdatesAsync(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -31,7 +28,6 @@ internal sealed class VelopackUpdateClient : IUpdateClient
         return _pendingUpdate?.TargetFullRelease.Version.ToString();
     }
 
-    /// <inheritdoc />
     public async Task DownloadUpdatesAsync(
         string version,
         IProgress<int>? progress,
@@ -51,7 +47,6 @@ internal sealed class VelopackUpdateClient : IUpdateClient
             .ConfigureAwait(false);
     }
 
-    /// <inheritdoc />
     public void PrepareUpdateForRestart(string version)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(version);
@@ -59,7 +54,7 @@ internal sealed class VelopackUpdateClient : IUpdateClient
         _manager.WaitExitThenApplyUpdates(pending.TargetFullRelease, restart: true);
     }
 
-    /// <summary>取出与指定版本匹配的待应用更新，对不上抛（调用顺序错误）。</summary>
+    /// <summary>取出与指定版本匹配的待应用更新。</summary>
     private UpdateInfo RequirePending(string version)
     {
         if (

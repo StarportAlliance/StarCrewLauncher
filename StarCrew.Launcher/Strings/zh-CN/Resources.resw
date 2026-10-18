@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  启动器全部用户可见文案的唯一来源，供人工校对维护。
-  - XAML 侧经 x:Uid 引用（条目名后跟 .属性路径）；C# 侧经 IAppStrings.Get/Format("键") 引用。
-  - {0} {1} 为运行时占位符，请保留；\n 表示换行。
-  - 命名约定：功能分组前缀_用途，如 Nav_Home、Download_LoginFailed。
--->
 <root>
-  <!-- ===== 通用按钮/短语 ===== -->
+  <!-- 通用 -->
   <data name="Common_Download" xml:space="preserve">
     <value>下载</value>
   </data>
@@ -29,7 +23,7 @@
     <value>确定</value>
   </data>
 
-  <!-- ===== 主窗口侧栏导航 ===== -->
+  <!-- 侧边栏 -->
   <data name="Nav_Home.Content" xml:space="preserve">
     <value>启动游戏</value>
   </data>
@@ -40,7 +34,7 @@
     <value>游戏下载</value>
   </data>
 
-  <!-- ===== 首页 ===== -->
+  <!-- 首页 -->
   <data name="Home_LaunchGame" xml:space="preserve">
     <value>启动游戏</value>
   </data>
@@ -48,7 +42,7 @@
     <value>下载游戏</value>
   </data>
 
-  <!-- ===== 设置分区导航 ===== -->
+  <!-- 设置页导航 -->
   <data name="Settings_SectionTitle.Text" xml:space="preserve">
     <value>设置</value>
   </data>
@@ -62,7 +56,7 @@
     <value>关于</value>
   </data>
 
-  <!-- ===== 外观设置 ===== -->
+  <!-- 外观设置 -->
   <data name="Appearance_SectionTitle.Text" xml:space="preserve">
     <value>外观</value>
   </data>
@@ -82,7 +76,7 @@
     <value>深色</value>
   </data>
 
-  <!-- ===== 网络设置 ===== -->
+  <!-- 网络设置 -->
   <data name="Network_SectionTitle.Text" xml:space="preserve">
     <value>网络</value>
   </data>
@@ -111,7 +105,7 @@
     <value>自定义前缀</value>
   </data>
 
-  <!-- ===== 关于页 ===== -->
+  <!-- 关于页 -->
   <data name="About_SectionTitle.Text" xml:space="preserve">
     <value>关于</value>
   </data>
@@ -212,7 +206,7 @@
     <value>已取消新版本下载。</value>
   </data>
 
-  <!-- ===== 实例管理 ===== -->
+  <!-- 实例管理 -->
   <data name="Instances_SectionTitle.Text" xml:space="preserve">
     <value>我的实例</value>
   </data>
@@ -270,7 +264,6 @@
   <data name="Instances_DetailsTitleFormat" xml:space="preserve">
     <value>实例详情：{0}</value>
   </data>
-  <!-- {0}=版本 {1}=状态 {2}=安装目录 {3}=创建时间 {4}=上次启动 -->
   <data name="Instances_DetailsFormat" xml:space="preserve">
     <value>版本：v{0}&#10;状态：{1}&#10;安装目录：{2}&#10;创建时间：{3}&#10;上次启动：{4}</value>
   </data>
@@ -293,7 +286,7 @@
     <value>打开失败：{0}</value>
   </data>
 
-  <!-- ===== 游戏下载：分区导航与版本列表 ===== -->
+  <!-- 游戏下载 -->
   <data name="DownloadSection_Base.Content" xml:space="preserve">
     <value>基础游戏</value>
   </data>
@@ -346,7 +339,7 @@
     <value>安装</value>
   </data>
 
-  <!-- ===== 游戏下载：账号页 ===== -->
+  <!-- 游戏下载账号页 -->
   <data name="Account_SectionTitle.Text" xml:space="preserve">
     <value>账号</value>
   </data>
@@ -456,7 +449,7 @@
     <value>已取消组件安装。</value>
   </data>
 
-  <!-- ===== 游戏下载：安装详情页 ===== -->
+  <!-- 游戏下载安装详情页 -->
   <data name="Install_NotLoggedInBar.Title" xml:space="preserve">
     <value>尚未登录 Steam 账号</value>
   </data>
@@ -488,7 +481,7 @@
     <value>开始安装「{0}」...</value>
   </data>
 
-  <!-- ===== 安装流程（DownloadCoordinator） ===== -->
+  <!-- 游戏安装流程 -->
   <data name="Install_LoginRequired" xml:space="preserve">
     <value>请先在「游戏下载」页登录 Steam 账号。</value>
   </data>
@@ -523,7 +516,7 @@
     <value>下载失败：{0}</value>
   </data>
 
-  <!-- ===== DepotDownloader 组件供给 ===== -->
+  <!-- DepotDownloader 安装流程 -->
   <data name="Dd_Ready" xml:space="preserve">
     <value>DepotDownloader 已就绪。</value>
   </data>
@@ -546,7 +539,7 @@
     <value>下载 DepotDownloader 失败：{0}</value>
   </data>
 
-  <!-- ===== 实例启动 ===== -->
+  <!-- 实例启动 -->
   <data name="Launch_NotReady" xml:space="preserve">
     <value>该实例尚未就绪，请先完成安装。</value>
   </data>
@@ -560,7 +553,7 @@
     <value>启动失败。</value>
   </data>
 
-  <!-- ===== 应用更新 ===== -->
+  <!-- 应用更新 -->
   <data name="Update_DevRunSkip" xml:space="preserve">
     <value>当前为开发运行，未经安装，跳过更新检查。</value>
   </data>
@@ -589,7 +582,7 @@
     <value>下载更新失败：{0}</value>
   </data>
 
-  <!-- ===== 版本目录 / 进程执行 / Steam / 打开文件夹 ===== -->
+  <!-- 版本目录 / 进程执行 / Steam / 打开文件夹 -->
   <data name="Catalog_FetchFailed" xml:space="preserve">
     <value>版本目录获取失败，请检查网络连接后重试。</value>
   </data>
@@ -603,7 +596,7 @@
     <value>文件夹不存在：{0}</value>
   </data>
 
-  <!-- ===== 下载进度对话框底部状态行 ===== -->
+  <!-- 下载进度 -->
   <data name="Progress_MeasuringSpeed" xml:space="preserve">
     <value>测速中...</value>
   </data>

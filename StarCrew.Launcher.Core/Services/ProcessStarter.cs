@@ -2,10 +2,9 @@ using System.Diagnostics;
 
 namespace StarCrew.Launcher.Services;
 
-/// <summary>基于 <see cref="Process" /> 的生产实现，失败时返回 false 并带出错误信息。</summary>
+/// <summary>基于 <see cref="Process" /> 的外部进程启动器。</summary>
 internal sealed class ProcessStarter : IProcessStarter
 {
-    /// <inheritdoc />
     public bool TryStart(string fileName, string workingDirectory, out string? error)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);

@@ -9,7 +9,6 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <!-- 分组用内层 NavigationView：和外层侧栏同一控件，选中竖条动画天然一致。 -->
         <NavigationView
             x:Name="SectionNav"
             Grid.Column="0"
@@ -24,7 +23,6 @@
             SelectionChanged="SectionNav_SelectionChanged"
         >
             <NavigationView.Resources>
-                <!-- 和外层侧栏一致：pane 透明共用 Mica，去边框。 -->
                 <StaticResource
                     x:Key="NavigationViewExpandedPaneBackground"
                     ResourceKey="SolidBackgroundFillColorTransparent"
@@ -47,7 +45,6 @@
             </NavigationView.FooterMenuItems>
         </NavigationView>
 
-        <!-- 内容区走 Frame：与设置页一致地用 Windows 原生页面切换动画。 -->
         <Frame x:Name="SectionFrame" Grid.Column="1" IsNavigationStackEnabled="False">
             <Frame.ContentTransitions>
                 <TransitionCollection>

@@ -2,7 +2,6 @@ using StarCrew.Launcher.Services;
 
 namespace StarCrew.Launcher.Tests.Services;
 
-/// <summary>QrAsciiParser 的单元测试：DD 的 ASCII 二维码块与杂散输出的分辨。</summary>
 public sealed class QrAsciiParserTests
 {
     [Fact]
@@ -21,10 +20,10 @@ public sealed class QrAsciiParserTests
     [Fact]
     public void TryParse_WithAllDarkModules_ReturnsFullMatrix()
     {
-        bool[][] expected = Enumerable
-            .Range(0, 29)
-            .Select(_ => Enumerable.Repeat(true, 29).ToArray())
-            .ToArray();
+        bool[][] expected =
+        [
+            .. Enumerable.Range(0, 29).Select(_ => Enumerable.Repeat(true, 29).ToArray()),
+        ];
 
         bool parsed = QrAsciiParser.TryParse(ToAsciiLines(expected), out bool[][]? matrix);
 
@@ -77,18 +76,13 @@ public sealed class QrAsciiParserTests
         Assert.Null(matrix);
     }
 
-    private static bool[][] BuildCheckerMatrix(int side)
-    {
-        return Enumerable
-            .Range(0, side)
-            .Select(y => Enumerable.Range(0, side).Select(x => (x + y) % 2 == 0).ToArray())
-            .ToArray();
-    }
+    private static bool[][] BuildCheckerMatrix(int side) =>
+        [
+            .. Enumerable
+                .Range(0, side)
+                .Select(y => Enumerable.Range(0, side).Select(x => (x + y) % 2 == 0).ToArray()),
+        ];
 
-    private static string[] ToAsciiLines(bool[][] matrix)
-    {
-        return matrix
-            .Select(row => string.Concat(row.Select(dark => dark ? "██" : "  ")))
-            .ToArray();
-    }
+    private static string[] ToAsciiLines(bool[][] matrix) =>
+        [.. matrix.Select(row => string.Concat(row.Select(dark => dark ? "██" : "  ")))];
 }

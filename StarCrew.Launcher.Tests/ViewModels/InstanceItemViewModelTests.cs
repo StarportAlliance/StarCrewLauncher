@@ -5,12 +5,10 @@ using StarCrew.Launcher.ViewModels;
 
 namespace StarCrew.Launcher.Tests.ViewModels;
 
-/// <summary>InstanceItemViewModel 的单元测试：发包命令与事件全部走替身。</summary>
 public sealed class InstanceItemViewModelTests
 {
     [Fact]
-    public void Ctor_WithNullInstance_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullInstance_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new InstanceItemViewModel(
                 null!,
@@ -20,11 +18,9 @@ public sealed class InstanceItemViewModelTests
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
-    public void Ctor_WithNullLauncher_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullLauncher_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new InstanceItemViewModel(
                 CreateInstance(),
@@ -34,11 +30,9 @@ public sealed class InstanceItemViewModelTests
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
-    public void Ctor_WithNullExternalLauncher_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullExternalLauncher_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new InstanceItemViewModel(
                 CreateInstance(),
@@ -48,11 +42,9 @@ public sealed class InstanceItemViewModelTests
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
-    public void Ctor_WithNullNotifications_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullNotifications_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new InstanceItemViewModel(
                 CreateInstance(),
@@ -62,7 +54,6 @@ public sealed class InstanceItemViewModelTests
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
     public void SelectedThemeIndexSummary_ForIncompleteInstance_ShowsIncomplete()
@@ -220,9 +211,8 @@ public sealed class InstanceItemViewModelTests
         Assert.Equal(instance, raised);
     }
 
-    private static GameInstance CreateInstance(InstanceState state = InstanceState.Ready)
-    {
-        return new GameInstance(
+    private static GameInstance CreateInstance(InstanceState state = InstanceState.Ready) =>
+        new GameInstance(
             Guid.NewGuid(),
             "A",
             Path.Combine(Path.GetTempPath(), "instances", "A"),
@@ -234,5 +224,4 @@ public sealed class InstanceItemViewModelTests
             DateTimeOffset.UtcNow,
             null
         );
-    }
 }

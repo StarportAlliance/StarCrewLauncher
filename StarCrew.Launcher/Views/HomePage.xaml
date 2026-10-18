@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 >
     <Grid>
-        <!-- 实例切换与启动按钮叠在背景图右下方，切换时把选中项写回存储 -->
         <StackPanel
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom"
@@ -30,7 +29,6 @@
             />
         </StackPanel>
 
-        <!-- 左下角显示当前实例名（标题级字号），无实例时为空串即不显示 -->
         <TextBlock
             x:Name="CurrentInstanceNameBlock"
             Style="{StaticResource TitleTextBlockStyle}"

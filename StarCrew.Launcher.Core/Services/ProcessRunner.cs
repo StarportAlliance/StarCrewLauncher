@@ -14,7 +14,6 @@ internal sealed class ProcessRunner : IDepotDownloaderRunner
         _strings = strings;
     }
 
-    /// <inheritdoc />
     public async Task<ExecutableOutcome> RunAsync(
         ExecutableCommand command,
         IProgress<string>? output = null,
@@ -77,7 +76,7 @@ internal sealed class ProcessRunner : IDepotDownloaderRunner
                 }
                 catch (ObjectDisposedException)
                 {
-                    // 进程较快退出，没关系。
+                    // 进程较快退出
                 }
             }
 
@@ -94,7 +93,7 @@ internal sealed class ProcessRunner : IDepotDownloaderRunner
             }
             catch (Exception)
             {
-                // 无能为力时放弃
+                // 这还杀不掉就不管了
             }
 
             throw;

@@ -2,7 +2,7 @@ using System.Diagnostics;
 
 namespace StarCrew.Launcher.Services;
 
-/// <summary>基于 Windows 进程枚举与注册表的生产实现；Steam 未安装时返回 null。</summary>
+/// <summary>基于 Windows 进程枚举与注册表的 Steam 客户端相关服务。</summary>
 internal sealed class WindowsSteamClient : ISteamClient
 {
     private readonly ISteamEnvironment _environment;

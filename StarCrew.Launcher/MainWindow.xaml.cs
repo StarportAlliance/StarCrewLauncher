@@ -15,7 +15,7 @@ namespace StarCrew.Launcher;
 
 public sealed partial class MainWindow : Window
 {
-    // 最小窗口尺寸为物理像素，不随 DPI 缩放。
+    // 最小窗口尺寸为物理像素，不随 DPI 缩放
     private const int MinWidthPx = 1280;
     private const int MinHeightPx = 720;
 
@@ -56,7 +56,6 @@ public sealed partial class MainWindow : Window
         _navigation = navigation;
         _navigation.AttachMainFrame(ContentFrame);
         _navigation.MainFrameNavigated += SyncNavSelection;
-        // 返回按钮可用性 = 分区或主页面还有历史；分区内的回退永远落在设置页内，主栈不会被弹空。
         _navigation.MainFrameNavigated += OnMainFrameNavigated;
 
         notifications.Requested += OnNotificationRequested;
@@ -74,13 +73,9 @@ public sealed partial class MainWindow : Window
         ToastBar.RegisterPropertyChangedCallback(InfoBar.IsOpenProperty, OnToastIsOpenChanged);
     }
 
-    private void OnThemeChanged(object? sender, AppTheme theme)
-    {
-        ApplyTheme(theme);
-    }
+    private void OnThemeChanged(object? sender, AppTheme theme) => ApplyTheme(theme);
 
-    private void OnNotificationRequested(object? sender, NotificationMessage message)
-    {
+    private void OnNotificationRequested(object? sender, NotificationMessage message) =>
         ShowToast(
             message.Title,
             message.Message,
@@ -92,7 +87,6 @@ public sealed partial class MainWindow : Window
                 _ => InfoBarSeverity.Informational,
             }
         );
-    }
 
     private void OnFirstActivated(object sender, WindowActivatedEventArgs args)
     {
@@ -100,35 +94,24 @@ public sealed partial class MainWindow : Window
         PlaceWindow();
     }
 
-    private void AppTitleBar_PaneToggleRequested(TitleBar sender, object args)
-    {
+    private void AppTitleBar_PaneToggleRequested(TitleBar sender, object args) =>
         NavView.IsPaneOpen = !NavView.IsPaneOpen;
-    }
 
-    private void AppTitleBar_BackRequested(TitleBar sender, object args)
-    {
-        // 回退目标由导航服务按历史决定：设置分区内先退分区，退到底才退主页面。
-        _navigation.GoBack();
-    }
+    private void AppTitleBar_BackRequested(TitleBar sender, object args) => _navigation.GoBack();
 
-    /// <summary>TitleBar 返回按钮可用性：分区或主页面任一还有历史即可退；分区内的回退仍在设置页内，主栈不会弹空。
-    /// 同时切换全窗口亚克力层透明度（ScalarTransition 自动过渡）：首页整窗透出背景图，其余页面统一铺连贯亚克力。</summary>
     private void OnMainFrameNavigated(NavigationTarget target)
     {
         AcrylicLayer.Opacity = target == NavigationTarget.Home ? 0 : 1;
         SyncBackButton();
     }
 
-    private void SyncBackButton()
-    {
-        AppTitleBar.IsBackButtonEnabled = _navigation.CanGoBack;
-    }
+    private void SyncBackButton() => AppTitleBar.IsBackButtonEnabled = _navigation.CanGoBack;
 
     private bool _initialNavigated;
 
     private void NavView_Loaded(object sender, RoutedEventArgs e)
     {
-        // 首屏等 Frame 进视觉树再导航：在构造器里 Navigate 会被静默丢弃；首屏不播进场，直接呈现。
+        // 首屏等 Frame 进视觉树再导航，在构造器里 Navigate 会被静默丢弃
         _initialNavigated = true;
         _navigation.NavigateTo(NavigationTarget.Home, new SuppressNavigationTransitionInfo());
     }
@@ -138,8 +121,6 @@ public sealed partial class MainWindow : Window
         NavigationViewSelectionChangedEventArgs args
     )
     {
-        // 加载中 SelectionChanged 会先于 Loaded 触发一次：此时 Frame 未就绪，导航上了内容也不呈现，
-        // 还会把 Loaded 的首航顶掉变砖；直接忽略，等 Loaded 做唯一一次首航。
         if (!_initialNavigated)
         {
             return;
@@ -163,8 +144,6 @@ public sealed partial class MainWindow : Window
         _navigation.NavigateTo(target, args.RecommendedNavigationTransitionInfo);
     }
 
-    /// <summary>程序化主导航后把侧栏选中项对齐到目标页；设置分区不映射主侧栏，仅在整体落到设置页时选中设置项。
-    /// 由此引发的 SelectionChanged 重复导航由导航服务按帧去重。</summary>
     private void SyncNavSelection(NavigationTarget target)
     {
         if (target == NavigationTarget.Settings)
@@ -173,10 +152,10 @@ public sealed partial class MainWindow : Window
             return;
         }
 
-        // 安装详情页是下载页的二级页面：侧栏本来就停在「游戏下载」上，
-        // 此时若再按目标回选一次会触发反向导航，把二级页面顶掉。
+        // 安装详情页是下载页的二级页面，侧栏本来就停在上面，再跳反倒会回到上级页面...
         if (target == NavigationTarget.Install)
         {
+            // ...故忽略处理
             return;
         }
 
@@ -213,7 +192,6 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    /// <summary>按主显示器工作区取 16:9 默认尺寸并居中。</summary>
     private void PlaceWindow()
     {
         double scale = GetDpiForWindow(_hwnd) / 96.0;
@@ -248,14 +226,12 @@ public sealed partial class MainWindow : Window
         );
     }
 
-    /// <summary>右上角应用内通知，经 Toolkit 排队逐条展示，到期自动关闭（悬停暂停计时，可手动关闭），进退场带滑动淡入淡出。</summary>
     private void ShowToast(
         string title,
         string? message,
         InfoBarSeverity severity,
         int autoCloseSeconds = 4
-    )
-    {
+    ) =>
         ToastQueue.Show(
             new Notification
             {
@@ -265,14 +241,11 @@ public sealed partial class MainWindow : Window
                 Duration = TimeSpan.FromSeconds(autoCloseSeconds),
             }
         );
-    }
 
-    // 退场动画播完前先取消关闭，播完再真正关闭；Toolkit 只监听 Closed，排队逻辑不受影响。
     private bool _isToastExitAnimating;
 
     private void OnToastIsOpenChanged(DependencyObject sender, DependencyProperty dp)
     {
-        // Closing 取消后 InfoBar 会把 IsOpen 同步弹回 true：退场进行中时忽略，否则退场会被进场覆盖。
         if (sender.GetValue(dp) is true && !_isToastExitAnimating)
         {
             ToastExitStoryboard.Stop();
@@ -294,12 +267,7 @@ public sealed partial class MainWindow : Window
         ToastExitStoryboard.Begin();
     }
 
-    private void ToastExitStoryboard_Completed(object sender, object e)
-    {
-        ToastBar.IsOpen = false;
-    }
-
-    #region 窗口最小尺寸（WM_GETMINMAXINFO 子类化）
+    private void ToastExitStoryboard_Completed(object sender, object e) => ToastBar.IsOpen = false;
 
     private delegate nint SubclassProc(
         nint hWnd,
@@ -310,22 +278,23 @@ public sealed partial class MainWindow : Window
         nuint dwRefData
     );
 
-    [DllImport("comctl32.dll", SetLastError = true)]
+    [LibraryImport("comctl32.dll", SetLastError = true)]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-    private static extern bool SetWindowSubclass(
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool SetWindowSubclass(
         nint hWnd,
         SubclassProc pfnSubclass,
         nuint uIdSubclass,
         nuint dwRefData
     );
 
-    [DllImport("comctl32.dll")]
+    [LibraryImport("comctl32.dll")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-    private static extern nint DefSubclassProc(nint hWnd, uint uMsg, nint wParam, nint lParam);
+    private static partial nint DefSubclassProc(nint hWnd, uint uMsg, nint wParam, nint lParam);
 
-    [DllImport("user32.dll")]
+    [LibraryImport("user32.dll")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
-    private static extern uint GetDpiForWindow(nint hWnd);
+    private static partial uint GetDpiForWindow(nint hWnd);
 
     [StructLayout(LayoutKind.Sequential)]
     private struct NativePoint
@@ -365,6 +334,4 @@ public sealed partial class MainWindow : Window
 
         return DefSubclassProc(hWnd, uMsg, wParam, lParam);
     }
-
-    #endregion
 }

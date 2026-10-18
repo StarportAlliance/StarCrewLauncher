@@ -39,13 +39,9 @@ public sealed partial class DownloadAccountPage : Page
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
         ArgumentNullException.ThrowIfNull(e);
-        if (ViewModel is not null)
-        {
-            ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
-        }
+        ViewModel?.PropertyChanged -= OnViewModelPropertyChanged;
     }
 
-    // 账号或登录状态变化时同步开关文案、选中态与可用性。
     private void OnViewModelPropertyChanged(
         object? sender,
         System.ComponentModel.PropertyChangedEventArgs e
@@ -68,7 +64,6 @@ public sealed partial class DownloadAccountPage : Page
         AccountToggleText.Text = _strings.GetString(
             loggedIn ? "Account_ToggleLogout" : "Account_ToggleLogin"
         );
-        // 已登录用默认 subtle 样式，未登录用 accent。
         AccountToggle.Style = loggedIn ? null : (Style)Resources["AccountButtonAccentStyle"];
     }
 
@@ -83,12 +78,10 @@ public sealed partial class DownloadAccountPage : Page
 
         if (!string.IsNullOrWhiteSpace(ViewModel.AccountName))
         {
-            // 已登录：点击只弹确认，是否登出由确认按钮决定。
             LogoutFlyout.ShowAt(AccountToggle);
             return;
         }
 
-        // 未登录：DD 未安装时先拦截，弹安装确认；装完由用户再点登录。
         if (!ViewModel.IsDepotDownloaderInstalled)
         {
             ContentDialog confirm = ContentDialogFactory.Create(
@@ -111,7 +104,6 @@ public sealed partial class DownloadAccountPage : Page
             return;
         }
 
-        // 未登录：执行登录；结束时按结果同步开关状态。
         await OnLoginButtonClickedAsync();
         UpdateAccountToggle();
     }
@@ -129,7 +121,6 @@ public sealed partial class DownloadAccountPage : Page
     {
         _ = sender;
         _ = e;
-        // 取消确认时把开关同步回已登录选中态。
         UpdateAccountToggle();
     }
 
@@ -140,7 +131,6 @@ public sealed partial class DownloadAccountPage : Page
         await RunDepotDownloaderInstallAsync();
     }
 
-    /// <summary>组件安装流程：进度对话框 → 安装 → 结果走 Toast，对话框立即关闭。</summary>
     private async Task RunDepotDownloaderInstallAsync()
     {
         if (ViewModel is null || ViewModel.IsBusy)
@@ -172,7 +162,6 @@ public sealed partial class DownloadAccountPage : Page
 
         Task<ContentDialogResult> showing = dialog.ShowAsync().AsTask();
         await ViewModel.InstallDepotDownloaderAsync(reporter, cts.Token);
-        // 结果走 Toast，对话框立即关闭；取消同样直接关闭。
         dialog.Hide();
         await showing;
     }
@@ -181,7 +170,6 @@ public sealed partial class DownloadAccountPage : Page
     {
         _ = sender;
         _ = e;
-        // 人在设置页外时由导航服务记住目标分区，进入设置后补导航到「网络」。
         App.Services.GetRequiredService<INavigationService>().NavigateTo(NavigationTarget.Network);
     }
 
@@ -192,7 +180,6 @@ public sealed partial class DownloadAccountPage : Page
             return;
         }
 
-        // 二维码容器固定尺寸，Dialog 大小不随加载状态变化；白底等出码后再显示，加载时只有 ProgressRing。
         Image qrImage = new()
         {
             Visibility = Visibility.Collapsed,
@@ -224,7 +211,6 @@ public sealed partial class DownloadAccountPage : Page
             MaxWidth = 280,
         };
         StackPanel panel = new() { Spacing = 12, HorizontalAlignment = HorizontalAlignment.Center };
-        // 状态文字放在图片上方：ContentDialog 高度不足时裁掉的是底部，文字必须保持可见。
         panel.Children.Add(status);
         panel.Children.Add(qrContainer);
 
@@ -238,7 +224,7 @@ public sealed partial class DownloadAccountPage : Page
             }
         );
 
-        // DD 刷新二维码时直接输出新方块，这里流式收集方块行，凑成正方形就重绘图片。
+        // 流式收集方块行，凑成正方形就重绘图片
         List<string> qrBuffer = [];
         IProgress<string> reporter = new Progress<string>(line =>
         {
@@ -247,7 +233,6 @@ public sealed partial class DownloadAccountPage : Page
                 qrBuffer.Add(line);
                 if (QrAsciiParser.TryParse(qrBuffer, out bool[][]? matrix))
                 {
-                    // 按物理像素渲染再除以缩放比，避免高 DPI 下被插值放大产生毛边。
                     double raster = Math.Max(1.0, XamlRoot.RasterizationScale);
                     int scale = Math.Max(2, (int)Math.Round(8 * raster));
                     (WriteableBitmap bitmap, int pixelSize) = RenderMatrix(matrix, scale);
@@ -287,12 +272,10 @@ public sealed partial class DownloadAccountPage : Page
         await showing;
     }
 
-    private static bool IsQrRow(string line)
-    {
-        return line.Length > 0 && line.AsSpan().IndexOfAnyExcept('█', ' ') < 0;
-    }
+    private static bool IsQrRow(string line) =>
+        line.Length > 0 && line.AsSpan().IndexOfAnyExcept('█', ' ') < 0;
 
-    /// <summary>把模块矩阵渲染成位图；矩阵自带的 4 模块静区被裁掉，由外层白边代替。</summary>
+    /// <summary>将模块矩阵渲染成位图。</summary>
     private static (WriteableBitmap Bitmap, int PixelSize) RenderMatrix(bool[][] matrix, int scale)
     {
         const int quietZone = 4;
@@ -317,7 +300,6 @@ public sealed partial class DownloadAccountPage : Page
                 }
             }
 
-            // 竖向同样放大 scale 倍：同一模块行连续写入 scale 次。
             for (int s = 0; s < scale; s++)
             {
                 pixels.Write(rowBytes, 0, rowBytes.Length);

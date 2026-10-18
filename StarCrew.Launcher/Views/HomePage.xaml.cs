@@ -30,10 +30,7 @@ public sealed partial class HomePage : Page
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
         ArgumentNullException.ThrowIfNull(e);
-        if (ViewModel is not null)
-        {
-            ViewModel.PropertyChanged -= OnViewModelPropertyChanged;
-        }
+        ViewModel?.PropertyChanged -= OnViewModelPropertyChanged;
     }
 
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -44,10 +41,7 @@ public sealed partial class HomePage : Page
         }
     }
 
-    // 无实例时隐藏切换器（按钮本身会变成“下载游戏”）。
-    private void UpdateInstanceCombo()
-    {
+    private void UpdateInstanceCombo() =>
         InstanceCombo.Visibility =
             ViewModel?.HasInstances == true ? Visibility.Visible : Visibility.Collapsed;
-    }
 }

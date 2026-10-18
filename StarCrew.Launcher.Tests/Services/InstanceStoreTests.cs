@@ -3,7 +3,6 @@ using StarCrew.Launcher.Services;
 
 namespace StarCrew.Launcher.Tests.Services;
 
-/// <summary>InstanceStore 的单元测试：缺失时回退空态、往返持久化、损坏恢复。</summary>
 public sealed class InstanceStoreTests : IDisposable
 {
     private readonly string _root;

@@ -5,7 +5,7 @@ using FlaUI.UIA3;
 
 namespace StarCrew.Launcher.UITests;
 
-/// <summary>主窗口冒烟：断言窗口+标题+启动按钮存在；全程零点击（点击会真拉起游戏）。</summary>
+// 全程零点击
 public sealed class SmokeTests
 {
     private const string SolutionFileName = "StarCrew.Launcher.slnx";
@@ -27,7 +27,6 @@ public sealed class SmokeTests
             Window? mainWindow = app.GetMainWindow(automation, TimeSpan.FromSeconds(10));
             Assert.NotNull(mainWindow);
             Assert.Contains("StarCrew", mainWindow.Title, StringComparison.Ordinal);
-            // Frame 导航异步完成：首屏内容比窗口句柄晚出现，轮询等按钮现身。
             AutomationElement? launchButton = null;
             DateTime deadline = DateTime.UtcNow.AddSeconds(10);
             while (launchButton is null && DateTime.UtcNow < deadline)
@@ -56,7 +55,6 @@ public sealed class SmokeTests
 
     private const string LaunchButtonText = "启动游戏";
 
-    // 启动 or 下载 文案随实例状态变化，两者之一即通过。
     private static bool IsLaunchButton(AutomationElement element) =>
         ContainsLaunchText(element.Name) || ContainsLaunchText(element.AutomationId);
 
@@ -67,7 +65,6 @@ public sealed class SmokeTests
             || value.Contains(DownloadButtonText, StringComparison.Ordinal)
         );
 
-    /// <summary>以 slnx 为标记找仓库根，拼主程序 exe 路径；按 Release、ReleaseGate、Debug 顺序找。</summary>
     private static string ResolveLauncherExe()
     {
         string repositoryRoot = FindRepositoryRoot();

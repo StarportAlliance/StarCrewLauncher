@@ -4,10 +4,6 @@ using StarCrew.Launcher.Services;
 
 namespace StarCrew.Launcher.Tests.Architecture;
 
-/// <summary>
-/// 架构防腐测试：AI 增量开发最容易烂的是分层，单元测试拦不住，只能靠这类规则测试。
-/// 新增代码如果破坏分层，这里会红，而不是等到屎山堆成才发现。
-/// </summary>
 public sealed class ArchitectureTests
 {
     private static readonly Assembly AppAssembly = typeof(AppUpdater).Assembly;

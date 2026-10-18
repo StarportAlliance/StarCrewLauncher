@@ -2,7 +2,6 @@ using StarCrew.Launcher.Services;
 
 namespace StarCrew.Launcher.Tests.Services;
 
-/// <summary>ByteFormat 的边界测试：量级切换处必须按预期降位。</summary>
 public sealed class ByteFormatTests
 {
     [Theory]
@@ -16,18 +15,14 @@ public sealed class ByteFormatTests
     [InlineData(512L * 1024 * 1024, "512.0 MB")]
     [InlineData(1024L * 1024 * 1024, "1.00 GB")]
     [InlineData(5L * 1024 * 1024 * 1024, "5.00 GB")]
-    public void Describe_AtUnitBoundary_FormatsExpected(long bytes, string expected)
-    {
+    public void Describe_AtUnitBoundary_FormatsExpected(long bytes, string expected) =>
         Assert.Equal(expected, ByteFormat.Describe(bytes));
-    }
 
     [Theory]
     [InlineData(0, "0 B/s")]
     [InlineData(2048, "2 KB/s")]
     [InlineData(3L * 1024 * 1024, "3.0 MB/s")]
     [InlineData(1024L * 1024 * 1024, "1.00 GB/s")]
-    public void Rate_AppendsPerSecond(double bytesPerSecond, string expected)
-    {
+    public void Rate_AppendsPerSecond(double bytesPerSecond, string expected) =>
         Assert.Equal(expected, ByteFormat.Rate(bytesPerSecond));
-    }
 }

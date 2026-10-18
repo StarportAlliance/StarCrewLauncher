@@ -5,7 +5,6 @@ using StarCrew.Launcher.ViewModels;
 
 namespace StarCrew.Launcher.Tests.ViewModels;
 
-/// <summary>InstancesViewModel 的单元测试：列表装载、删除与重命名的业务决策。</summary>
 public sealed class InstancesViewModelTests : IDisposable
 {
     private readonly string _root;
@@ -25,8 +24,7 @@ public sealed class InstancesViewModelTests : IDisposable
     }
 
     [Fact]
-    public void Ctor_WithNullStore_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullStore_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new InstancesViewModel(
                 null!,
@@ -37,7 +35,6 @@ public sealed class InstancesViewModelTests : IDisposable
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
     public void Items_LoadedFromStore()
@@ -236,14 +233,9 @@ public sealed class InstancesViewModelTests : IDisposable
 
     private static FakeStore CreateSubstitute(LauncherState state) => new(state);
 
-    private sealed class FakeStore : IInstanceStore
+    private sealed class FakeStore(LauncherState state) : IInstanceStore
     {
-        private LauncherState _current;
-
-        public FakeStore(LauncherState state)
-        {
-            _current = state;
-        }
+        private LauncherState _current = state;
 
         public LauncherState Current => _current;
 
@@ -252,9 +244,8 @@ public sealed class InstancesViewModelTests : IDisposable
         public void Save(LauncherState state) => _current = state;
     }
 
-    private GameInstance CreateInstance(string name, string? dir = null)
-    {
-        return new GameInstance(
+    private GameInstance CreateInstance(string name, string? dir = null) =>
+        new GameInstance(
             Guid.NewGuid(),
             name,
             dir ?? Path.Combine(_root, "instance-" + name),
@@ -266,5 +257,4 @@ public sealed class InstancesViewModelTests : IDisposable
             DateTimeOffset.UtcNow,
             null
         );
-    }
 }

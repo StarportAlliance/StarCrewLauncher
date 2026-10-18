@@ -4,16 +4,13 @@ using StarCrew.Launcher.ViewModels;
 
 namespace StarCrew.Launcher.Tests.ViewModels;
 
-/// <summary>NetworkViewModel 的单元测试：选项下标与加速设置的互转。</summary>
 public sealed class NetworkViewModelTests
 {
     [Fact]
-    public void Ctor_WithNullSettings_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullSettings_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new NetworkViewModel(null!, TestStrings.Instance)
         );
-    }
 
     [Theory]
     [InlineData("Official", 0)]
@@ -42,9 +39,7 @@ public sealed class NetworkViewModelTests
     {
         DownloadAccelerator expected = Enum.Parse<DownloadAccelerator>(expectedName);
         INetworkSettings settings = Substitute.For<INetworkSettings>();
-        NetworkViewModel vm = new(settings, TestStrings.Instance);
-
-        vm.SelectedIndex = index;
+        _ = new NetworkViewModel(settings, TestStrings.Instance) { SelectedIndex = index };
 
         Assert.Equal(expected, settings.Accelerator);
     }
@@ -58,9 +53,11 @@ public sealed class NetworkViewModelTests
         INetworkSettings settings = Substitute.For<INetworkSettings>();
         settings.Accelerator.Returns(DownloadAccelerator.GhProxy);
         settings.CustomPrefix.Returns(string.Empty);
-        NetworkViewModel vm = new(settings, TestStrings.Instance);
-        // 先切到一个不同的下标，避免“写入的值与当前相同但没有引发通知”的空操作
-        vm.SelectedIndex = index == 2 ? 0 : 2;
+        NetworkViewModel vm = new(settings, TestStrings.Instance)
+        {
+            // 先切到一个不同的下标，避免“写入的值与当前相同但没有引发通知”的空操作
+            SelectedIndex = index == 2 ? 0 : 2,
+        };
         List<string?> changed = [];
         vm.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
 
@@ -74,9 +71,10 @@ public sealed class NetworkViewModelTests
     public void CustomPrefix_WritesToSettings()
     {
         INetworkSettings settings = Substitute.For<INetworkSettings>();
-        NetworkViewModel vm = new(settings, TestStrings.Instance);
-
-        vm.CustomPrefix = "https://acc.example.com";
+        _ = new NetworkViewModel(settings, TestStrings.Instance)
+        {
+            CustomPrefix = "https://acc.example.com",
+        };
 
         Assert.Equal("https://acc.example.com", settings.CustomPrefix);
     }

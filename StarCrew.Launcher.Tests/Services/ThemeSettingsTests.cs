@@ -3,14 +3,11 @@ using StarCrew.Launcher.Services;
 
 namespace StarCrew.Launcher.Tests.Services;
 
-/// <summary>ThemeSettings 的单元测试：以内存字典代替 LocalSettings，无 WinRT 依赖。</summary>
 public sealed class ThemeSettingsTests
 {
     [Fact]
-    public void Ctor_WithNullStore_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullStore_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() => new ThemeSettings(null!));
-    }
 
     [Fact]
     public void Theme_WithEmptyStore_ReturnsSystem()
@@ -23,10 +20,8 @@ public sealed class ThemeSettingsTests
     [Fact]
     public void Theme_RoundTrip_PersistsString()
     {
-        Dictionary<string, object> store = new();
-        ThemeSettings settings = new(store);
-
-        settings.Theme = AppTheme.Dark;
+        Dictionary<string, object> store = [];
+        ThemeSettings settings = new(store) { Theme = AppTheme.Dark };
 
         Assert.Equal(AppTheme.Dark, settings.Theme);
         Assert.Equal("Dark", store[ThemeSettings.ThemeKey]);

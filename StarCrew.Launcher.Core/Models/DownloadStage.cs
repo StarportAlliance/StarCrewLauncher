@@ -1,9 +1,9 @@
 namespace StarCrew.Launcher.Models;
 
-/// <summary>游戏下载各阶段状态。</summary>
+/// <summary>游戏下载阶段。</summary>
 internal enum DownloadStage
 {
-    /// <summary>正在安装/校验下载工具。</summary>
+    /// <summary>正在安装下载工具。</summary>
     PreparingTool,
 
     /// <summary>正在拉取游戏文件。</summary>

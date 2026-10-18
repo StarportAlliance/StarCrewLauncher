@@ -3,7 +3,7 @@ using Velopack.Exceptions;
 
 namespace StarCrew.Launcher.Services;
 
-/// <summary>应用更新器：先检查远端新版本，用户确认后再下载并安排在重启后应用。</summary>
+/// <summary>应用更新器。</summary>
 internal sealed class AppUpdater
 {
     private readonly IUpdateClient _client;
@@ -20,7 +20,6 @@ internal sealed class AppUpdater
     /// <summary>当前已安装版本，未经安装时为 null。</summary>
     public string? CurrentVersion => _client.CurrentVersion;
 
-    /// <summary>仅检查远端新版本；命中时返回 Available，调用方据此弹窗请用户确认下载。</summary>
     public async Task<UpdateCheckResult> CheckOnlyAsync(
         CancellationToken cancellationToken = default
     )
@@ -80,7 +79,6 @@ internal sealed class AppUpdater
         }
     }
 
-    /// <summary>下载指定版本并安排在重启后应用；调用方确认后再调，成功后直接退出即自动重启生效。</summary>
     public async Task<UpdateCheckResult> DownloadAndPrepareAsync(
         string version,
         IProgress<int>? progress = null,

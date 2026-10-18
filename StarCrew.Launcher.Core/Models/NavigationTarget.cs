@@ -1,9 +1,9 @@
 namespace StarCrew.Launcher.Models;
 
-/// <summary>可导航的页面目标，导航实现负责映射到具体页面与视图模型。</summary>
+/// <summary>可导航的页面目标。</summary>
 internal enum NavigationTarget
 {
-    /// <summary>首页（启动游戏）。</summary>
+    /// <summary>首页。</summary>
     Home,
 
     /// <summary>实例管理页。</summary>
@@ -12,7 +12,7 @@ internal enum NavigationTarget
     /// <summary>游戏下载页。</summary>
     Download,
 
-    /// <summary>安装详情页：选定版本的实例设置与安装确认。</summary>
+    /// <summary>游戏下载 - 安装详情。</summary>
     Install,
 
     /// <summary>设置主页。</summary>

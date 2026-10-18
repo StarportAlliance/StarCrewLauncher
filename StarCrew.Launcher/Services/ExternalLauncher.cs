@@ -2,7 +2,6 @@ using System.Diagnostics;
 
 namespace StarCrew.Launcher.Services;
 
-/// <summary>用系统默认程序打开链接或文件夹。</summary>
 internal sealed class ExternalLauncher : IExternalLauncher
 {
     private readonly IAppStrings _strings;

@@ -1,6 +1,6 @@
 namespace StarCrew.Launcher.Models;
 
-/// <summary>主题偏好，UI 层映射到 ElementTheme。</summary>
+/// <summary>主题偏好。</summary>
 internal enum AppTheme
 {
     System,

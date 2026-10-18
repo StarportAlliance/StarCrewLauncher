@@ -2,7 +2,6 @@ using StarCrew.Launcher.Models;
 
 namespace StarCrew.Launcher.Services;
 
-/// <summary>主题设置：以字符串持久化到键值存储，缺失或非法值回退 System。</summary>
 internal sealed class ThemeSettings : IThemeSettings
 {
     public const string ThemeKey = "AppTheme";
@@ -15,10 +14,8 @@ internal sealed class ThemeSettings : IThemeSettings
         _store = store;
     }
 
-    /// <inheritdoc />
     public event EventHandler<AppTheme>? ThemeChanged;
 
-    /// <inheritdoc />
     public AppTheme Theme
     {
         get => Load();
@@ -43,7 +40,7 @@ internal sealed class ThemeSettings : IThemeSettings
 
         if (
             raw is string text
-            && Enum.TryParse<AppTheme>(text, ignoreCase: true, out AppTheme parsed)
+            && Enum.TryParse(text, ignoreCase: true, out AppTheme parsed)
             && Enum.IsDefined(parsed)
         )
         {

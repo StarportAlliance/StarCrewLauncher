@@ -10,7 +10,6 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- Esc 与点击空白处都经这里失焦（焦点交给可接焦点的滚动区），与版本列表页同一做法。 -->
         <ScrollViewer
             x:Name="ContentScroll"
             Grid.Row="0"
@@ -38,7 +37,6 @@
             </Grid>
         </ScrollViewer>
 
-        <!-- 主操作沉底：右下角放安装主按钮。 -->
         <Grid Grid.Row="1" Padding="24,8,24,16">
             <Button
                 x:Uid="Install_StartButton"

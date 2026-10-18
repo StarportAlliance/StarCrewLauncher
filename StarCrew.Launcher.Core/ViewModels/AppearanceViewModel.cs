@@ -3,7 +3,6 @@ using StarCrew.Launcher.Services;
 
 namespace StarCrew.Launcher.ViewModels;
 
-/// <summary>通用设置视图模型：主题下拉直接读写主题设置。</summary>
 internal sealed class AppearanceViewModel
 {
     private readonly IThemeSettings _settings;
@@ -14,7 +13,7 @@ internal sealed class AppearanceViewModel
         _settings = settings;
     }
 
-    /// <summary>下拉框选中下标：0 跟随系统、1 浅色、2 深色。</summary>
+    /// <summary>下拉框下标。</summary>
     public int SelectedThemeIndex
     {
         get =>

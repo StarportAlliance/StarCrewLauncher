@@ -3,7 +3,6 @@ using StarCrew.Launcher.Services;
 
 namespace StarCrew.Launcher.Tests.Services;
 
-/// <summary>ProcessRunner 的单元测试：跑真实短命进程，无副作用。</summary>
 public sealed class ProcessRunnerTests
 {
     [Fact]

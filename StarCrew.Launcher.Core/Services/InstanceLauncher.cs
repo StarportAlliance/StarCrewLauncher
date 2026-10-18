@@ -2,12 +2,9 @@ using StarCrew.Launcher.Models;
 
 namespace StarCrew.Launcher.Services;
 
-/// <summary>在当前平台上的实例启动器：检测/启动 Steam 客户端，再直接跑游戏 exe。</summary>
 internal sealed class InstanceLauncher : IInstanceLauncher
 {
     private const string GameExecutableName = "Among Us.exe";
-
-    // 给 Steam 客户端一点启动和注册表初始化的时间，最长等 10 秒
     private const int SteamWaitAttempts = 20;
     private static readonly TimeSpan SteamWaitInterval = TimeSpan.FromMilliseconds(500);
 
@@ -25,7 +22,6 @@ internal sealed class InstanceLauncher : IInstanceLauncher
         _strings = strings;
     }
 
-    /// <inheritdoc />
     public async Task<LaunchOutcome> LaunchAsync(
         GameInstance instance,
         CancellationToken cancellationToken = default
@@ -59,7 +55,7 @@ internal sealed class InstanceLauncher : IInstanceLauncher
         }
     }
 
-    // Steam 客户端不在时尝试静默拉起；它跑不起来也不阻断游戏的启动，只是联机可能离线工作
+    /// <summary>静默拉起 Steam 客户端。</summary>
     private async Task EnsureSteamOnlineAsync(CancellationToken cancellationToken)
     {
         if (_steam.IsSteamRunning())

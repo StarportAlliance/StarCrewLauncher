@@ -5,12 +5,10 @@ using StarCrew.Launcher.ViewModels;
 
 namespace StarCrew.Launcher.Tests.ViewModels;
 
-/// <summary>DownloadPageViewModel 的单元测试：目录、登录与安装协调全走替身。</summary>
 public sealed class DownloadPageViewModelTests
 {
     [Fact]
-    public void Ctor_WithNullStore_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullStore_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new DownloadPageViewModel(
                 null!,
@@ -22,11 +20,9 @@ public sealed class DownloadPageViewModelTests
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
-    public void Ctor_WithNullCatalog_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullCatalog_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new DownloadPageViewModel(
                 Substitute.For<IInstanceStore>(),
@@ -38,11 +34,9 @@ public sealed class DownloadPageViewModelTests
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
-    public void Ctor_WithNullLoginManager_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullLoginManager_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new DownloadPageViewModel(
                 Substitute.For<IInstanceStore>(),
@@ -54,11 +48,9 @@ public sealed class DownloadPageViewModelTests
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
-    public void Ctor_WithNullCoordinator_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullCoordinator_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new DownloadPageViewModel(
                 Substitute.For<IInstanceStore>(),
@@ -70,11 +62,9 @@ public sealed class DownloadPageViewModelTests
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
-    public void Ctor_WithNullNotifications_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullNotifications_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new DownloadPageViewModel(
                 Substitute.For<IInstanceStore>(),
@@ -86,7 +76,6 @@ public sealed class DownloadPageViewModelTests
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
     public void Ctor_ReadsAccountNameFromStore()
@@ -300,7 +289,6 @@ public sealed class DownloadPageViewModelTests
 
         Assert.False(outcome.IsSuccess);
         Assert.Equal("已取消。", outcome.ErrorMessage);
-        // 取消登录是用户主动行为，不应再弹通知。
         notifications
             .DidNotReceive()
             .Notify(Arg.Any<string>(), Arg.Any<string?>(), Arg.Any<NotificationSeverity>());
@@ -550,19 +538,12 @@ public sealed class DownloadPageViewModelTests
         );
     }
 
-    private static GameVersionEntry VersionEntry(string label = "2026.9.5")
-    {
-        return new GameVersionEntry(label, 990035194164819049L, DateTimeOffset.UtcNow, [], false);
-    }
+    private static GameVersionEntry VersionEntry(string label = "2026.9.5") =>
+        new(label, 990035194164819049L, DateTimeOffset.UtcNow, [], false);
 
-    private sealed class FakeStore : IInstanceStore
+    private sealed class FakeStore(LauncherState state) : IInstanceStore
     {
-        public FakeStore(LauncherState state)
-        {
-            Current = state;
-        }
-
-        public LauncherState Current { get; private set; }
+        public LauncherState Current { get; private set; } = state;
 
         public LauncherState Load() => Current;
 

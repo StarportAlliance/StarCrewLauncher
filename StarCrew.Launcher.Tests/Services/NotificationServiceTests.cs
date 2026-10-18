@@ -3,7 +3,6 @@ using StarCrew.Launcher.Services;
 
 namespace StarCrew.Launcher.Tests.Services;
 
-/// <summary>NotificationService 的单元测试：验证事件转发与参数校验。</summary>
 public sealed class NotificationServiceTests
 {
     [Fact]

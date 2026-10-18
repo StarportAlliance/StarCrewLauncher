@@ -6,9 +6,7 @@ using StarCrew.Launcher.Services;
 namespace StarCrew.Launcher.Views;
 
 /// <summary>
-/// 下载进度对话框底部的一行：左侧实时速度，右侧「已下载/总大小」。
-/// 放进 <see cref="ContentDialog.Content" /> 后，每次进度上报调 <see cref="Apply" /> 即可；
-/// 总大小未知时保持占位文案，退回只显示百分比。
+/// 下载状态跟踪组件。
 /// </summary>
 internal sealed class DownloadProgressFooter
 {
@@ -38,10 +36,6 @@ internal sealed class DownloadProgressFooter
     /// <summary>要放进对话框内容的元素。</summary>
     internal FrameworkElement Root { get; }
 
-    /// <summary>
-    /// 速率按相邻两次上报的字节增量除以时间差估算：进度只在文件完成时跳一次，
-    /// 所以这里取瞬时值，不做平滑（平滑会让首个数晚几秒才出现）。
-    /// </summary>
     internal void Apply(DownloadProgressInfo info)
     {
         if (info.TotalBytes is not long total || total <= 0)

@@ -1,18 +1,19 @@
 namespace StarCrew.Launcher.Services;
 
-/// <summary>更新客户端接缝：生产用 <see cref="VelopackUpdateClient" />，测试用替身。</summary>
+/// <summary>客户端更新相关接口。</summary>
 internal interface IUpdateClient
 {
-    /// <summary>当前是否经 Velopack 安装，开发直跑时为 false。</summary>
+    /// <summary>当前是否经 Velopack 安装。</summary>
     bool IsInstalled { get; }
 
     /// <summary>当前已安装版本，未安装时为 null。</summary>
     string? CurrentVersion { get; }
 
-    /// <summary>检查远端新版本，有更新时返回版本号，否则返回 null。</summary>
+    /// <summary>检查远端新版本。</summary>
+    /// <returns>新版本号，无新版本时返回 null。</returns>
     Task<string?> CheckForUpdatesAsync(CancellationToken cancellationToken);
 
-    /// <summary>下载指定版本，下载完成后需再安排应用才会生效。</summary>
+    /// <summary>下载指定版本。</summary>
     Task DownloadUpdatesAsync(
         string version,
         IProgress<int>? progress,

@@ -4,7 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 >
     <Page.Resources>
-        <!-- InfoBadge 的 Value 只接受 Int32，文本标签改走 FrameworkElement.Tag 承载；默认模板只渲染 Value，这里换成 ContentPresenter。 -->
+        <!-- InfoBadge 的 Value 只接受 Int32，文本标签改走 FrameworkElement.Tag 承载
+             默认模板只渲染 Value，这里换成 ContentPresenter -->
         <Style x:Key="TagInfoBadgeStyle" TargetType="InfoBadge">
             <Setter Property="Background" Value="{ThemeResource AccentFillColorDefaultBrush}" />
             <Setter
@@ -32,9 +33,6 @@
             </Setter>
         </Style>
     </Page.Resources>
-    <!-- Esc 与点击空白处走同一条失焦路径：焦点交给可接焦点的滚动区（IsTabStop 默认 False 时，
-         松手焦点会被甩给第一个可聚焦子元素——正是搜索框）。按钮/TextBox 按下时各自接管
-         并置 Handled，不会走到这里，故只影响空白点击与 Esc。 -->
     <ScrollViewer
         x:Name="ContentScroll"
         VerticalScrollBarVisibility="Auto"
@@ -43,7 +41,6 @@
     >
         <Grid Padding="24,0,24,24">
             <StackPanel MaxWidth="1000" HorizontalAlignment="Stretch" Spacing="4">
-                <!-- 顶部行：左侧版本列表标题，右侧搜索框 + 刷新 -->
                 <Grid Margin="0,0,0,8">
                     <TextBlock
                         x:Uid="DownloadBase_SectionTitle"

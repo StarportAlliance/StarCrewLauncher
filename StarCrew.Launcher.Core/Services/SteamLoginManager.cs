@@ -3,7 +3,6 @@ using StarCrew.Launcher.Models;
 
 namespace StarCrew.Launcher.Services;
 
-/// <summary>Steam 登录管理器：通过 DD 的 -remember-password 自动缓存会话。</summary>
 internal sealed class SteamLoginManager : ISteamLoginManager
 {
     private const int AmongUsAppId = 945360;
@@ -31,7 +30,6 @@ internal sealed class SteamLoginManager : ISteamLoginManager
         _strings = strings;
     }
 
-    /// <inheritdoc />
     public async Task<SteamLoginOutcome> LoginAsync(
         string username,
         string password,
@@ -56,7 +54,6 @@ internal sealed class SteamLoginManager : ISteamLoginManager
             return new SteamLoginOutcome(false, null, ensure.Message);
         }
 
-        // Manifest-only invocation: Just validate credentials and cache tokens.
         string tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempDir);
 
@@ -106,7 +103,6 @@ internal sealed class SteamLoginManager : ISteamLoginManager
         }
     }
 
-    /// <inheritdoc />
     public async Task<SteamLoginOutcome> LoginWithQrAsync(
         IProgress<string>? output = null,
         CancellationToken cancellationToken = default
@@ -161,7 +157,7 @@ internal sealed class SteamLoginManager : ISteamLoginManager
                 );
             }
 
-            // QR 登录成功后 DD 会在输出里给出“下次用 -username 复用”的提示，从中解析账号名。
+            // QR 登录成功后 DD 会在输出里给出“下次用 -username 复用”的提示
             string? accountName = ExtractAccountName(outcome.OutputLines);
             if (accountName is null)
             {
@@ -182,7 +178,6 @@ internal sealed class SteamLoginManager : ISteamLoginManager
         }
     }
 
-    /// <summary>从 DD 输出中提取 "-username X" 里的 X。</summary>
     private static string? ExtractAccountName(IReadOnlyList<string> lines)
     {
         foreach (string line in lines)

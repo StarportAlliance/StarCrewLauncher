@@ -2,16 +2,11 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace StarCrew.Launcher.Services;
 
-/// <summary>
-/// 解析 DepotDownloader 输出的 ASCII 二维码。格式为 QRCoder 的
-/// <c>GetLineByLineGraphic(1)</c>：每模块两个字符（暗 "██"、亮 "  "），
-/// 每行一个模块行，含四周 4 模块静区，整体为正方形。
-/// </summary>
+/// <summary>DepotDownloader ASCII 二维码解析器。</summary>
 internal static class QrAsciiParser
 {
     private const char Dark = '█';
 
-    /// <summary>把一段连续输出行解析成模块矩阵（true 为暗模块）；格式不符时返回 false。</summary>
     public static bool TryParse(
         IReadOnlyList<string> lines,
         [NotNullWhen(true)] out bool[][]? matrix
@@ -20,7 +15,6 @@ internal static class QrAsciiParser
         matrix = null;
         if (lines.Count < 21)
         {
-            // QR 最小版本（1）也有 21 个模块，用于挡住恰好凑成方块的杂散输出。
             return false;
         }
 

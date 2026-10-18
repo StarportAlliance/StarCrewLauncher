@@ -5,12 +5,10 @@ using StarCrew.Launcher.ViewModels;
 
 namespace StarCrew.Launcher.Tests.ViewModels;
 
-/// <summary>HomeViewModel 的单元测试：提及实例列表、选择、启动导航与提示。</summary>
 public sealed class HomeViewModelTests
 {
     [Fact]
-    public void Ctor_WithNullStore_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullStore_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new HomeViewModel(
                 null!,
@@ -20,11 +18,9 @@ public sealed class HomeViewModelTests
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
-    public void Ctor_WithNullLauncher_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullLauncher_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new HomeViewModel(
                 Substitute.For<IInstanceStore>(),
@@ -34,11 +30,9 @@ public sealed class HomeViewModelTests
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
-    public void Ctor_WithNullNavigation_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullNavigation_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new HomeViewModel(
                 Substitute.For<IInstanceStore>(),
@@ -48,11 +42,9 @@ public sealed class HomeViewModelTests
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
-    public void Ctor_WithNullNotifications_ThrowsArgumentNullException()
-    {
+    public void Ctor_WithNullNotifications_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new HomeViewModel(
                 Substitute.For<IInstanceStore>(),
@@ -62,12 +54,11 @@ public sealed class HomeViewModelTests
                 TestStrings.Instance
             )
         );
-    }
 
     [Fact]
     public void Ctor_WithEmptyStore_HasNoInstances()
     {
-        (HomeViewModel vm, IInstanceStore store, _, _, _) = Create();
+        (HomeViewModel vm, _, _, _, _) = Create();
 
         Assert.Empty(vm.Instances);
         Assert.False(vm.HasInstances);
@@ -81,9 +72,7 @@ public sealed class HomeViewModelTests
         Guid wanted = Guid.NewGuid();
         GameInstance a = CreateInstance("A");
         GameInstance b = CreateInstance("B", id: wanted);
-        (HomeViewModel vm, IInstanceStore store, _, _, _) = Create(
-            new LauncherState(1, wanted, null, [a, b])
-        );
+        (HomeViewModel vm, _, _, _, _) = Create(new LauncherState(1, wanted, null, [a, b]));
 
         Assert.Equal(b, vm.SelectedInstance);
         Assert.Equal("B", vm.CurrentInstanceName);
@@ -93,13 +82,7 @@ public sealed class HomeViewModelTests
     [Fact]
     public void LaunchAsync_WithoutInstances_NavigatesToDownload()
     {
-        (
-            HomeViewModel vm,
-            _,
-            _,
-            INavigationService navigation,
-            INotificationService notifications
-        ) = Create();
+        (HomeViewModel vm, _, _, _, INotificationService notifications) = Create();
 
         vm.LaunchCommand.Execute(null);
 
@@ -134,7 +117,7 @@ public sealed class HomeViewModelTests
         launcher
             .LaunchAsync(Arg.Any<GameInstance>(), Arg.Any<CancellationToken>())
             .Returns(new LaunchOutcome(false, "boom"));
-        HomeViewModel vm = new(
+        _ = new HomeViewModel(
             store,
             launcher,
             Substitute.For<INavigationService>(),
@@ -167,9 +150,10 @@ public sealed class HomeViewModelTests
             Substitute.For<INavigationService>(),
             Substitute.For<INotificationService>(),
             TestStrings.Instance
-        );
-
-        vm.SelectedInstance = b;
+        )
+        {
+            SelectedInstance = b,
+        };
 
         store.Received(1).Save(Arg.Is<LauncherState>(s => s!.LastInstanceId == b.Id));
     }
@@ -197,9 +181,8 @@ public sealed class HomeViewModelTests
         return store;
     }
 
-    private static GameInstance CreateInstance(string name, Guid? id = null)
-    {
-        return new GameInstance(
+    private static GameInstance CreateInstance(string name, Guid? id = null) =>
+        new(
             id ?? Guid.NewGuid(),
             name,
             Path.Combine(Path.GetTempPath(), "instances", name),
@@ -211,5 +194,4 @@ public sealed class HomeViewModelTests
             DateTimeOffset.UtcNow,
             null
         );
-    }
 }
