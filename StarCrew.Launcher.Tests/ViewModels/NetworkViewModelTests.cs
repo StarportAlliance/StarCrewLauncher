@@ -67,6 +67,19 @@ public sealed class NetworkViewModelTests
         Assert.Contains(nameof(NetworkViewModel.CustomVisible), changed);
     }
 
+    [Theory]
+    [InlineData(0, "官方直连")]
+    [InlineData(1, "gh-proxy.org（第三方加速）")]
+    [InlineData(2, "自定义前缀")]
+    [InlineData(99, "自定义前缀")]
+    public void SelectedOptionText_FollowsSelectedIndex(int index, string expected)
+    {
+        INetworkSettings settings = Substitute.For<INetworkSettings>();
+        NetworkViewModel vm = new(settings, TestStrings.Instance) { SelectedIndex = index };
+
+        Assert.Equal(expected, vm.SelectedOptionText);
+    }
+
     [Fact]
     public void CustomPrefix_WritesToSettings()
     {

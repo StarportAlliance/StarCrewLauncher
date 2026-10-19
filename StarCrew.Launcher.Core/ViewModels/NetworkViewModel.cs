@@ -41,10 +41,17 @@ internal sealed partial class NetworkViewModel : ObservableObject
 
     /// <summary>下拉下标。</summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CustomVisible), nameof(PreviewText))]
+    [NotifyPropertyChangedFor(
+        nameof(CustomVisible),
+        nameof(PreviewText),
+        nameof(SelectedOptionText)
+    )]
     public partial int SelectedIndex { get; set; }
 
     public bool CustomVisible => SelectedIndex == 2;
+
+    /// <summary>折叠态展示的当前加速源文案。</summary>
+    public string SelectedOptionText => Options[Math.Clamp(SelectedIndex, 0, Options.Count - 1)];
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PreviewText))]

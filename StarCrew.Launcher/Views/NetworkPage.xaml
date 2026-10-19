@@ -17,6 +17,11 @@
                 />
 
                 <controls:SettingsExpander x:Uid="Network_AcceleratorCard">
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="{x:Bind ViewModel.SelectedOptionText, Mode=OneWay}"
+                    />
+
                     <controls:SettingsExpander.ItemsHeader>
                         <InfoBar
                             x:Uid="Network_AcceleratorWarning"
