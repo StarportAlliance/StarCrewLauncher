@@ -23,7 +23,7 @@
                         BlurAmount="18"
                         FallbackColor="#F9F9F9"
                         TintColor="#FCFCFC"
-                        TintOpacity="0.5"
+                        TintOpacity="0.8"
                     />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
