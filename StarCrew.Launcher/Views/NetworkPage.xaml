@@ -16,22 +16,42 @@
                     Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
                 />
 
-                <controls:SettingsCard x:Uid="Network_AcceleratorCard">
-                    <ComboBox
-                        x:Name="AcceleratorCombo"
-                        Width="240"
-                        ItemsSource="{x:Bind ViewModel.Options, Mode=OneWay}"
-                        SelectedIndex="{x:Bind ViewModel.SelectedIndex, Mode=TwoWay}"
-                    />
-                </controls:SettingsCard>
+                <controls:SettingsExpander x:Uid="Network_AcceleratorCard">
+                    <controls:SettingsExpander.ItemsHeader>
+                        <InfoBar
+                            x:Uid="Network_AcceleratorWarning"
+                            BorderThickness="0"
+                            CornerRadius="0"
+                            IsClosable="False"
+                            IsOpen="True"
+                            Severity="Warning"
+                        />
+                    </controls:SettingsExpander.ItemsHeader>
 
-                <controls:SettingsCard x:Name="CustomPrefixCard" x:Uid="Network_CustomPrefixCard">
-                    <TextBox
-                        x:Uid="Network_CustomPrefixBox"
-                        Width="240"
-                        Text="{x:Bind ViewModel.CustomPrefix, Mode=TwoWay}"
-                    />
-                </controls:SettingsCard>
+                    <controls:SettingsExpander.Items>
+                        <controls:SettingsCard x:Uid="Network_AcceleratorChoiceCard">
+                            <RadioButtons
+                                x:Name="AcceleratorRadios"
+                                MaxColumns="3"
+                                ItemsSource="{x:Bind ViewModel.Options, Mode=OneWay}"
+                                SelectedIndex="{x:Bind ViewModel.SelectedIndex, Mode=TwoWay}"
+                            />
+                        </controls:SettingsCard>
+
+                        <controls:SettingsCard
+                            x:Name="CustomPrefixCard"
+                            x:Uid="Network_CustomPrefixCard"
+                        >
+                            <TextBox
+                                x:Uid="Network_CustomPrefixBox"
+                                Width="240"
+                                Text="{x:Bind ViewModel.CustomPrefix, Mode=TwoWay}"
+                            />
+                        </controls:SettingsCard>
+
+                        <controls:SettingsCard Description="{x:Bind ViewModel.PreviewText, Mode=OneWay}" />
+                    </controls:SettingsExpander.Items>
+                </controls:SettingsExpander>
             </StackPanel>
         </Grid>
     </ScrollViewer>

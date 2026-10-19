@@ -1,5 +1,4 @@
 using System.ComponentModel;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using StarCrew.Launcher.ViewModels;
@@ -44,7 +43,6 @@ public sealed partial class NetworkPage : Page
 
     private void UpdateCustomCard()
     {
-        CustomPrefixCard?.Visibility =
-            ViewModel?.CustomVisible == true ? Visibility.Visible : Visibility.Collapsed;
+        CustomPrefixCard?.IsEnabled = ViewModel?.CustomVisible == true;
     }
 }

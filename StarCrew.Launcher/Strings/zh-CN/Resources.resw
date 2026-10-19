@@ -86,6 +86,18 @@
   <data name="Network_AcceleratorCard.Description" xml:space="preserve">
     <value>选择从 GitHub 拉取 DepotDownloader 等资源时使用的链路。</value>
   </data>
+  <data name="Network_AcceleratorWarning.Title" xml:space="preserve">
+    <value>使用第三方加速源时，下载流量会经由其服务器转发，可能存在安全与隐私风险，请自行评估后使用。</value>
+  </data>
+  <data name="Network_AcceleratorChoiceCard.Header" xml:space="preserve">
+    <value>加速源</value>
+  </data>
+  <data name="Network_PreviewOfficial" xml:space="preserve">
+    <value>https://github.com/&lt;启动器请求文件&gt;</value>
+  </data>
+  <data name="Network_PreviewFullUrl" xml:space="preserve">
+    <value>&lt;启动器请求完整URL&gt;</value>
+  </data>
   <data name="Network_CustomPrefixCard.Header" xml:space="preserve">
     <value>自定义前缀</value>
   </data>
