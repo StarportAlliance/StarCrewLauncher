@@ -58,7 +58,9 @@ public sealed partial class AboutPage : Page
         await OpenUriAsync("https://github.com/SteamRE/DepotDownloader/blob/master/LICENSE");
 
     private async void FluentlauncherLicenseCard_Click(object sender, RoutedEventArgs e) =>
-        await OpenUriAsync("https://github.com/Xcube-Studio/Natsurainko.FluentLauncher/blob/main/LICENSE");
+        await OpenUriAsync(
+            "https://github.com/Xcube-Studio/Natsurainko.FluentLauncher/blob/main/LICENSE"
+        );
 
     private Task OpenUriAsync(string uri) => ViewModel?.OpenUriAsync(uri) ?? Task.CompletedTask;
 

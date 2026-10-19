@@ -4,11 +4,13 @@ using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using StarCrew.Launcher.Models;
 using StarCrew.Launcher.Services;
 using Windows.Graphics;
+using Windows.System;
 using WinRT.Interop;
 
 namespace StarCrew.Launcher;
@@ -71,6 +73,79 @@ public sealed partial class MainWindow : Window
 
         Activated += OnFirstActivated;
         ToastBar.RegisterPropertyChangedCallback(InfoBar.IsOpenProperty, OnToastIsOpenChanged);
+        AttachInputUnfocus();
+    }
+
+    // 输入框失焦统一在窗口根节点处理（逐页挂 KeyDown 的方案已多次回归）；handledEventsToo 兜住控件内部已标记处理的情况
+    private void AttachInputUnfocus()
+    {
+        if (Content is UIElement root)
+        {
+            root.AddHandler(
+                UIElement.PointerPressedEvent,
+                new PointerEventHandler(Root_PointerPressed),
+                true
+            );
+            // 松开时 TextBox 会经 TSF/RichEdit 把焦点抢回去，需再兜一次
+            root.AddHandler(
+                UIElement.PointerReleasedEvent,
+                new PointerEventHandler(Root_PointerReleased),
+                true
+            );
+            root.AddHandler(UIElement.KeyDownEvent, new KeyEventHandler(Root_KeyDown), true);
+        }
+    }
+
+    private void Root_KeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        _ = sender;
+        if (e.Key != VirtualKey.Escape || e.OriginalSource is not (TextBox or PasswordBox))
+        {
+            return;
+        }
+
+        e.Handled = true;
+        Defocus();
+    }
+
+    private void Root_PointerPressed(object sender, PointerRoutedEventArgs e) =>
+        TryDefocusFromPointer(sender, e.OriginalSource);
+
+    private void Root_PointerReleased(object sender, PointerRoutedEventArgs e) =>
+        TryDefocusFromPointer(sender, e.OriginalSource);
+
+    private void TryDefocusFromPointer(object sender, object? source)
+    {
+        // 桌面端没有 CoreWindow，参数less 的 GetFocusedElement 恒为 null，必须带 XamlRoot
+        if (
+            (sender as UIElement)?.XamlRoot is not { } xamlRoot
+            || FocusManager.GetFocusedElement(xamlRoot) is not Control focused
+            || focused is not (TextBox or PasswordBox)
+        )
+        {
+            return;
+        }
+
+        // 点击位置仍属于该输入控件自身时不抢焦点
+        for (
+            DependencyObject? node = source as DependencyObject;
+            node is not null;
+            node = VisualTreeHelper.GetParent(node)
+        )
+        {
+            if (node == focused)
+            {
+                return;
+            }
+        }
+
+        Defocus();
+    }
+
+    private void Defocus()
+    {
+        // Programmatic 在键盘输入后会被强制改写成 Keyboard，故使用 Pointer
+        Content?.Focus(FocusState.Pointer);
     }
 
     private void OnThemeChanged(object? sender, AppTheme theme) => ApplyTheme(theme);

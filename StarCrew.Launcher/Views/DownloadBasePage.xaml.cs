@@ -3,14 +3,12 @@ using CommunityToolkit.WinUI.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using StarCrew.Launcher.Models;
 using StarCrew.Launcher.Services;
 using StarCrew.Launcher.ViewModels;
-using Windows.System;
 
 namespace StarCrew.Launcher.Views;
 
@@ -129,17 +127,6 @@ public sealed partial class DownloadBasePage : Page
         };
 
         return card;
-    }
-
-    private void ContentScroll_KeyDown(object sender, KeyRoutedEventArgs e)
-    {
-        _ = sender;
-        if (e.Key == VirtualKey.Escape)
-        {
-            e.Handled = true;
-            // Programmatic 在键盘输入后会被强制改写成 Keyboard，故使用 Pointer
-            ContentScroll.Focus(FocusState.Pointer);
-        }
     }
 
     private void OnLoadedShowLoginHint(object sender, RoutedEventArgs e)

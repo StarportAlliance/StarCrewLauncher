@@ -118,9 +118,10 @@
                 <controls:SettingsCard
                     x:Uid="About_FluentlauncherCard"
                     IsClickEnabled="True"
-                    Click="FluentlauncherLicenseCard_Click">
+                    Click="FluentlauncherLicenseCard_Click"
+                >
                     <controls:SettingsCard.ActionIcon>
-                        <FontIcon Glyph="&#xE8A7;"/>
+                        <FontIcon Glyph="&#xE8A7;" />
                     </controls:SettingsCard.ActionIcon>
                 </controls:SettingsCard>
             </StackPanel>

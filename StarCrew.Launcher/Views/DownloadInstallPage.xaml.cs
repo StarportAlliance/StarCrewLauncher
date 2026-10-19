@@ -1,12 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
 using StarCrew.Launcher.Models;
 using StarCrew.Launcher.Services;
 using StarCrew.Launcher.ViewModels;
-using Windows.System;
 
 namespace StarCrew.Launcher.Views;
 
@@ -33,16 +31,6 @@ public sealed partial class DownloadInstallPage : Page
         _ = sender;
         _ = e;
         _ = RunInstallAsync();
-    }
-
-    private void ContentScroll_KeyDown(object sender, KeyRoutedEventArgs e)
-    {
-        _ = sender;
-        if (e.Key == VirtualKey.Escape)
-        {
-            e.Handled = true;
-            ContentScroll.Focus(FocusState.Pointer);
-        }
     }
 
     private async Task RunInstallAsync()
