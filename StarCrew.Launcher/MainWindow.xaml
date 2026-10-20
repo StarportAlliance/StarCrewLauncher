@@ -153,6 +153,33 @@
                     IsClosable="True"
                     IsOpen="False"
                 >
+                    <!-- App.xaml 的 ThemeDictionaries 会被 XamlControlsResources 抢先，只能挂在元素上覆盖 -->
+                    <InfoBar.Resources>
+                        <ResourceDictionary>
+                            <ResourceDictionary.ThemeDictionaries>
+                                <ResourceDictionary x:Key="Dark">
+                                    <SolidColorBrush
+                                        x:Key="InfoBarInformationalSeverityBackgroundBrush"
+                                        Color="#2E2E2E"
+                                    />
+                                    <SolidColorBrush
+                                        x:Key="InfoBarInformationalSeverityIconBackground"
+                                        Color="#4CC2FF"
+                                    />
+                                </ResourceDictionary>
+                                <ResourceDictionary x:Key="Light">
+                                    <SolidColorBrush
+                                        x:Key="InfoBarInformationalSeverityBackgroundBrush"
+                                        Color="#F7F7F7"
+                                    />
+                                    <SolidColorBrush
+                                        x:Key="InfoBarInformationalSeverityIconBackground"
+                                        Color="#0078D4"
+                                    />
+                                </ResourceDictionary>
+                            </ResourceDictionary.ThemeDictionaries>
+                        </ResourceDictionary>
+                    </InfoBar.Resources>
                     <InfoBar.RenderTransform>
                         <TranslateTransform x:Name="ToastTranslate" />
                     </InfoBar.RenderTransform>
