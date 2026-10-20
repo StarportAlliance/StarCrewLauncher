@@ -81,13 +81,16 @@
     <value>网络</value>
   </data>
   <data name="Network_AcceleratorCard.Header" xml:space="preserve">
-    <value>下载加速源</value>
+    <value>GitHub 下载加速源</value>
   </data>
   <data name="Network_AcceleratorCard.Description" xml:space="preserve">
-    <value>选择从 GitHub 拉取 DepotDownloader 等资源时使用的链路。</value>
+    <value>选择从 GitHub 拉取依赖时使用的链路。</value>
   </data>
   <data name="Network_AcceleratorWarning.Title" xml:space="preserve">
-    <value>使用第三方加速源时，下载流量会经由其服务器转发，可能存在安全与隐私风险，请自行评估后使用。</value>
+    <value>第三方加速源可能存在安全与隐私风险，即便是启动器内置源也不例外。</value>
+  </data>
+  <data name="Network_AcceleratorWarning.Message" xml:space="preserve">
+    <value>请您自行评估风险后再使用。</value>
   </data>
   <data name="Network_AcceleratorChoiceCard.Header" xml:space="preserve">
     <value>加速源</value>
@@ -99,22 +102,19 @@
     <value>&lt;启动器请求完整URL&gt;</value>
   </data>
   <data name="Network_CustomPrefixCard.Header" xml:space="preserve">
-    <value>自定义前缀</value>
+    <value>自定义</value>
   </data>
   <data name="Network_CustomPrefixCard.Description" xml:space="preserve">
-    <value>仅在选择「自定义前缀」时生效。留空则退回官方直连。</value>
-  </data>
-  <data name="Network_CustomPrefixBox.PlaceholderText" xml:space="preserve">
-    <value>https://example.com</value>
+    <value>仅在选择自定义加速源时生效，留空则退回官方直连，必须为 HTTPS 协议。</value>
   </data>
   <data name="Network_OptionOfficial" xml:space="preserve">
     <value>官方直连</value>
   </data>
   <data name="Network_OptionGhProxy" xml:space="preserve">
-    <value>gh-proxy.org（第三方加速）</value>
+    <value>第三方加速</value>
   </data>
   <data name="Network_OptionCustom" xml:space="preserve">
-    <value>自定义前缀</value>
+    <value>自定义</value>
   </data>
 
   <!-- 关于页 -->
