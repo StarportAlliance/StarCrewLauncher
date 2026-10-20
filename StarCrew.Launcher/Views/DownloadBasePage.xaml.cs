@@ -1,10 +1,12 @@
 using System.ComponentModel;
+using System.Numerics;
 using CommunityToolkit.WinUI.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using StarCrew.Launcher.Models;
 using StarCrew.Launcher.Services;
@@ -77,8 +79,8 @@ public sealed partial class DownloadBasePage : Page
             System.Globalization.CultureInfo.InvariantCulture
         );
 
-        StackPanel header = new() { Orientation = Orientation.Horizontal, Spacing = 8 };
-        header.Children.Add(
+        StackPanel titleRow = new() { Orientation = Orientation.Horizontal, Spacing = 8 };
+        titleRow.Children.Add(
             new TextBlock
             {
                 Text = entry.VersionLabel,
@@ -87,7 +89,7 @@ public sealed partial class DownloadBasePage : Page
         );
         if (entry.Unavailable)
         {
-            header.Children.Add(
+            titleRow.Children.Add(
                 new InfoBadge
                 {
                     Style = (Style)Resources["TagInfoBadgeStyle"],
@@ -97,20 +99,65 @@ public sealed partial class DownloadBasePage : Page
         }
         foreach (string tag in entry.Tags)
         {
-            header.Children.Add(
+            titleRow.Children.Add(
                 new InfoBadge { Style = (Style)Resources["TagInfoBadgeStyle"], Tag = tag }
             );
         }
 
+        TextBlock description = new()
+        {
+            Text = _strings.Format("DownloadBase_PublishedAtFormat", dateText),
+            FontSize = 12,
+            TextWrapping = TextWrapping.Wrap,
+        };
+        try
+        {
+            description.Foreground = (Brush)
+                Application.Current.Resources["TextFillColorSecondaryBrush"];
+        }
+        catch (Exception)
+        {
+            // 可选主题资源缺失时退回继承前景色
+        }
+
+        ThemeShadow iconShadow = new();
+        Border icon = new()
+        {
+            Width = 40,
+            Height = 40,
+            CornerRadius = new CornerRadius(8),
+            Background = new ImageBrush
+            {
+                ImageSource = new BitmapImage(new Uri("ms-appx:///Assets/AmongUs.png")),
+            },
+            Shadow = iconShadow,
+            Translation = new Vector3(0, 0, 8),
+        };
+
         SettingsCard card = new()
         {
-            Header = header,
-            Description = _strings.Format("DownloadBase_PublishedAtFormat", dateText),
+            Header = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = 12,
+                Children =
+                {
+                    icon,
+                    new StackPanel
+                    {
+                        Spacing = 2,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Children = { titleRow, description },
+                    },
+                },
+            },
+            Padding = new Thickness(12),
             IsClickEnabled = true,
             IsEnabled = !entry.Unavailable,
             ActionIcon = new FontIcon { Glyph = "\uE76C" },
             ActionIconToolTip = _strings.GetString("Common_Install"),
         };
+        iconShadow.Receivers.Add(card);
         card.Click += (_, _) =>
         {
             viewModel.SelectedVersion = entry;

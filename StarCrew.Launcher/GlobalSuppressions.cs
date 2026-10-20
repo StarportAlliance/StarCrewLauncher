@@ -84,6 +84,13 @@ using System.Diagnostics.CodeAnalysis;
     "CA1031:DoNotCatchGeneralExceptionTypes",
     Justification = "可选资源缺失时退回默认样式/空图标，不影响卡片生成。",
     Scope = "member",
+    Target = "~M:StarCrew.Launcher.Views.DownloadBasePage.BuildVersionCard(StarCrew.Launcher.Models.GameVersionEntry)"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "可选资源缺失时退回默认样式/空图标，不影响卡片生成。",
+    Scope = "member",
     Target = "~M:StarCrew.Launcher.Views.InstancesPage.BuildCard(StarCrew.Launcher.ViewModels.InstanceItemViewModel)"
 )]
 [assembly: SuppressMessage(

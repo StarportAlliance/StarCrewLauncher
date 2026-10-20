@@ -265,7 +265,7 @@
 
   <!-- 游戏下载 -->
   <data name="DownloadSection_Base.Content" xml:space="preserve">
-    <value>基础游戏</value>
+    <value>原版游戏</value>
   </data>
   <data name="DownloadSection_Account.Content" xml:space="preserve">
     <value>账号</value>

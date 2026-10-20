@@ -60,6 +60,10 @@
             <Link>Assets\background.png</Link>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+        <Content Include="..\Assets\AmongUs.png">
+            <Link>Assets\AmongUs.png</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
     <!-- DepotDownloader 随包分发：按 RID 从固定 Release 拉取并校验，缓存于 obj/ -->
