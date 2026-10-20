@@ -8,23 +8,23 @@ internal sealed class SteamLoginManager : ISteamLoginManager
     private const int AmongUsAppId = 945360;
     private const int AmongUsDepotId = 945361;
 
-    private readonly IDepotDownloaderProvisioner _provisioner;
+    private readonly DepotDownloaderLocator _locator;
     private readonly IDepotDownloaderRunner _runner;
     private readonly IInstanceStore _store;
     private readonly IAppStrings _strings;
 
     public SteamLoginManager(
-        IDepotDownloaderProvisioner provisioner,
+        DepotDownloaderLocator locator,
         IDepotDownloaderRunner runner,
         IInstanceStore store,
         IAppStrings strings
     )
     {
-        ArgumentNullException.ThrowIfNull(provisioner);
+        ArgumentNullException.ThrowIfNull(locator);
         ArgumentNullException.ThrowIfNull(runner);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(strings);
-        _provisioner = provisioner;
+        _locator = locator;
         _runner = runner;
         _store = store;
         _strings = strings;
@@ -40,18 +40,10 @@ internal sealed class SteamLoginManager : ISteamLoginManager
         ArgumentException.ThrowIfNullOrWhiteSpace(username);
         ArgumentNullException.ThrowIfNull(password);
 
-        if (!_provisioner.IsInstalled())
+        string? depotDownloaderPath = _locator.Find();
+        if (depotDownloaderPath is null)
         {
-            return new SteamLoginOutcome(false, null, _strings.GetString("Login_DdNotInstalled"));
-        }
-
-        DepotDownloaderEnsureResult ensure = await _provisioner.EnsureAsync(
-            null,
-            cancellationToken
-        );
-        if (!ensure.IsSuccess || string.IsNullOrEmpty(ensure.ExecutablePath))
-        {
-            return new SteamLoginOutcome(false, null, ensure.Message);
+            return new SteamLoginOutcome(false, null, _strings.GetString("Dd_Missing"));
         }
 
         string tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -78,7 +70,7 @@ internal sealed class SteamLoginManager : ISteamLoginManager
 
             string? stdin = steamGuardCode is null ? null : $"{steamGuardCode.Trim()}\n";
             ExecutableOutcome outcome = await _runner.RunAsync(
-                new ExecutableCommand(ensure.ExecutablePath, arguments, stdin),
+                new ExecutableCommand(depotDownloaderPath, arguments, stdin),
                 null,
                 cancellationToken
             );
@@ -108,18 +100,10 @@ internal sealed class SteamLoginManager : ISteamLoginManager
         CancellationToken cancellationToken = default
     )
     {
-        if (!_provisioner.IsInstalled())
+        string? depotDownloaderPath = _locator.Find();
+        if (depotDownloaderPath is null)
         {
-            return new SteamLoginOutcome(false, null, _strings.GetString("Login_DdNotInstalled"));
-        }
-
-        DepotDownloaderEnsureResult ensure = await _provisioner.EnsureAsync(
-            null,
-            cancellationToken
-        );
-        if (!ensure.IsSuccess || string.IsNullOrEmpty(ensure.ExecutablePath))
-        {
-            return new SteamLoginOutcome(false, null, ensure.Message);
+            return new SteamLoginOutcome(false, null, _strings.GetString("Dd_Missing"));
         }
 
         string tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -140,7 +124,7 @@ internal sealed class SteamLoginManager : ISteamLoginManager
             ];
 
             ExecutableOutcome outcome = await _runner.RunAsync(
-                new ExecutableCommand(ensure.ExecutablePath, arguments, null),
+                new ExecutableCommand(depotDownloaderPath, arguments, null),
                 output,
                 cancellationToken
             );

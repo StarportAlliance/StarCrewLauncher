@@ -52,11 +52,6 @@
                             <FontIcon Glyph="&#xE74C;" />
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
-                    <NavigationViewItem x:Uid="SettingsSection_Network" Tag="Network">
-                        <NavigationViewItem.Icon>
-                            <FontIcon Glyph="&#xE774;" />
-                        </NavigationViewItem.Icon>
-                    </NavigationViewItem>
                     <NavigationViewItem x:Uid="SettingsSection_About" Tag="About">
                         <NavigationViewItem.Icon>
                             <FontIcon Glyph="&#xE946;" />

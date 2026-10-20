@@ -21,9 +21,6 @@ internal enum NavigationTarget
     /// <summary>设置 - 通用。</summary>
     Appearance,
 
-    /// <summary>设置 - 网络。</summary>
-    Network,
-
     /// <summary>设置 - 关于。</summary>
     About,
 }

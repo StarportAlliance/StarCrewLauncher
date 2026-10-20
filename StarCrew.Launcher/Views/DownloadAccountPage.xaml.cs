@@ -82,28 +82,6 @@ public sealed partial class DownloadAccountPage : Page
             return;
         }
 
-        if (!ViewModel.IsDepotDownloaderInstalled)
-        {
-            ContentDialog confirm = ContentDialogFactory.Create(
-                XamlRoot,
-                d =>
-                {
-                    d.Title = _strings.GetString("Account_DdRequiredTitle");
-                    d.Content = _strings.GetString("Account_DdRequiredContent");
-                    d.PrimaryButtonText = _strings.GetString("Common_Install");
-                    d.CloseButtonText = _strings.GetString("Common_Cancel");
-                    d.DefaultButton = ContentDialogButton.Primary;
-                }
-            );
-            if (await confirm.ShowAsync() != ContentDialogResult.Primary)
-            {
-                return;
-            }
-
-            await RunDepotDownloaderInstallAsync();
-            return;
-        }
-
         await OnLoginButtonClickedAsync();
         UpdateAccountToggle();
     }
@@ -122,55 +100,6 @@ public sealed partial class DownloadAccountPage : Page
         _ = sender;
         _ = e;
         UpdateAccountToggle();
-    }
-
-    private async void InstallDepotDownloader_Click(object sender, RoutedEventArgs e)
-    {
-        _ = sender;
-        _ = e;
-        await RunDepotDownloaderInstallAsync();
-    }
-
-    private async Task RunDepotDownloaderInstallAsync()
-    {
-        if (ViewModel is null || ViewModel.IsBusy)
-        {
-            return;
-        }
-
-        ProgressBar bar = new() { Minimum = 0, Maximum = 100 };
-        TextBlock status = new() { Text = _strings.GetString("Account_PreparingDownload") };
-        DownloadProgressFooter footer = new(_strings);
-        ContentDialog dialog = ContentDialogFactory.Create(
-            XamlRoot,
-            d =>
-            {
-                d.Title = _strings.GetString("Account_DdInstallTitle");
-                d.Content = new StackPanel { Spacing = 8, Children = { status, bar, footer.Root } };
-                d.CloseButtonText = _strings.GetString("Common_Cancel");
-            }
-        );
-
-        using CancellationTokenSource cts = new();
-        dialog.Closing += (_, _) => cts.Cancel();
-        IProgress<DownloadProgressInfo> reporter = new Progress<DownloadProgressInfo>(info =>
-        {
-            bar.Value = info.Percent;
-            status.Text = info.Message;
-            footer.Apply(info);
-        });
-
-        Task<ContentDialogResult> showing = dialog.ShowAsync().AsTask();
-        await ViewModel.InstallDepotDownloaderAsync(reporter, cts.Token);
-        dialog.Hide();
-        await showing;
-    }
-
-    private void OpenDownloadSourceSettings_Click(object sender, RoutedEventArgs e)
-    {
-        _ = sender;
-        _ = e;
-        App.Services.GetRequiredService<INavigationService>().NavigateTo(NavigationTarget.Network);
     }
 
     private async Task OnLoginButtonClickedAsync()

@@ -7,23 +7,30 @@ namespace StarCrew.Launcher.Tests.Services;
 public sealed class SteamLoginManagerTests : IDisposable
 {
     private readonly string _root;
+    private readonly string _tools;
 
     public SteamLoginManagerTests()
     {
         _root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        _tools = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_root);
+        Directory.CreateDirectory(_tools);
+        File.WriteAllBytes(Path.Combine(_tools, "DepotDownloader.exe"), []);
     }
 
     public void Dispose()
     {
-        if (Directory.Exists(_root))
+        foreach (string dir in new[] { _root, _tools })
         {
-            Directory.Delete(_root, recursive: true);
+            if (Directory.Exists(dir))
+            {
+                Directory.Delete(dir, recursive: true);
+            }
         }
     }
 
     [Fact]
-    public void Ctor_WithNullProvisioner_ThrowsArgumentNullException() =>
+    public void Ctor_WithNullLocator_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new SteamLoginManager(
                 null!,
@@ -37,7 +44,7 @@ public sealed class SteamLoginManagerTests : IDisposable
     public void Ctor_WithNullRunner_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new SteamLoginManager(
-                Substitute.For<IDepotDownloaderProvisioner>(),
+                new DepotDownloaderLocator(_tools),
                 null!,
                 Substitute.For<IInstanceStore>(),
                 TestStrings.Instance
@@ -48,7 +55,7 @@ public sealed class SteamLoginManagerTests : IDisposable
     public void Ctor_WithNullStore_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new SteamLoginManager(
-                Substitute.For<IDepotDownloaderProvisioner>(),
+                new DepotDownloaderLocator(_tools),
                 Substitute.For<IDepotDownloaderRunner>(),
                 null!,
                 TestStrings.Instance
@@ -76,32 +83,9 @@ public sealed class SteamLoginManagerTests : IDisposable
     }
 
     [Fact]
-    public async Task LoginAsync_WhenProvisionFails_ReturnsFailure()
+    public async Task LoginAsync_WhenDepotDownloaderMissing_ReturnsFailure()
     {
-        FakeStore store = new(LauncherState.Empty);
-        IDepotDownloaderProvisioner provisioner = Substitute.For<IDepotDownloaderProvisioner>();
-        provisioner.IsInstalled().Returns(true);
-        provisioner
-            .EnsureAsync(Arg.Any<IProgress<DownloadProgressInfo>?>(), Arg.Any<CancellationToken>())
-            .Returns(new DepotDownloaderEnsureResult(false, "tool boom", null));
-        SteamLoginManager manager = new(
-            provisioner,
-            Substitute.For<IDepotDownloaderRunner>(),
-            store,
-            TestStrings.Instance
-        );
-
-        SteamLoginOutcome outcome = await manager.LoginAsync("user", "pw", null);
-
-        Assert.False(outcome.IsSuccess);
-        Assert.Equal("tool boom", outcome.ErrorMessage);
-        Assert.Null(store.Current.SteamAccountName);
-    }
-
-    [Fact]
-    public async Task LoginAsync_WhenDepotDownloaderNotInstalled_ReturnsFailure()
-    {
-        SteamLoginManager manager = Create(provisionerInstalled: false);
+        SteamLoginManager manager = Create(locatorDirectory: Path.Combine(_root, "empty-tools"));
 
         SteamLoginOutcome outcome = await manager.LoginAsync("user", "pw", null);
 
@@ -110,9 +94,9 @@ public sealed class SteamLoginManagerTests : IDisposable
     }
 
     [Fact]
-    public async Task LoginWithQrAsync_WhenDepotDownloaderNotInstalled_ReturnsFailure()
+    public async Task LoginWithQrAsync_WhenDepotDownloaderMissing_ReturnsFailure()
     {
-        SteamLoginManager manager = Create(provisionerInstalled: false);
+        SteamLoginManager manager = Create(locatorDirectory: Path.Combine(_root, "empty-tools"));
 
         SteamLoginOutcome outcome = await manager.LoginWithQrAsync();
 
@@ -300,15 +284,11 @@ public sealed class SteamLoginManagerTests : IDisposable
         FakeStore? store = null,
         IDepotDownloaderRunner? runner = null,
         ExecutableOutcome? runnerOutcome = null,
-        bool provisionerInstalled = true
+        string? locatorDirectory = null
     )
     {
         FakeStore target = store ?? new FakeStore(LauncherState.Empty);
-        IDepotDownloaderProvisioner provisioner = Substitute.For<IDepotDownloaderProvisioner>();
-        provisioner.IsInstalled().Returns(provisionerInstalled);
-        provisioner
-            .EnsureAsync(Arg.Any<IProgress<DownloadProgressInfo>?>(), Arg.Any<CancellationToken>())
-            .Returns(new DepotDownloaderEnsureResult(true, "ok", Path.Combine(_root, "dd.exe")));
+        DepotDownloaderLocator locator = new(locatorDirectory ?? _tools);
         IDepotDownloaderRunner targetRunner = runner ?? Substitute.For<IDepotDownloaderRunner>();
         if (runner is null && runnerOutcome is not null)
         {
@@ -321,7 +301,7 @@ public sealed class SteamLoginManagerTests : IDisposable
                 .Returns(runnerOutcome);
         }
 
-        return new SteamLoginManager(provisioner, targetRunner, target, TestStrings.Instance);
+        return new SteamLoginManager(locator, targetRunner, target, TestStrings.Instance);
     }
 
     private sealed class FakeStore(LauncherState state) : IInstanceStore

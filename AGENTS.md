@@ -47,6 +47,8 @@ dotnet husky install
 - 主工程 `EnableMsixTooling` 必须保持 `true`（`WindowsPackageType` 仍是 `None`，不会打出 MSIX）：
   设为 `false` 会连带关掉 publish 期的 PRI 生成，`vpk pack` 拿到的就是缺 `StarCrew.Launcher.pri` 的半成品，
   装完启动即崩。
+- DepotDownloader 随包分发：`StarCrew.Launcher.csproj` 的 `FetchDepotDownloader` 目标按 RID 下载并校验 SHA-256，
+  解出到 `Tools\DepotDownloader\` 随构建/发布输出；升级 DD 只改该文件的版本与 SHA 常量（首次构建需联网）。
 
 ## 新增代码铁律
 

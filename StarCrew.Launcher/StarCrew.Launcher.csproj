@@ -61,4 +61,69 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
+
+    <!-- DepotDownloader 随包分发：按 RID 从固定 Release 拉取并校验，缓存于 obj/ -->
+    <PropertyGroup>
+        <DepotDownloaderVersion>3.4.0</DepotDownloaderVersion>
+        <DepotDownloaderDownloadBaseUrl Condition="'$(DepotDownloaderDownloadBaseUrl)' == ''"
+            >https://github.com/SteamRE/DepotDownloader/releases/download</DepotDownloaderDownloadBaseUrl>
+        <DepotDownloaderAssetName Condition="'$(RuntimeIdentifier)' == 'win-arm64'"
+            >DepotDownloader-windows-arm64.zip</DepotDownloaderAssetName>
+        <DepotDownloaderAssetName Condition="'$(DepotDownloaderAssetName)' == ''"
+            >DepotDownloader-windows-x64.zip</DepotDownloaderAssetName>
+        <DepotDownloaderAssetSha256 Condition="'$(RuntimeIdentifier)' == 'win-arm64'"
+            >1449BA47775E9974036E615BEDF00D72BEF747CC5B93A78048ED4E0B2C63B2B3</DepotDownloaderAssetSha256>
+        <DepotDownloaderAssetSha256 Condition="'$(DepotDownloaderAssetSha256)' == ''"
+            >41C9E9F0DF54B3AD02E67A11726756E5C73283BD7C2E1B04ACFA5AE4C2ED3767</DepotDownloaderAssetSha256>
+    </PropertyGroup>
+
+    <Target
+        Name="FetchDepotDownloader"
+        BeforeTargets="AssignTargetPaths"
+        Condition="'$(DesignTimeBuild)' != 'true'"
+    >
+        <PropertyGroup>
+            <_DepotDownloaderDir>$([MSBuild]::NormalizeDirectory('$(BaseIntermediateOutputPath)', 'depotdownloader'))</_DepotDownloaderDir>
+            <_DepotDownloaderZip>$(_DepotDownloaderDir)$(DepotDownloaderAssetName)</_DepotDownloaderZip>
+            <_DepotDownloaderExtractDir>$([MSBuild]::NormalizeDirectory('$(_DepotDownloaderDir)', 'extracted', '$(DepotDownloaderVersion)', '$(DepotDownloaderAssetName)'))</_DepotDownloaderExtractDir>
+        </PropertyGroup>
+        <DownloadFile
+            Condition="!Exists('$(_DepotDownloaderZip)')"
+            SourceUrl="$(DepotDownloaderDownloadBaseUrl)/DepotDownloader_$(DepotDownloaderVersion)/$(DepotDownloaderAssetName)"
+            DestinationFolder="$(_DepotDownloaderDir)"
+        />
+        <GetFileHash
+            Condition="!Exists('$(_DepotDownloaderExtractDir)DepotDownloader.exe')"
+            Files="$(_DepotDownloaderZip)"
+            Algorithm="SHA256"
+            HashEncoding="hex"
+        >
+            <Output TaskParameter="Items" ItemName="_DepotDownloaderHashes" />
+        </GetFileHash>
+        <PropertyGroup>
+            <_DepotDownloaderZipHash>@(_DepotDownloaderHashes->'%(FileHash)')</_DepotDownloaderZipHash>
+        </PropertyGroup>
+        <Error
+            Condition="'$(_DepotDownloaderZipHash)' != '' and '$(_DepotDownloaderZipHash)' != '$(DepotDownloaderAssetSha256)'"
+            Text="DepotDownloader 校验失败：期望 $(DepotDownloaderAssetSha256)，实际 $(_DepotDownloaderZipHash)。删除 $(_DepotDownloaderZip) 后重试。"
+        />
+        <Unzip
+            Condition="!Exists('$(_DepotDownloaderExtractDir)DepotDownloader.exe')"
+            SourceFiles="$(_DepotDownloaderZip)"
+            DestinationFolder="$(_DepotDownloaderExtractDir)"
+        />
+        <ItemGroup>
+            <Content
+                Include="$(_DepotDownloaderExtractDir)DepotDownloader.exe"
+                Link="Tools\DepotDownloader\DepotDownloader.exe"
+                CopyToOutputDirectory="PreserveNewest"
+            />
+            <Content
+                Include="$(_DepotDownloaderExtractDir)LICENSE"
+                Condition="Exists('$(_DepotDownloaderExtractDir)LICENSE')"
+                Link="Tools\DepotDownloader\LICENSE"
+                CopyToOutputDirectory="PreserveNewest"
+            />
+        </ItemGroup>
+    </Target>
 </Project>

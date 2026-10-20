@@ -16,9 +16,6 @@ internal static class AppPaths
     /// <summary>实例状态持久化文件路径。</summary>
     public static string StateFile { get; } = Path.Combine(DataDirectory, "instances.json");
 
-    /// <summary>下载工具存放目录。</summary>
-    public static string ToolsDirectory { get; } = Path.Combine(DataDirectory, "tools");
-
     /// <summary>远端资源缓存目录。</summary>
     public static string CacheDirectory { get; } = Path.Combine(DataDirectory, "cache");
 }

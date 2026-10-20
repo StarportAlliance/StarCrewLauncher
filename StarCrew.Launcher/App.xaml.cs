@@ -51,12 +51,9 @@ public sealed partial class App : Application
         services.AddSingleton<ISteamClient, WindowsSteamClient>();
         services.AddSingleton<IInstanceLauncher, InstanceLauncher>();
         services.AddSingleton<IInstanceStore>(_ => new InstanceStore(AppPaths.StateFile));
-        services.AddSingleton<INetworkSettings>(sp => new NetworkSettings(
-            sp.GetRequiredService<IDictionary<string, object>>()
-        ));
         services.AddSingleton<IGameVersionCatalog, GameVersionCatalog>();
         services.AddSingleton<IDepotDownloaderRunner, ProcessRunner>();
-        services.AddSingleton<IDepotDownloaderProvisioner, DepotDownloaderProvisioner>();
+        services.AddSingleton<DepotDownloaderLocator>();
         services.AddSingleton<ISteamLoginManager, SteamLoginManager>();
         services.AddSingleton<IDownloadCoordinator, DownloadCoordinator>();
         services.AddTransient<HomeViewModel>();
@@ -64,7 +61,6 @@ public sealed partial class App : Application
         services.AddTransient<AboutViewModel>();
         services.AddTransient<InstancesViewModel>();
         services.AddTransient<DownloadPageViewModel>();
-        services.AddTransient<NetworkViewModel>();
         services.AddSingleton(sp => new MainWindow(
             sp.GetRequiredService<IThemeSettings>(),
             sp.GetRequiredService<INotificationService>(),

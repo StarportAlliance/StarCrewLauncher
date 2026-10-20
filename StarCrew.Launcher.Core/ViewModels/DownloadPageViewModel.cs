@@ -11,7 +11,6 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     private readonly IGameVersionCatalog _catalog;
     private readonly ISteamLoginManager _loginManager;
     private readonly IDownloadCoordinator _coordinator;
-    private readonly IDepotDownloaderProvisioner _provisioner;
     private readonly INotificationService _notifications;
     private readonly IAppStrings _strings;
 
@@ -20,7 +19,6 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         IGameVersionCatalog catalog,
         ISteamLoginManager loginManager,
         IDownloadCoordinator coordinator,
-        IDepotDownloaderProvisioner provisioner,
         INotificationService notifications,
         IAppStrings strings
     )
@@ -29,20 +27,17 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         ArgumentNullException.ThrowIfNull(catalog);
         ArgumentNullException.ThrowIfNull(loginManager);
         ArgumentNullException.ThrowIfNull(coordinator);
-        ArgumentNullException.ThrowIfNull(provisioner);
         ArgumentNullException.ThrowIfNull(notifications);
         ArgumentNullException.ThrowIfNull(strings);
         _store = store;
         _catalog = catalog;
         _loginManager = loginManager;
         _coordinator = coordinator;
-        _provisioner = provisioner;
         _notifications = notifications;
         _strings = strings;
 
         AccountName = _store.Load().SteamAccountName;
         Items = [];
-        IsDepotDownloaderInstalled = _provisioner.IsInstalled();
         StatusMessage = _strings.GetString("Download_Ready");
         _ = LoadVersionsAsync();
     }
@@ -79,18 +74,6 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     /// <summary>进度百分比。</summary>
     [ObservableProperty]
     public partial double Progress { get; set; }
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DepotDownloaderInstallButtonText))]
-    [NotifyPropertyChangedFor(nameof(CanInstallDepotDownloader))]
-    public partial bool IsDepotDownloaderInstalled { get; set; }
-
-    public string DepotDownloaderInstallButtonText =>
-        IsDepotDownloaderInstalled
-            ? _strings.GetString("Download_DdInstalled")
-            : _strings.GetString("Download_InstallDd");
-
-    public bool CanInstallDepotDownloader => !IsDepotDownloaderInstalled;
 
     [ObservableProperty]
     public partial GameVersionEntry? SelectedVersion { get; set; }
@@ -235,44 +218,6 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
             null,
             NotificationSeverity.Informational
         );
-    }
-
-    public async Task<DepotDownloaderEnsureResult> InstallDepotDownloaderAsync(
-        IProgress<DownloadProgressInfo>? progress = null,
-        CancellationToken cancellationToken = default
-    )
-    {
-        IsBusy = true;
-        StatusMessage = _strings.GetString("Download_DownloadingDd");
-        try
-        {
-            DepotDownloaderEnsureResult result = await _provisioner.EnsureAsync(
-                progress,
-                cancellationToken
-            );
-            // 以磁盘为准，避免结果与实际情况不一致
-            IsDepotDownloaderInstalled = _provisioner.IsInstalled();
-            StatusMessage = result.Message;
-            _notifications.Notify(
-                result.Message,
-                null,
-                result.IsSuccess ? NotificationSeverity.Success : NotificationSeverity.Error
-            );
-            return result;
-        }
-        catch (OperationCanceledException)
-        {
-            StatusMessage = _strings.GetString("Download_DdInstallCancelled");
-            return new DepotDownloaderEnsureResult(
-                false,
-                _strings.GetString("Download_Cancelled"),
-                null
-            );
-        }
-        finally
-        {
-            IsBusy = false;
-        }
     }
 
     public async Task<GameInstallResult> InstallAsync(

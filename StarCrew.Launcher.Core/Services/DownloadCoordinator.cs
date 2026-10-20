@@ -9,34 +9,34 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
     private const int AmongUsDepotId = 945361;
 
     private readonly IInstanceStore _store;
-    private readonly IDepotDownloaderProvisioner _provisioner;
+    private readonly DepotDownloaderLocator _locator;
     private readonly IDepotDownloaderRunner _runner;
     private readonly string _instancesRoot;
     private readonly IAppStrings _strings;
 
     public DownloadCoordinator(
         IInstanceStore store,
-        IDepotDownloaderProvisioner provisioner,
+        DepotDownloaderLocator locator,
         IDepotDownloaderRunner runner,
         IAppStrings strings
     )
-        : this(store, provisioner, runner, AppPaths.InstancesDirectory, strings) { }
+        : this(store, locator, runner, AppPaths.InstancesDirectory, strings) { }
 
     internal DownloadCoordinator(
         IInstanceStore store,
-        IDepotDownloaderProvisioner provisioner,
+        DepotDownloaderLocator locator,
         IDepotDownloaderRunner runner,
         string instancesRoot,
         IAppStrings strings
     )
     {
         ArgumentNullException.ThrowIfNull(store);
-        ArgumentNullException.ThrowIfNull(provisioner);
+        ArgumentNullException.ThrowIfNull(locator);
         ArgumentNullException.ThrowIfNull(runner);
         ArgumentNullException.ThrowIfNull(strings);
         ArgumentException.ThrowIfNullOrWhiteSpace(instancesRoot);
         _store = store;
-        _provisioner = provisioner;
+        _locator = locator;
         _runner = runner;
         _strings = strings;
         _instancesRoot = instancesRoot;
@@ -63,16 +63,13 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
             new DownloadProgressInfo(
                 DownloadStage.PreparingTool,
                 0,
-                _strings.GetString("Install_PreparingTool")
+                _strings.GetString("Install_CheckingSize")
             )
         );
-        DepotDownloaderEnsureResult ensure = await _provisioner.EnsureAsync(
-            progress,
-            cancellationToken
-        );
-        if (!ensure.IsSuccess || string.IsNullOrEmpty(ensure.ExecutablePath))
+        string? depotDownloaderPath = _locator.Find();
+        if (depotDownloaderPath is null)
         {
-            return new GameInstallResult(false, ensure.Message);
+            return new GameInstallResult(false, _strings.GetString("Dd_Missing"));
         }
 
         Guid instanceGuid = Guid.NewGuid();
@@ -80,13 +77,6 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
         string instanceDirectory = Path.Combine(_instancesRoot, instanceId);
         Directory.CreateDirectory(instanceDirectory);
 
-        progress?.Report(
-            new DownloadProgressInfo(
-                DownloadStage.PreparingTool,
-                0,
-                _strings.GetString("Install_CheckingSize")
-            )
-        );
         long? totalBytes = null;
         List<string> arguments =
         [
@@ -126,7 +116,7 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
         try
         {
             totalBytes = await ReadTotalBytesAsync(
-                ensure.ExecutablePath,
+                depotDownloaderPath,
                 accountName,
                 version,
                 instanceDirectory,
@@ -134,7 +124,7 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
             );
 
             ExecutableOutcome outcome = await _runner.RunAsync(
-                new ExecutableCommand(ensure.ExecutablePath, arguments, null),
+                new ExecutableCommand(depotDownloaderPath, arguments, null),
                 lineProgress,
                 cancellationToken
             );

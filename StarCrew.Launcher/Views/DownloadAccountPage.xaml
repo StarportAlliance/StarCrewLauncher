@@ -48,28 +48,6 @@
                         TextWrapping="Wrap"
                     />
                 </StackPanel>
-
-                <TextBlock
-                    x:Uid="Account_ComponentSection"
-                    Margin="0,16,0,0"
-                    Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
-                />
-                <controls:SettingsCard x:Uid="Account_DdCard">
-                    <controls:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xE896;" />
-                    </controls:SettingsCard.HeaderIcon>
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <HyperlinkButton
-                            x:Uid="Account_DownloadSourceSettings"
-                            Click="OpenDownloadSourceSettings_Click"
-                        />
-                        <Button
-                            Content="{x:Bind ViewModel.DepotDownloaderInstallButtonText, Mode=OneWay}"
-                            Click="InstallDepotDownloader_Click"
-                            IsEnabled="{x:Bind ViewModel.CanInstallDepotDownloader, Mode=OneWay}"
-                        />
-                    </StackPanel>
-                </controls:SettingsCard>
             </StackPanel>
         </Grid>
     </ScrollViewer>

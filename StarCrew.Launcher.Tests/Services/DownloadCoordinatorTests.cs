@@ -8,18 +8,25 @@ namespace StarCrew.Launcher.Tests.Services;
 public sealed class DownloadCoordinatorTests : IDisposable
 {
     private readonly string _root;
+    private readonly string _tools;
 
     public DownloadCoordinatorTests()
     {
         _root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        _tools = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_root);
+        Directory.CreateDirectory(_tools);
+        File.WriteAllBytes(Path.Combine(_tools, "DepotDownloader.exe"), []);
     }
 
     public void Dispose()
     {
-        if (Directory.Exists(_root))
+        foreach (string dir in new[] { _root, _tools })
         {
-            Directory.Delete(_root, recursive: true);
+            if (Directory.Exists(dir))
+            {
+                Directory.Delete(dir, recursive: true);
+            }
         }
     }
 
@@ -28,7 +35,7 @@ public sealed class DownloadCoordinatorTests : IDisposable
         Assert.Throws<ArgumentNullException>(() =>
             new DownloadCoordinator(
                 null!,
-                Substitute.For<IDepotDownloaderProvisioner>(),
+                new DepotDownloaderLocator(_tools),
                 Substitute.For<IDepotDownloaderRunner>(),
                 _root,
                 TestStrings.Instance
@@ -36,7 +43,7 @@ public sealed class DownloadCoordinatorTests : IDisposable
         );
 
     [Fact]
-    public void Ctor_WithNullProvisioner_ThrowsArgumentNullException() =>
+    public void Ctor_WithNullLocator_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new DownloadCoordinator(
                 Substitute.For<IInstanceStore>(),
@@ -52,7 +59,7 @@ public sealed class DownloadCoordinatorTests : IDisposable
         Assert.Throws<ArgumentNullException>(() =>
             new DownloadCoordinator(
                 Substitute.For<IInstanceStore>(),
-                Substitute.For<IDepotDownloaderProvisioner>(),
+                new DepotDownloaderLocator(_tools),
                 null!,
                 _root,
                 TestStrings.Instance
@@ -66,7 +73,7 @@ public sealed class DownloadCoordinatorTests : IDisposable
         Assert.Throws<ArgumentException>(() =>
             new DownloadCoordinator(
                 Substitute.For<IInstanceStore>(),
-                Substitute.For<IDepotDownloaderProvisioner>(),
+                new DepotDownloaderLocator(_tools),
                 Substitute.For<IDepotDownloaderRunner>(),
                 root,
                 TestStrings.Instance
@@ -100,16 +107,12 @@ public sealed class DownloadCoordinatorTests : IDisposable
     }
 
     [Fact]
-    public async Task InstallAsync_WhenProvisionFails_ReturnsFailureWithoutInstance()
+    public async Task InstallAsync_WhenDepotDownloaderMissing_ReturnsFailureWithoutInstance()
     {
         FakeStore store = StoreWithAccount();
-        IDepotDownloaderProvisioner provisioner = Substitute.For<IDepotDownloaderProvisioner>();
-        provisioner
-            .EnsureAsync(Arg.Any<IProgress<DownloadProgressInfo>?>(), Arg.Any<CancellationToken>())
-            .Returns(new DepotDownloaderEnsureResult(false, "tool boom", null));
         DownloadCoordinator coordinator = new(
             store,
-            provisioner,
+            new DepotDownloaderLocator(Path.Combine(_root, "empty-tools")),
             Substitute.For<IDepotDownloaderRunner>(),
             _root,
             TestStrings.Instance
@@ -118,8 +121,9 @@ public sealed class DownloadCoordinatorTests : IDisposable
         GameInstallResult result = await coordinator.InstallAsync("A", VersionEntry());
 
         Assert.False(result.IsSuccess);
-        Assert.Equal("tool boom", result.Message);
+        Assert.Contains("组件", result.Message, StringComparison.Ordinal);
         Assert.Empty(store.Current.Instances);
+        Assert.Empty(Directory.GetDirectories(_root));
     }
 
     [Fact]
@@ -410,20 +414,14 @@ public sealed class DownloadCoordinatorTests : IDisposable
         );
     }
 
-    private DownloadCoordinator Create(FakeStore store, IDepotDownloaderRunner? runner = null)
-    {
-        IDepotDownloaderProvisioner provisioner = Substitute.For<IDepotDownloaderProvisioner>();
-        provisioner
-            .EnsureAsync(Arg.Any<IProgress<DownloadProgressInfo>?>(), Arg.Any<CancellationToken>())
-            .Returns(new DepotDownloaderEnsureResult(true, "ok", Path.Combine(_root, "dd.exe")));
-        return new DownloadCoordinator(
+    private DownloadCoordinator Create(FakeStore store, IDepotDownloaderRunner? runner = null) =>
+        new(
             store,
-            provisioner,
+            new DepotDownloaderLocator(_tools),
             runner ?? Substitute.For<IDepotDownloaderRunner>(),
             _root,
             TestStrings.Instance
         );
-    }
 
     private static FakeStore StoreWithAccount(string account = "user") =>
         new(new LauncherState(1, null, account, []));

@@ -15,7 +15,6 @@ public sealed class DownloadPageViewModelTests
                 Substitute.For<IGameVersionCatalog>(),
                 Substitute.For<ISteamLoginManager>(),
                 Substitute.For<IDownloadCoordinator>(),
-                Substitute.For<IDepotDownloaderProvisioner>(),
                 Substitute.For<INotificationService>(),
                 TestStrings.Instance
             )
@@ -29,7 +28,6 @@ public sealed class DownloadPageViewModelTests
                 null!,
                 Substitute.For<ISteamLoginManager>(),
                 Substitute.For<IDownloadCoordinator>(),
-                Substitute.For<IDepotDownloaderProvisioner>(),
                 Substitute.For<INotificationService>(),
                 TestStrings.Instance
             )
@@ -43,7 +41,6 @@ public sealed class DownloadPageViewModelTests
                 Substitute.For<IGameVersionCatalog>(),
                 null!,
                 Substitute.For<IDownloadCoordinator>(),
-                Substitute.For<IDepotDownloaderProvisioner>(),
                 Substitute.For<INotificationService>(),
                 TestStrings.Instance
             )
@@ -57,7 +54,6 @@ public sealed class DownloadPageViewModelTests
                 Substitute.For<IGameVersionCatalog>(),
                 Substitute.For<ISteamLoginManager>(),
                 null!,
-                Substitute.For<IDepotDownloaderProvisioner>(),
                 Substitute.For<INotificationService>(),
                 TestStrings.Instance
             )
@@ -71,7 +67,6 @@ public sealed class DownloadPageViewModelTests
                 Substitute.For<IGameVersionCatalog>(),
                 Substitute.For<ISteamLoginManager>(),
                 Substitute.For<IDownloadCoordinator>(),
-                Substitute.For<IDepotDownloaderProvisioner>(),
                 null!,
                 TestStrings.Instance
             )
@@ -80,7 +75,7 @@ public sealed class DownloadPageViewModelTests
     [Fact]
     public void Ctor_ReadsAccountNameFromStore()
     {
-        (DownloadPageViewModel vm, _, _, _, _, _, _) = Create(
+        (DownloadPageViewModel vm, _, _, _, _, _) = Create(
             state: new LauncherState(1, null, "gamer", [])
         );
 
@@ -91,7 +86,7 @@ public sealed class DownloadPageViewModelTests
     [Fact]
     public void AccountLabel_WithoutAccount_ShowsNotLoggedIn()
     {
-        (DownloadPageViewModel vm, _, _, _, _, _, _) = Create();
+        (DownloadPageViewModel vm, _, _, _, _, _) = Create();
 
         Assert.Null(vm.AccountName);
         Assert.Equal("未登录", vm.AccountLabel);
@@ -100,7 +95,7 @@ public sealed class DownloadPageViewModelTests
     [Fact]
     public void NeedsLogin_WithoutAccount_BlocksInstall()
     {
-        (DownloadPageViewModel vm, _, _, _, _, _, _) = Create();
+        (DownloadPageViewModel vm, _, _, _, _, _) = Create();
 
         Assert.True(vm.NeedsLogin);
         Assert.False(vm.CanStartInstall);
@@ -109,7 +104,7 @@ public sealed class DownloadPageViewModelTests
     [Fact]
     public void NeedsLogin_WithAccount_AllowsInstall()
     {
-        (DownloadPageViewModel vm, _, _, _, _, _, _) = Create(
+        (DownloadPageViewModel vm, _, _, _, _, _) = Create(
             state: new LauncherState(1, null, "gamer", [])
         );
 
@@ -121,9 +116,7 @@ public sealed class DownloadPageViewModelTests
     public async Task RefreshCommand_LoadsVersionsAndStatus()
     {
         GameVersionEntry entry = VersionEntry();
-        (DownloadPageViewModel vm, _, _, _, _, _, _) = Create(
-            catalog: new VersionCatalog(1, [entry])
-        );
+        (DownloadPageViewModel vm, _, _, _, _, _) = Create(catalog: new VersionCatalog(1, [entry]));
 
         await vm.RefreshCommand.ExecuteAsync(null);
 
@@ -138,7 +131,7 @@ public sealed class DownloadPageViewModelTests
         catalog
             .LoadAsync(Arg.Any<CancellationToken>())
             .Returns(Task.FromException<VersionCatalog>(new InvalidOperationException("net down")));
-        (DownloadPageViewModel vm, _, _, _, _, _, _) = Create(catalogMock: catalog);
+        (DownloadPageViewModel vm, _, _, _, _, _) = Create(catalogMock: catalog);
 
         await vm.RefreshCommand.ExecuteAsync(null);
 
@@ -151,7 +144,7 @@ public sealed class DownloadPageViewModelTests
     {
         GameVersionEntry latest = VersionEntry();
         GameVersionEntry older = VersionEntry("2026.8.13");
-        (DownloadPageViewModel vm, _, _, _, _, _, _) = Create(
+        (DownloadPageViewModel vm, _, _, _, _, _) = Create(
             catalog: new VersionCatalog(1, [latest, older])
         );
 
@@ -166,7 +159,7 @@ public sealed class DownloadPageViewModelTests
     {
         GameVersionEntry latest = VersionEntry("2026.9.5");
         GameVersionEntry beta = VersionEntry("2026.10.0-Beta");
-        (DownloadPageViewModel vm, _, _, _, _, _, _) = Create(
+        (DownloadPageViewModel vm, _, _, _, _, _) = Create(
             catalog: new VersionCatalog(1, [latest, beta])
         );
 
@@ -180,7 +173,7 @@ public sealed class DownloadPageViewModelTests
     public async Task FilteredItems_WithUnmatchedQuery_ReturnsEmpty()
     {
         GameVersionEntry latest = VersionEntry();
-        (DownloadPageViewModel vm, _, _, _, _, _, _) = Create(
+        (DownloadPageViewModel vm, _, _, _, _, _) = Create(
             catalog: new VersionCatalog(1, [latest])
         );
 
@@ -199,7 +192,7 @@ public sealed class DownloadPageViewModelTests
         string password
     )
     {
-        (DownloadPageViewModel vm, _, _, _, _, _, _) = Create();
+        (DownloadPageViewModel vm, _, _, _, _, _) = Create();
 
         SteamLoginOutcome outcome = await vm.LoginAsync(username, password, null);
 
@@ -219,7 +212,7 @@ public sealed class DownloadPageViewModelTests
                 Arg.Any<CancellationToken>()
             )
             .Returns(new SteamLoginOutcome(true, "gamer", null));
-        (DownloadPageViewModel vm, _, _, _, INotificationService notifications, _, _) = Create(
+        (DownloadPageViewModel vm, _, _, _, INotificationService notifications, _) = Create(
             loginMock: login
         );
 
@@ -243,7 +236,7 @@ public sealed class DownloadPageViewModelTests
                 Arg.Any<CancellationToken>()
             )
             .Returns(new SteamLoginOutcome(false, null, "bad password"));
-        (DownloadPageViewModel vm, _, _, _, INotificationService notifications, _, _) = Create(
+        (DownloadPageViewModel vm, _, _, _, INotificationService notifications, _) = Create(
             loginMock: login
         );
 
@@ -263,7 +256,7 @@ public sealed class DownloadPageViewModelTests
         login
             .LoginWithQrAsync(Arg.Any<IProgress<string>?>(), Arg.Any<CancellationToken>())
             .Returns(new SteamLoginOutcome(true, "knight", null));
-        (DownloadPageViewModel vm, _, _, _, INotificationService notifications, _, _) = Create(
+        (DownloadPageViewModel vm, _, _, _, INotificationService notifications, _) = Create(
             loginMock: login
         );
 
@@ -281,7 +274,7 @@ public sealed class DownloadPageViewModelTests
         login
             .LoginWithQrAsync(Arg.Any<IProgress<string>?>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromException<SteamLoginOutcome>(new OperationCanceledException()));
-        (DownloadPageViewModel vm, _, _, _, INotificationService notifications, _, _) = Create(
+        (DownloadPageViewModel vm, _, _, _, INotificationService notifications, _) = Create(
             loginMock: login
         );
 
@@ -298,7 +291,7 @@ public sealed class DownloadPageViewModelTests
     public void Logout_ClearsAccountInStoreAndViewModel()
     {
         FakeStore store = new(new LauncherState(1, null, "gamer", []));
-        (DownloadPageViewModel vm, _, _, _, _, _, _) = Create(store: store);
+        (DownloadPageViewModel vm, _, _, _, _, _) = Create(store: store);
 
         vm.Logout();
 
@@ -309,7 +302,7 @@ public sealed class DownloadPageViewModelTests
     [Fact]
     public async Task InstallAsync_WithoutAccount_ReturnsFailure()
     {
-        (DownloadPageViewModel vm, _, _, _, _, _, _) = Create();
+        (DownloadPageViewModel vm, _, _, _, _, _) = Create();
 
         GameInstallResult result = await vm.InstallAsync(VersionEntry(), "A");
 
@@ -322,7 +315,7 @@ public sealed class DownloadPageViewModelTests
     [InlineData("   ")]
     public async Task InstallAsync_WithBlankName_ReturnsFailure(string name)
     {
-        (DownloadPageViewModel vm, _, _, _, _, _, _) = Create(
+        (DownloadPageViewModel vm, _, _, _, _, _) = Create(
             state: new LauncherState(1, null, "gamer", [])
         );
 
@@ -345,7 +338,7 @@ public sealed class DownloadPageViewModelTests
                 Arg.Any<CancellationToken>()
             )
             .Returns(new GameInstallResult(true, "done"));
-        (DownloadPageViewModel vm, _, _, _, INotificationService notifications, _, _) = Create(
+        (DownloadPageViewModel vm, _, _, _, INotificationService notifications, _) = Create(
             state: new LauncherState(1, null, "gamer", []),
             coordinatorMock: coordinator
         );
@@ -377,7 +370,7 @@ public sealed class DownloadPageViewModelTests
                 Arg.Any<CancellationToken>()
             )
             .Returns(new GameInstallResult(false, "dl boom"));
-        (DownloadPageViewModel vm, _, _, _, INotificationService notifications, _, _) = Create(
+        (DownloadPageViewModel vm, _, _, _, INotificationService notifications, _) = Create(
             state: new LauncherState(1, null, "gamer", []),
             coordinatorMock: coordinator
         );
@@ -389,118 +382,20 @@ public sealed class DownloadPageViewModelTests
         notifications.Received(1).Notify("dl boom", null, NotificationSeverity.Error);
     }
 
-    [Fact]
-    public void Ctor_WhenDepotDownloaderInstalled_ReflectsStatus()
-    {
-        IDepotDownloaderProvisioner provisioner = Substitute.For<IDepotDownloaderProvisioner>();
-        provisioner.IsInstalled().Returns(true);
-        (DownloadPageViewModel vm, _, _, _, _, _, _) = Create(provisionerMock: provisioner);
-
-        Assert.True(vm.IsDepotDownloaderInstalled);
-        Assert.Equal("已安装", vm.DepotDownloaderInstallButtonText);
-        Assert.False(vm.CanInstallDepotDownloader);
-    }
-
-    [Fact]
-    public void Ctor_WhenDepotDownloaderMissing_ReflectsStatus()
-    {
-        IDepotDownloaderProvisioner provisioner = Substitute.For<IDepotDownloaderProvisioner>();
-        provisioner.IsInstalled().Returns(false);
-        (DownloadPageViewModel vm, _, _, _, _, _, _) = Create(provisionerMock: provisioner);
-
-        Assert.False(vm.IsDepotDownloaderInstalled);
-        Assert.Equal("安装", vm.DepotDownloaderInstallButtonText);
-        Assert.True(vm.CanInstallDepotDownloader);
-    }
-
-    [Fact]
-    public async Task InstallDepotDownloaderAsync_WhenSucceeded_UpdatesInstalledFlag()
-    {
-        IDepotDownloaderProvisioner provisioner = Substitute.For<IDepotDownloaderProvisioner>();
-        provisioner.IsInstalled().Returns(false, true);
-        provisioner
-            .EnsureAsync(Arg.Any<IProgress<DownloadProgressInfo>?>(), Arg.Any<CancellationToken>())
-            .Returns(
-                new DepotDownloaderEnsureResult(true, "DepotDownloader 已下载并就绪。", "dd.exe")
-            );
-        (DownloadPageViewModel vm, _, _, _, INotificationService notifications, _, _) = Create(
-            provisionerMock: provisioner
-        );
-
-        DepotDownloaderEnsureResult result = await vm.InstallDepotDownloaderAsync();
-
-        Assert.True(result.IsSuccess);
-        Assert.True(vm.IsDepotDownloaderInstalled);
-        Assert.False(vm.IsBusy);
-        notifications
-            .Received(1)
-            .Notify("DepotDownloader 已下载并就绪。", null, NotificationSeverity.Success);
-        await provisioner
-            .Received(1)
-            .EnsureAsync(Arg.Any<IProgress<DownloadProgressInfo>?>(), Arg.Any<CancellationToken>());
-    }
-
-    [Fact]
-    public async Task InstallDepotDownloaderAsync_WhenFailed_KeepsNotInstalled()
-    {
-        IDepotDownloaderProvisioner provisioner = Substitute.For<IDepotDownloaderProvisioner>();
-        provisioner.IsInstalled().Returns(false);
-        provisioner
-            .EnsureAsync(Arg.Any<IProgress<DownloadProgressInfo>?>(), Arg.Any<CancellationToken>())
-            .Returns(
-                new DepotDownloaderEnsureResult(false, "下载 DepotDownloader 失败：boom", null)
-            );
-        (DownloadPageViewModel vm, _, _, _, INotificationService notifications, _, _) = Create(
-            provisionerMock: provisioner
-        );
-
-        DepotDownloaderEnsureResult result = await vm.InstallDepotDownloaderAsync();
-
-        Assert.False(result.IsSuccess);
-        Assert.False(vm.IsDepotDownloaderInstalled);
-        Assert.Contains("boom", vm.StatusMessage, StringComparison.Ordinal);
-        notifications
-            .Received(1)
-            .Notify("下载 DepotDownloader 失败：boom", null, NotificationSeverity.Error);
-    }
-
-    [Fact]
-    public async Task InstallDepotDownloaderAsync_WhenCanceled_ReturnsFailureWithoutToast()
-    {
-        IDepotDownloaderProvisioner provisioner = Substitute.For<IDepotDownloaderProvisioner>();
-        provisioner.IsInstalled().Returns(false);
-        provisioner
-            .EnsureAsync(Arg.Any<IProgress<DownloadProgressInfo>?>(), Arg.Any<CancellationToken>())
-            .Returns<DepotDownloaderEnsureResult>(_ => throw new OperationCanceledException());
-        (DownloadPageViewModel vm, _, _, _, INotificationService notifications, _, _) = Create(
-            provisionerMock: provisioner
-        );
-
-        DepotDownloaderEnsureResult result = await vm.InstallDepotDownloaderAsync();
-
-        Assert.False(result.IsSuccess);
-        Assert.False(vm.IsDepotDownloaderInstalled);
-        notifications
-            .DidNotReceive()
-            .Notify(Arg.Any<string>(), Arg.Any<string?>(), Arg.Any<NotificationSeverity>());
-    }
-
     private static (
         DownloadPageViewModel Vm,
         FakeStore Store,
         IGameVersionCatalog Catalog,
         ISteamLoginManager Login,
         INotificationService Notifications,
-        IDownloadCoordinator Coordinator,
-        IDepotDownloaderProvisioner Provisioner
+        IDownloadCoordinator Coordinator
     ) Create(
         VersionCatalog? catalog = null,
         LauncherState? state = null,
         FakeStore? store = null,
         IGameVersionCatalog? catalogMock = null,
         ISteamLoginManager? loginMock = null,
-        IDownloadCoordinator? coordinatorMock = null,
-        IDepotDownloaderProvisioner? provisionerMock = null
+        IDownloadCoordinator? coordinatorMock = null
     )
     {
         FakeStore target = store ?? new FakeStore(state ?? LauncherState.Empty);
@@ -515,27 +410,16 @@ public sealed class DownloadPageViewModelTests
         ISteamLoginManager loginTarget = loginMock ?? Substitute.For<ISteamLoginManager>();
         IDownloadCoordinator coordinatorTarget =
             coordinatorMock ?? Substitute.For<IDownloadCoordinator>();
-        IDepotDownloaderProvisioner provisionerTarget =
-            provisionerMock ?? Substitute.For<IDepotDownloaderProvisioner>();
         INotificationService notifications = Substitute.For<INotificationService>();
         DownloadPageViewModel vm = new(
             target,
             catalogTarget,
             loginTarget,
             coordinatorTarget,
-            provisionerTarget,
             notifications,
             TestStrings.Instance
         );
-        return (
-            vm,
-            target,
-            catalogTarget,
-            loginTarget,
-            notifications,
-            coordinatorTarget,
-            provisionerTarget
-        );
+        return (vm, target, catalogTarget, loginTarget, notifications, coordinatorTarget);
     }
 
     private static GameVersionEntry VersionEntry(string label = "2026.9.5") =>

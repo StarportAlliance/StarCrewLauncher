@@ -9,10 +9,3 @@ using System.Diagnostics.CodeAnalysis;
     Scope = "member",
     Target = "~M:StarCrew.Launcher.Tests.Services.GameVersionCatalogTests.CreateClient(System.Func{System.Net.Http.HttpRequestMessage,System.Net.Http.HttpResponseMessage})"
 )]
-[assembly: SuppressMessage(
-    "Reliability",
-    "CA2000:DisposeObjectsBeforeLosingScope",
-    Justification = "测试替身 handler 随 HttpClient 一起释放，无泄漏。",
-    Scope = "member",
-    Target = "~M:StarCrew.Launcher.Tests.Services.DepotDownloaderProvisionerTests.CreateClient(System.Func{System.Net.Http.HttpRequestMessage,System.Net.Http.HttpResponseMessage})"
-)]

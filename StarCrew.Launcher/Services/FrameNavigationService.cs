@@ -80,12 +80,7 @@ internal sealed class FrameNavigationService : INavigationService
         NavigationTransitionInfo? transitionInfo
     )
     {
-        if (
-            target
-            is NavigationTarget.Appearance
-                or NavigationTarget.Network
-                or NavigationTarget.About
-        )
+        if (target is NavigationTarget.Appearance or NavigationTarget.About)
         {
             if (_sectionFrame is null)
             {
@@ -203,7 +198,6 @@ internal sealed class FrameNavigationService : INavigationService
             NavigationTarget.Download => (typeof(DownloadPage), typeof(DownloadPageViewModel)),
             NavigationTarget.Install => (typeof(DownloadInstallPage), null),
             NavigationTarget.Appearance => (typeof(AppearancePage), typeof(AppearanceViewModel)),
-            NavigationTarget.Network => (typeof(NetworkPage), typeof(NetworkViewModel)),
             NavigationTarget.About => (typeof(AboutPage), typeof(AboutViewModel)),
             _ => throw new ArgumentOutOfRangeException(nameof(target), target, "未知的导航目标。"),
         };
@@ -217,7 +211,6 @@ internal sealed class FrameNavigationService : INavigationService
             _ when pageType == typeof(DownloadPage) => NavigationTarget.Download,
             _ when pageType == typeof(DownloadInstallPage) => NavigationTarget.Install,
             _ when pageType == typeof(AppearancePage) => NavigationTarget.Appearance,
-            _ when pageType == typeof(NetworkPage) => NavigationTarget.Network,
             _ when pageType == typeof(AboutPage) => NavigationTarget.About,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(pageType),

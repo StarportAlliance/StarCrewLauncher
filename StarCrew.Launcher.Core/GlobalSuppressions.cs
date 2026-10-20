@@ -103,20 +103,6 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage(
     "Design",
     "CA1031:DoNotCatchGeneralExceptionTypes",
-    Justification = "工具下载失败时转失败结果回显，不崩。",
-    Scope = "member",
-    Target = "~M:StarCrew.Launcher.Services.DepotDownloaderProvisioner.EnsureAsync(System.IProgress{StarCrew.Launcher.Models.DownloadProgressInfo},System.Threading.CancellationToken)"
-)]
-[assembly: SuppressMessage(
-    "Design",
-    "CA1031:DoNotCatchGeneralExceptionTypes",
-    Justification = "临时目录清理失败不影响主流程。",
-    Scope = "member",
-    Target = "~M:StarCrew.Launcher.Services.DepotDownloaderProvisioner.TryDeleteTempDirectory(System.String)"
-)]
-[assembly: SuppressMessage(
-    "Design",
-    "CA1031:DoNotCatchGeneralExceptionTypes",
     Justification = "下载失败时转失败结果回显，不崩。",
     Scope = "member",
     Target = "~M:StarCrew.Launcher.Services.DownloadCoordinator.InstallAsync(System.String,StarCrew.Launcher.Models.GameVersionEntry,System.IProgress{StarCrew.Launcher.Models.DownloadProgressInfo},System.Threading.CancellationToken)"
