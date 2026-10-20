@@ -47,10 +47,25 @@
                             x:Name="CustomPrefixCard"
                             x:Uid="Network_CustomPrefixCard"
                         >
+                            <controls:SettingsCard.Description>
+                                <StackPanel>
+                                    <TextBlock
+                                        x:Uid="Network_CustomPrefixHelp"
+                                        TextWrapping="Wrap"
+                                        Visibility="{x:Bind ViewModel.CustomPrefixHelpVisible, Mode=OneWay}"
+                                    />
+                                    <TextBlock
+                                        x:Uid="Network_CustomPrefixInvalid"
+                                        Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                        TextWrapping="Wrap"
+                                        Visibility="{x:Bind ViewModel.CustomPrefixErrorVisible, Mode=OneWay}"
+                                    />
+                                </StackPanel>
+                            </controls:SettingsCard.Description>
                             <TextBox
                                 x:Uid="Network_CustomPrefixBox"
                                 Width="240"
-                                Text="{x:Bind ViewModel.CustomPrefix, Mode=TwoWay}"
+                                Text="{x:Bind ViewModel.CustomPrefix, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             />
                         </controls:SettingsCard>
 

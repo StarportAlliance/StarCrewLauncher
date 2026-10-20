@@ -69,9 +69,9 @@ public sealed class NetworkViewModelTests
 
     [Theory]
     [InlineData(0, "官方直连")]
-    [InlineData(1, "gh-proxy.org（第三方加速）")]
-    [InlineData(2, "自定义前缀")]
-    [InlineData(99, "自定义前缀")]
+    [InlineData(1, "第三方加速")]
+    [InlineData(2, "自定义")]
+    [InlineData(99, "自定义")]
     public void SelectedOptionText_FollowsSelectedIndex(int index, string expected)
     {
         INetworkSettings settings = Substitute.For<INetworkSettings>();
@@ -90,5 +90,104 @@ public sealed class NetworkViewModelTests
         };
 
         Assert.Equal("https://acc.example.com", settings.CustomPrefix);
+    }
+
+    [Theory]
+    [InlineData("https://acc.example.com")]
+    [InlineData("https://acc.example.com/path")]
+    [InlineData("https://acc.example.com:8443")]
+    public void CustomPrefix_WhenValid_PersistsValue(string prefix)
+    {
+        INetworkSettings settings = Substitute.For<INetworkSettings>();
+        NetworkViewModel vm = new(settings, TestStrings.Instance)
+        {
+            SelectedIndex = 2,
+            CustomPrefix = prefix,
+        };
+
+        Assert.Equal(prefix, settings.CustomPrefix);
+        Assert.True(vm.CustomPrefixErrorVisible is false);
+    }
+
+    [Theory]
+    [InlineData("http://acc.example.com")]
+    [InlineData("acc.example.com")]
+    [InlineData("https://")]
+    [InlineData("ftp://acc.example.com")]
+    public void CustomPrefix_WhenInvalid_KeepsLastValidValueInSettings(string prefix)
+    {
+        INetworkSettings settings = Substitute.For<INetworkSettings>();
+        NetworkViewModel vm = new(settings, TestStrings.Instance)
+        {
+            SelectedIndex = 2,
+            CustomPrefix = "https://acc.example.com",
+        };
+
+        vm.CustomPrefix = prefix;
+
+        Assert.Equal("https://acc.example.com", settings.CustomPrefix);
+        Assert.True(vm.CustomPrefixErrorVisible);
+    }
+
+    [Fact]
+    public void CustomPrefix_WhenEmpty_IsValidAndClearsSettings()
+    {
+        INetworkSettings settings = Substitute.For<INetworkSettings>();
+        NetworkViewModel vm = new(settings, TestStrings.Instance)
+        {
+            SelectedIndex = 2,
+            CustomPrefix = "https://acc.example.com",
+        };
+
+        vm.CustomPrefix = string.Empty;
+
+        Assert.Equal(string.Empty, settings.CustomPrefix);
+        Assert.False(vm.CustomPrefixErrorVisible);
+    }
+
+    [Fact]
+    public void CustomPrefix_TrimsSurroundingWhitespace()
+    {
+        INetworkSettings settings = Substitute.For<INetworkSettings>();
+        NetworkViewModel vm = new(settings, TestStrings.Instance) { SelectedIndex = 2 };
+
+        vm.CustomPrefix = "  https://acc.example.com  ";
+
+        Assert.Equal("https://acc.example.com", vm.CustomPrefix);
+        Assert.Equal("https://acc.example.com", settings.CustomPrefix);
+    }
+
+    [Fact]
+    public void CustomPrefixErrorVisible_OnlyWhenCustomSelected()
+    {
+        INetworkSettings settings = Substitute.For<INetworkSettings>();
+        NetworkViewModel vm = new(settings, TestStrings.Instance)
+        {
+            SelectedIndex = 2,
+            CustomPrefix = "not-a-url",
+        };
+
+        Assert.True(vm.CustomPrefixErrorVisible);
+
+        vm.SelectedIndex = 0;
+
+        Assert.False(vm.CustomPrefixErrorVisible);
+        Assert.True(vm.CustomPrefixHelpVisible);
+    }
+
+    [Fact]
+    public void PreviewText_WhenInvalidInput_KeepsLastValidPreview()
+    {
+        INetworkSettings settings = Substitute.For<INetworkSettings>();
+        NetworkViewModel vm = new(settings, TestStrings.Instance)
+        {
+            SelectedIndex = 2,
+            CustomPrefix = "https://acc.example.com",
+        };
+        string valid = vm.PreviewText;
+
+        vm.CustomPrefix = "not-a-url";
+
+        Assert.Equal(valid, vm.PreviewText);
     }
 }

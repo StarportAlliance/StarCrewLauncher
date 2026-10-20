@@ -205,11 +205,21 @@ internal sealed class DepotDownloaderProvisioner : IDepotDownloaderProvisioner
         return _networkSettings.Accelerator switch
         {
             DownloadAccelerator.GhProxy => $"https://gh-proxy.org/{official}",
-            DownloadAccelerator.Custom => string.IsNullOrWhiteSpace(_networkSettings.CustomPrefix)
-                ? official
-                : $"{_networkSettings.CustomPrefix.TrimEnd('/')}/{official}",
+            DownloadAccelerator.Custom => BuildCustomUrl(official),
             _ => official,
         };
+    }
+
+    private string BuildCustomUrl(string official)
+    {
+        string prefix = _networkSettings.CustomPrefix.Trim();
+        if (prefix.Length == 0)
+        {
+            return official;
+        }
+
+        // 设置里的前缀可能是旧版本写入的非法值，回退官方直连而不是拼出坏地址。
+        return HttpsPrefix.IsValid(prefix) ? $"{prefix.TrimEnd('/')}/{official}" : official;
     }
 
     private static (string AssetName, string Sha256) SelectForCurrentPlatform() =>
