@@ -125,7 +125,7 @@ public sealed partial class DownloadBasePage : Page
         {
             Width = 40,
             Height = 40,
-            CornerRadius = new CornerRadius(8),
+            CornerRadius = new CornerRadius(4),
             Background = new ImageBrush
             {
                 ImageSource = new BitmapImage(new Uri("ms-appx:///Assets/AmongUs.png")),
