@@ -112,7 +112,7 @@ public sealed class AboutViewModelTests
         notifications
             .Received(1)
             .Notify(
-                "当前为开发运行，未经安装，跳过更新检查。",
+                "开发版本不支持更新服务。",
                 null,
                 NotificationSeverity.Informational
             );

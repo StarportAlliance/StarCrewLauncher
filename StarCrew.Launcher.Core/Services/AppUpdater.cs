@@ -66,7 +66,7 @@ internal sealed class AppUpdater
             return new UpdateCheckResult(
                 UpdateState.NotInstalled,
                 null,
-                _strings.GetString("Update_NotInstalledCheck")
+                _strings.GetString("Update_DevRunSkip")
             );
         }
         catch (Exception ex)
@@ -93,7 +93,7 @@ internal sealed class AppUpdater
             return new UpdateCheckResult(
                 UpdateState.NotInstalled,
                 null,
-                _strings.GetString("Update_NotInstalledDownload")
+                _strings.GetString("Update_DevRunSkip")
             );
         }
 

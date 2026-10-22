@@ -324,10 +324,10 @@
     <value>登出</value>
   </data>
   <data name="Account_LogoutConfirm.Text" xml:space="preserve">
-    <value>确定要退出登录吗？</value>
+    <value>确定要退出登录吗？该操作不可撤销。</value>
   </data>
   <data name="Account_LogoutButton.Content" xml:space="preserve">
-    <value>退出登录</value>
+    <value>确定</value>
   </data>
   <data name="Account_PrivacyNote.Text" xml:space="preserve">
     <value>下载功能本身通过 Steam 网络进行，我们需要通过您的登录凭据才可请求 Steam 下载游戏。&#10;（但这不需要您的 Steam 客户端保持在线，我们不依赖它）</value>
@@ -475,28 +475,22 @@
 
   <!-- 应用更新 -->
   <data name="Update_DevRunSkip" xml:space="preserve">
-    <value>当前为开发运行，未经安装，跳过更新检查。</value>
+    <value>开发版本不支持更新服务。</value>
   </data>
   <data name="Update_UnknownVersion" xml:space="preserve">
     <value>未知</value>
   </data>
   <data name="Update_UpToDateFormat" xml:space="preserve">
-    <value>已是最新版本（{0}）。</value>
+    <value>当前已是最新版本。</value>
   </data>
   <data name="Update_AvailableFormat" xml:space="preserve">
-    <value>发现新版本 {0}。</value>
-  </data>
-  <data name="Update_NotInstalledCheck" xml:space="preserve">
-    <value>当前未经 Velopack 安装，无法检查更新。</value>
+    <value>发现新版本 {0}！</value>
   </data>
   <data name="Update_CheckFailedFormat" xml:space="preserve">
     <value>检查更新失败：{0}</value>
   </data>
-  <data name="Update_NotInstalledDownload" xml:space="preserve">
-    <value>当前未经 Velopack 安装，无法下载更新。</value>
-  </data>
   <data name="Update_DownloadedFormat" xml:space="preserve">
-    <value>已下载新版本 {0}，重启后生效。</value>
+    <value>版本更新完成，重启后生效。</value>
   </data>
   <data name="Update_DownloadFailedFormat" xml:space="preserve">
     <value>下载更新失败：{0}</value>
