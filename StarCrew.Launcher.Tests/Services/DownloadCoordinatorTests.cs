@@ -427,7 +427,7 @@ public sealed class DownloadCoordinatorTests : IDisposable
         new(new LauncherState(1, null, account, []));
 
     private static GameVersionEntry VersionEntry() =>
-        new("2026.9.5", 990035194164819049L, DateTimeOffset.UtcNow, [], false);
+        new("2026.9.5", 990035194164819049L, DateTimeOffset.UtcNow, []);
 
     private sealed class FakeStore : IInstanceStore
     {

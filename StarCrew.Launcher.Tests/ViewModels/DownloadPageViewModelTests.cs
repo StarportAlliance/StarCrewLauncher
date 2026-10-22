@@ -423,7 +423,7 @@ public sealed class DownloadPageViewModelTests
     }
 
     private static GameVersionEntry VersionEntry(string label = "2026.9.5") =>
-        new(label, 990035194164819049L, DateTimeOffset.UtcNow, [], false);
+        new(label, 990035194164819049L, DateTimeOffset.UtcNow, []);
 
     private sealed class FakeStore(LauncherState state) : IInstanceStore
     {

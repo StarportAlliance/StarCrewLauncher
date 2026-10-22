@@ -87,16 +87,6 @@ public sealed partial class DownloadBasePage : Page
                 VerticalAlignment = VerticalAlignment.Center,
             }
         );
-        if (entry.Unavailable)
-        {
-            titleRow.Children.Add(
-                new InfoBadge
-                {
-                    Style = (Style)Resources["TagInfoBadgeStyle"],
-                    Tag = _strings.GetString("DownloadBase_UnavailableBadge"),
-                }
-            );
-        }
         foreach (string tag in entry.Tags)
         {
             titleRow.Children.Add(
@@ -153,7 +143,6 @@ public sealed partial class DownloadBasePage : Page
             },
             Padding = new Thickness(12),
             IsClickEnabled = true,
-            IsEnabled = !entry.Unavailable,
             ActionIcon = new FontIcon { Glyph = "\uE76C" },
             ActionIconToolTip = _strings.GetString("Common_Install"),
         };

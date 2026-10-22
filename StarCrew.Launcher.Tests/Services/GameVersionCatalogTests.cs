@@ -23,18 +23,18 @@ public sealed class GameVersionCatalogTests : IDisposable
     }
 
     [Fact]
-    public async Task LoadAsync_WithRemoteJson_ReturnsRemoteAndWritesCache()
+    public async Task LoadAsync_WithRemoteJsonc_ReturnsRemoteAndWritesCache()
     {
         const string remote = """
             {
-              "version": 7,
+              // 模式版本
+              "version": 1.1,
               "versions": [
                 {
                   "versionLabel": "2099.1.1",
                   "manifestId": 123,
                   "publishedAt": "2099-01-01T00:00:00+00:00",
-                  "tags": ["最新"],
-                  "unavailable": false
+                  "tags": ["最新"]
                 }
               ]
             }
@@ -44,18 +44,18 @@ public sealed class GameVersionCatalogTests : IDisposable
 
         VersionCatalog result = await catalog.LoadAsync();
 
-        Assert.Equal(7, result.Version);
+        Assert.Equal(1.1m, result.Version);
         Assert.Single(result.Versions);
         Assert.Equal("2099.1.1", result.Versions[0].VersionLabel);
         Assert.Equal(123L, result.Versions[0].ManifestId);
-        Assert.True(File.Exists(Path.Combine(_cacheDir, "versions.json")));
+        Assert.True(File.Exists(Path.Combine(_cacheDir, "versions.jsonc")));
     }
 
     [Fact]
     public async Task LoadAsync_WithRemoteFailure_FallsBackToCache()
     {
         await File.WriteAllTextAsync(
-            Path.Combine(_cacheDir, "versions.json"),
+            Path.Combine(_cacheDir, "versions.jsonc"),
             """
             {
               "version": 3,
@@ -64,8 +64,7 @@ public sealed class GameVersionCatalogTests : IDisposable
                   "versionLabel": "cached",
                   "manifestId": 456,
                   "publishedAt": "2026-01-01T00:00:00+00:00",
-                  "tags": [],
-                  "unavailable": true
+                  "tags": []
                 }
               ]
             }
@@ -76,17 +75,16 @@ public sealed class GameVersionCatalogTests : IDisposable
 
         VersionCatalog result = await catalog.LoadAsync();
 
-        Assert.Equal(3, result.Version);
+        Assert.Equal(3m, result.Version);
         Assert.Single(result.Versions);
         Assert.Equal("cached", result.Versions[0].VersionLabel);
-        Assert.True(result.Versions[0].Unavailable);
     }
 
     [Fact]
     public async Task LoadAsync_WithInvalidRemoteJson_FallsBackToCache()
     {
         await File.WriteAllTextAsync(
-            Path.Combine(_cacheDir, "versions.json"),
+            Path.Combine(_cacheDir, "versions.jsonc"),
             """{"version": 5, "versions": []}"""
         );
         using HttpClient http = CreateClient(_ => Ok("{ not json"));
@@ -94,7 +92,7 @@ public sealed class GameVersionCatalogTests : IDisposable
 
         VersionCatalog result = await catalog.LoadAsync();
 
-        Assert.Equal(5, result.Version);
+        Assert.Equal(5m, result.Version);
         Assert.Empty(result.Versions);
     }
 
@@ -114,7 +112,7 @@ public sealed class GameVersionCatalogTests : IDisposable
     [Fact]
     public async Task LoadAsync_WithCorruptCache_ThrowsFailure()
     {
-        await File.WriteAllTextAsync(Path.Combine(_cacheDir, "versions.json"), "{ corrupt");
+        await File.WriteAllTextAsync(Path.Combine(_cacheDir, "versions.jsonc"), "{ corrupt");
         using HttpClient http = CreateClient(_ => NotFound());
         GameVersionCatalog catalog = new(http, _cacheDir, TestStrings.Instance);
 

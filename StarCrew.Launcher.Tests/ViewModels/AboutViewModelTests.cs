@@ -78,9 +78,7 @@ public sealed class AboutViewModelTests
 
         await vm.CheckUpdateCommand.ExecuteAsync(null);
 
-        notifications
-            .Received(1)
-            .Notify("已是最新版本（0.3.0）。", null, NotificationSeverity.Success);
+        notifications.Received(1).Notify("当前已是最新版本。", null, NotificationSeverity.Success);
     }
 
     [Fact]
@@ -111,11 +109,7 @@ public sealed class AboutViewModelTests
 
         notifications
             .Received(1)
-            .Notify(
-                "开发版本不支持更新服务。",
-                null,
-                NotificationSeverity.Informational
-            );
+            .Notify("开发版本不支持更新服务。", null, NotificationSeverity.Informational);
     }
 
     [Fact]

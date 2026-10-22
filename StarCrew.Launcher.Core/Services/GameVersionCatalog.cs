@@ -5,13 +5,16 @@ namespace StarCrew.Launcher.Services;
 
 internal sealed class GameVersionCatalog : IGameVersionCatalog
 {
-    private const string CatalogUrl = "https://asset.stcrew.app/versions.json";
+    private const string CatalogUrl = "https://asset.stcrew.app/versions.jsonc";
+
+    private const string CacheFileName = "versions.jsonc";
 
     private static readonly Uri CatalogUri = new(CatalogUrl, UriKind.Absolute);
 
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNameCaseInsensitive = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
     };
 
     private readonly HttpClient _http;
@@ -73,7 +76,7 @@ internal sealed class GameVersionCatalog : IGameVersionCatalog
     {
         try
         {
-            string cacheFile = Path.Combine(_cacheDirectory, "versions.json");
+            string cacheFile = Path.Combine(_cacheDirectory, CacheFileName);
             if (!File.Exists(cacheFile))
             {
                 return null;
@@ -97,7 +100,7 @@ internal sealed class GameVersionCatalog : IGameVersionCatalog
         try
         {
             Directory.CreateDirectory(_cacheDirectory);
-            string cacheFile = Path.Combine(_cacheDirectory, "versions.json");
+            string cacheFile = Path.Combine(_cacheDirectory, CacheFileName);
             await File.WriteAllTextAsync(cacheFile, json, cancellationToken);
         }
         catch (OperationCanceledException)

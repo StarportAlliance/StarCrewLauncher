@@ -5,6 +5,5 @@ internal sealed record GameVersionEntry(
     string VersionLabel,
     long ManifestId,
     DateTimeOffset PublishedAt,
-    IReadOnlyList<string> Tags,
-    bool Unavailable
+    IReadOnlyList<string> Tags
 );
