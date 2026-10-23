@@ -20,6 +20,9 @@
                     />
 
                     <controls:SettingsCard x:Uid="Install_InstanceNameCard">
+                        <controls:SettingsCard.HeaderIcon>
+                            <FontIcon Glyph="&#xE8EC;" />
+                        </controls:SettingsCard.HeaderIcon>
                         <TextBox
                             x:Uid="Install_InstanceNameBox"
                             Width="360"
@@ -33,12 +36,19 @@
 
         <Grid Grid.Row="1" Padding="24,8,24,16">
             <Button
-                x:Uid="Install_StartButton"
-                HorizontalAlignment="Right"
+                Width="240"
+                Height="48"
+                HorizontalAlignment="Center"
                 Click="InstallButton_Click"
+                FontSize="18"
                 IsEnabled="{x:Bind ViewModel.CanStartInstall, Mode=OneWay}"
                 Style="{StaticResource AccentButtonStyle}"
-            />
+            >
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE896;" />
+                    <TextBlock x:Uid="Install_StartButton" />
+                </StackPanel>
+            </Button>
         </Grid>
     </Grid>
 </Page>

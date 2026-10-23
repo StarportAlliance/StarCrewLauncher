@@ -403,7 +403,7 @@
   <data name="Install_InstanceNameBox.PlaceholderText" xml:space="preserve">
     <value>实例名称</value>
   </data>
-  <data name="Install_StartButton.Content" xml:space="preserve">
+  <data name="Install_StartButton.Text" xml:space="preserve">
     <value>开始安装</value>
   </data>
   <data name="Install_DialogTitleFormat" xml:space="preserve">
