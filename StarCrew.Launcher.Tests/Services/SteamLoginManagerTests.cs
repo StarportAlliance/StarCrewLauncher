@@ -90,7 +90,7 @@ public sealed class SteamLoginManagerTests : IDisposable
         SteamLoginOutcome outcome = await manager.LoginAsync("user", "pw", null);
 
         Assert.False(outcome.IsSuccess);
-        Assert.Contains("组件", outcome.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal(TestStrings.Instance.GetString("Dd_Missing"), outcome.ErrorMessage);
     }
 
     [Fact]
@@ -101,7 +101,7 @@ public sealed class SteamLoginManagerTests : IDisposable
         SteamLoginOutcome outcome = await manager.LoginWithQrAsync();
 
         Assert.False(outcome.IsSuccess);
-        Assert.Contains("组件", outcome.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal(TestStrings.Instance.GetString("Dd_Missing"), outcome.ErrorMessage);
     }
 
     [Fact]
@@ -181,7 +181,10 @@ public sealed class SteamLoginManagerTests : IDisposable
         SteamLoginOutcome outcome = await manager.LoginAsync("gamer", "pw", null);
 
         Assert.False(outcome.IsSuccess);
-        Assert.Contains("3", outcome.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal(
+            TestStrings.Instance.Format("Login_FailedExitCodeFormat", 3),
+            outcome.ErrorMessage
+        );
     }
 
     [Fact]
@@ -233,7 +236,10 @@ public sealed class SteamLoginManagerTests : IDisposable
         SteamLoginOutcome outcome = await manager.LoginWithQrAsync();
 
         Assert.False(outcome.IsSuccess);
-        Assert.Contains("无法解析账号名", outcome.ErrorMessage, StringComparison.Ordinal);
+        Assert.Equal(
+            TestStrings.Instance.GetString("Login_AccountNameParseFailed"),
+            outcome.ErrorMessage
+        );
         Assert.Null(store.Current.SteamAccountName);
     }
 

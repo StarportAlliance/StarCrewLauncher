@@ -78,7 +78,7 @@ public sealed class InstanceLauncherTests : IDisposable
         LaunchOutcome outcome = await launcher.LaunchAsync(instance);
 
         Assert.False(outcome.IsSuccess);
-        Assert.Equal("该实例尚未就绪，请先完成安装。", outcome.Message);
+        Assert.Equal(TestStrings.Instance.GetString("Launch_NotReady"), outcome.Message);
         Assert.False(steam.IsSteamRunning());
         starter.DidNotReceiveWithAnyArgs().TryStart(default!, default!, out _);
     }
@@ -96,7 +96,7 @@ public sealed class InstanceLauncherTests : IDisposable
         LaunchOutcome outcome = await launcher.LaunchAsync(instance);
 
         Assert.False(outcome.IsSuccess);
-        Assert.Equal("未找到游戏文件，请重新下载或修复该实例。", outcome.Message);
+        Assert.Equal(TestStrings.Instance.GetString("Launch_GameFileMissing"), outcome.Message);
     }
 
     [Fact]
@@ -113,7 +113,7 @@ public sealed class InstanceLauncherTests : IDisposable
         LaunchOutcome outcome = await launcher.LaunchAsync(instance);
 
         Assert.True(outcome.IsSuccess);
-        Assert.Equal("已启动。", outcome.Message);
+        Assert.Equal(TestStrings.Instance.GetString("Launch_Started"), outcome.Message);
     }
 
     [Fact]

@@ -67,7 +67,11 @@ public sealed class InstanceItemViewModelTests
         );
 
         Assert.False(vm.CanLaunch);
-        Assert.Contains("未完成", vm.Summary, StringComparison.Ordinal);
+        Assert.Contains(
+            TestStrings.Instance.GetString("Instances_StateNotReady"),
+            vm.Summary,
+            StringComparison.Ordinal
+        );
     }
 
     [Fact]
@@ -87,7 +91,11 @@ public sealed class InstanceItemViewModelTests
 
         notifications
             .Received(1)
-            .Notify("无法启动：该实例尚未就绪，请先完成安装。", null, NotificationSeverity.Warning);
+            .Notify(
+                TestStrings.Instance.GetString("Instances_NotReadyToLaunch"),
+                null,
+                NotificationSeverity.Warning
+            );
         await launcher.DidNotReceiveWithAnyArgs().LaunchAsync(default!, default);
     }
 
@@ -98,7 +106,7 @@ public sealed class InstanceItemViewModelTests
         IInstanceLauncher launcher = Substitute.For<IInstanceLauncher>();
         launcher
             .LaunchAsync(Arg.Any<GameInstance>(), Arg.Any<CancellationToken>())
-            .Returns(new LaunchOutcome(true, "已启动。"));
+            .Returns(new LaunchOutcome(true, "launched"));
         InstanceItemViewModel vm = new(
             CreateInstance(),
             launcher,
@@ -109,7 +117,7 @@ public sealed class InstanceItemViewModelTests
 
         await vm.LaunchCommand.ExecuteAsync(null);
 
-        notifications.Received(1).Notify("已启动。", null, NotificationSeverity.Success);
+        notifications.Received(1).Notify("launched", null, NotificationSeverity.Success);
     }
 
     [Fact]
@@ -151,7 +159,13 @@ public sealed class InstanceItemViewModelTests
 
         await vm.OpenFolderCommand.ExecuteAsync(null);
 
-        notifications.Received(1).Notify("打开失败：not here", null, NotificationSeverity.Error);
+        notifications
+            .Received(1)
+            .Notify(
+                TestStrings.Instance.Format("Instances_OpenFolderFailedFormat", "not here"),
+                null,
+                NotificationSeverity.Error
+            );
     }
 
     [Fact]

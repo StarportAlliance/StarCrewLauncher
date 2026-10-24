@@ -62,7 +62,7 @@ public sealed class HomeViewModelTests
 
         Assert.Empty(vm.Instances);
         Assert.False(vm.HasInstances);
-        Assert.Equal("下载游戏", vm.LaunchButtonText);
+        Assert.Equal(TestStrings.Instance.GetString("Home_DownloadGame"), vm.LaunchButtonText);
         Assert.Empty(vm.CurrentInstanceName);
     }
 
@@ -76,7 +76,7 @@ public sealed class HomeViewModelTests
 
         Assert.Equal(b, vm.SelectedInstance);
         Assert.Equal("B", vm.CurrentInstanceName);
-        Assert.Equal("启动游戏", vm.LaunchButtonText);
+        Assert.Equal(TestStrings.Instance.GetString("Home_LaunchGame"), vm.LaunchButtonText);
     }
 
     [Fact]
@@ -97,14 +97,14 @@ public sealed class HomeViewModelTests
         IInstanceLauncher launcher = Substitute.For<IInstanceLauncher>();
         launcher
             .LaunchAsync(Arg.Any<GameInstance>(), Arg.Any<CancellationToken>())
-            .Returns(new LaunchOutcome(true, "已启动。"));
+            .Returns(new LaunchOutcome(true, "launched"));
         INavigationService navigation = Substitute.For<INavigationService>();
         INotificationService notifications = Substitute.For<INotificationService>();
         HomeViewModel vm = new(store, launcher, navigation, notifications, TestStrings.Instance);
 
         await vm.LaunchCommand.ExecuteAsync(null);
 
-        notifications.Received(1).Notify("已启动。", null, NotificationSeverity.Success);
+        notifications.Received(1).Notify("launched", null, NotificationSeverity.Success);
         store.Received(1).Save(Arg.Is<LauncherState>(s => s!.LastInstanceId == a.Id));
     }
 

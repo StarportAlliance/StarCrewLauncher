@@ -89,7 +89,7 @@ public sealed class DownloadPageViewModelTests
         (DownloadPageViewModel vm, _, _, _, _, _) = Create();
 
         Assert.Null(vm.AccountName);
-        Assert.Equal("未登录", vm.AccountLabel);
+        Assert.Equal(TestStrings.Instance.GetString("Download_NotLoggedIn"), vm.AccountLabel);
     }
 
     [Fact]
@@ -121,7 +121,10 @@ public sealed class DownloadPageViewModelTests
         await vm.RefreshCommand.ExecuteAsync(null);
 
         Assert.Equal([entry], vm.Items);
-        Assert.Contains("1", vm.StatusMessage, StringComparison.Ordinal);
+        Assert.Equal(
+            TestStrings.Instance.Format("Download_VersionsCountFormat", 1),
+            vm.StatusMessage
+        );
     }
 
     [Fact]
@@ -136,7 +139,10 @@ public sealed class DownloadPageViewModelTests
         await vm.RefreshCommand.ExecuteAsync(null);
 
         Assert.Empty(vm.Items);
-        Assert.Contains("加载失败", vm.StatusMessage, StringComparison.Ordinal);
+        Assert.Equal(
+            TestStrings.Instance.Format("Download_VersionListFailedFormat", "net down"),
+            vm.StatusMessage
+        );
     }
 
     [Fact]
@@ -221,7 +227,13 @@ public sealed class DownloadPageViewModelTests
         Assert.True(outcome.IsSuccess);
         Assert.Equal("gamer", vm.AccountName);
         Assert.False(vm.IsBusy);
-        notifications.Received(1).Notify("已登录：gamer", null, NotificationSeverity.Success);
+        notifications
+            .Received(1)
+            .Notify(
+                TestStrings.Instance.Format("Download_LoggedInFormat", "gamer"),
+                null,
+                NotificationSeverity.Success
+            );
     }
 
     [Fact]
@@ -246,7 +258,11 @@ public sealed class DownloadPageViewModelTests
         Assert.Null(vm.AccountName);
         notifications
             .Received(1)
-            .Notify("登录失败：bad password", null, NotificationSeverity.Error);
+            .Notify(
+                TestStrings.Instance.Format("Download_LoginFailedFormat", "bad password"),
+                null,
+                NotificationSeverity.Error
+            );
     }
 
     [Fact]
@@ -264,7 +280,13 @@ public sealed class DownloadPageViewModelTests
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal("knight", vm.AccountName);
-        notifications.Received(1).Notify("已登录：knight", null, NotificationSeverity.Success);
+        notifications
+            .Received(1)
+            .Notify(
+                TestStrings.Instance.Format("Download_LoggedInFormat", "knight"),
+                null,
+                NotificationSeverity.Success
+            );
     }
 
     [Fact]
@@ -281,7 +303,7 @@ public sealed class DownloadPageViewModelTests
         SteamLoginOutcome outcome = await vm.LoginWithQrAsync();
 
         Assert.False(outcome.IsSuccess);
-        Assert.Equal("已取消。", outcome.ErrorMessage);
+        Assert.Equal(TestStrings.Instance.GetString("Download_Cancelled"), outcome.ErrorMessage);
         notifications
             .DidNotReceive()
             .Notify(Arg.Any<string>(), Arg.Any<string?>(), Arg.Any<NotificationSeverity>());
@@ -307,7 +329,10 @@ public sealed class DownloadPageViewModelTests
         GameInstallResult result = await vm.InstallAsync(VersionEntry(), "A");
 
         Assert.False(result.IsSuccess);
-        Assert.Contains("登录", result.Message, StringComparison.Ordinal);
+        Assert.Equal(
+            TestStrings.Instance.GetString("Download_LoginRequiredForInstall"),
+            result.Message
+        );
     }
 
     [Theory]
@@ -322,7 +347,7 @@ public sealed class DownloadPageViewModelTests
         GameInstallResult result = await vm.InstallAsync(VersionEntry(), name);
 
         Assert.False(result.IsSuccess);
-        Assert.Contains("不能为空", result.Message, StringComparison.Ordinal);
+        Assert.Equal(TestStrings.Instance.GetString("Download_InstanceNameEmpty"), result.Message);
     }
 
     [Fact]

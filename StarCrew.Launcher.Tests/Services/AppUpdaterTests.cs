@@ -62,7 +62,7 @@ public sealed class AppUpdaterTests
 
         Assert.Equal(UpdateState.UpToDate, result.State);
         Assert.Null(result.AvailableVersion);
-        Assert.Equal("当前已是最新版本。", result.Message);
+        Assert.Equal(TestStrings.Instance.Format("Update_UpToDateFormat", "0.3.0"), result.Message);
     }
 
     [Fact]
@@ -118,7 +118,10 @@ public sealed class AppUpdaterTests
 
         Assert.Equal(UpdateState.Failed, result.State);
         Assert.Null(result.AvailableVersion);
-        Assert.Contains("boom", result.Message, StringComparison.Ordinal);
+        Assert.Equal(
+            TestStrings.Instance.Format("Update_CheckFailedFormat", "boom"),
+            result.Message
+        );
     }
 
     [Theory]
@@ -188,7 +191,10 @@ public sealed class AppUpdaterTests
 
         Assert.Equal(UpdateState.ReadyToRestart, result.State);
         Assert.Equal("0.4.0", result.AvailableVersion);
-        Assert.Equal("版本更新完成，重启后生效。", result.Message);
+        Assert.Equal(
+            TestStrings.Instance.Format("Update_DownloadedFormat", "0.4.0"),
+            result.Message
+        );
         await client
             .Received(1)
             .DownloadUpdatesAsync("0.4.0", progress, Arg.Any<CancellationToken>());
@@ -213,7 +219,10 @@ public sealed class AppUpdaterTests
 
         Assert.Equal(UpdateState.Failed, result.State);
         Assert.Null(result.AvailableVersion);
-        Assert.Contains("net down", result.Message, StringComparison.Ordinal);
+        Assert.Equal(
+            TestStrings.Instance.Format("Update_DownloadFailedFormat", "net down"),
+            result.Message
+        );
         client.DidNotReceive().PrepareUpdateForRestart(Arg.Any<string>());
     }
 

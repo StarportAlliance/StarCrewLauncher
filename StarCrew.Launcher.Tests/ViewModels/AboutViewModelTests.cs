@@ -56,12 +56,15 @@ public sealed class AboutViewModelTests
         );
 
     [Theory]
-    [InlineData(null, "版本 未知")]
-    [InlineData("0.3.0", "版本 0.3.0")]
-    public void VersionDescription_FormatsAppVersion(string? version, string expected)
+    [InlineData(null)]
+    [InlineData("0.3.0")]
+    public void VersionDescription_FormatsAppVersion(string? version)
     {
         (AboutViewModel vm, _, _, _, IAppInfo appInfo) = Create();
         appInfo.Version.Returns(version);
+        string expected = version is null
+            ? TestStrings.Instance.GetString("About_VersionUnknown")
+            : TestStrings.Instance.Format("About_VersionFormat", version);
 
         Assert.Equal(expected, vm.VersionDescription);
     }
@@ -78,7 +81,13 @@ public sealed class AboutViewModelTests
 
         await vm.CheckUpdateCommand.ExecuteAsync(null);
 
-        notifications.Received(1).Notify("当前已是最新版本。", null, NotificationSeverity.Success);
+        notifications
+            .Received(1)
+            .Notify(
+                TestStrings.Instance.Format("Update_UpToDateFormat", "0.3.0"),
+                null,
+                NotificationSeverity.Success
+            );
     }
 
     [Fact]
@@ -109,7 +118,11 @@ public sealed class AboutViewModelTests
 
         notifications
             .Received(1)
-            .Notify("开发版本不支持更新服务。", null, NotificationSeverity.Informational);
+            .Notify(
+                TestStrings.Instance.GetString("Update_DevRunSkip"),
+                null,
+                NotificationSeverity.Informational
+            );
     }
 
     [Fact]
@@ -123,7 +136,13 @@ public sealed class AboutViewModelTests
 
         await vm.CheckUpdateCommand.ExecuteAsync(null);
 
-        notifications.Received(1).Notify("检查更新失败：boom", null, NotificationSeverity.Error);
+        notifications
+            .Received(1)
+            .Notify(
+                TestStrings.Instance.Format("Update_CheckFailedFormat", "boom"),
+                null,
+                NotificationSeverity.Error
+            );
     }
 
     [Fact]
@@ -162,7 +181,13 @@ public sealed class AboutViewModelTests
         bool ready = await vm.DownloadUpdateAsync("0.4.0", null, CancellationToken.None);
 
         Assert.False(ready);
-        notifications.Received(1).Notify("下载更新失败：dl boom", null, NotificationSeverity.Error);
+        notifications
+            .Received(1)
+            .Notify(
+                TestStrings.Instance.Format("Update_DownloadFailedFormat", "dl boom"),
+                null,
+                NotificationSeverity.Error
+            );
     }
 
     [Fact]
@@ -177,7 +202,11 @@ public sealed class AboutViewModelTests
         Assert.False(ready);
         notifications
             .Received(1)
-            .Notify("已取消新版本下载。", null, NotificationSeverity.Informational);
+            .Notify(
+                TestStrings.Instance.GetString("About_UpdateDownloadCancelled"),
+                null,
+                NotificationSeverity.Informational
+            );
     }
 
     [Fact]

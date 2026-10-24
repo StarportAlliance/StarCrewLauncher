@@ -184,7 +184,11 @@ public sealed class InstancesViewModelTests : IDisposable
 
         notifications
             .Received(1)
-            .Notify("重命名失败：实例名不能为空。", null, NotificationSeverity.Error);
+            .Notify(
+                TestStrings.Instance.GetString("Instances_RenameEmpty"),
+                null,
+                NotificationSeverity.Error
+            );
         Assert.Equal("A", vm.Items[0].Name);
     }
 
@@ -208,7 +212,11 @@ public sealed class InstancesViewModelTests : IDisposable
 
         notifications
             .Received(1)
-            .Notify("重命名失败：已存在同名的实例。", null, NotificationSeverity.Error);
+            .Notify(
+                TestStrings.Instance.GetString("Instances_RenameDuplicate"),
+                null,
+                NotificationSeverity.Error
+            );
     }
 
     [Fact]

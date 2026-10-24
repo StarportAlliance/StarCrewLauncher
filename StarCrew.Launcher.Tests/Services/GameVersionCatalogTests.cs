@@ -106,7 +106,7 @@ public sealed class GameVersionCatalogTests : IDisposable
             catalog.LoadAsync()
         );
 
-        Assert.Contains("失败", failure.Message, StringComparison.Ordinal);
+        Assert.Equal(TestStrings.Instance.GetString("Catalog_FetchFailed"), failure.Message);
     }
 
     [Fact]

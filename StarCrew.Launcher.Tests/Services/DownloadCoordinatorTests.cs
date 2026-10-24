@@ -89,7 +89,7 @@ public sealed class DownloadCoordinatorTests : IDisposable
         GameInstallResult result = await coordinator.InstallAsync("A", VersionEntry());
 
         Assert.False(result.IsSuccess);
-        Assert.Contains("登录", result.Message, StringComparison.Ordinal);
+        Assert.Equal(TestStrings.Instance.GetString("Install_LoginRequired"), result.Message);
         Assert.Empty(store.Current.Instances);
     }
 
@@ -121,7 +121,7 @@ public sealed class DownloadCoordinatorTests : IDisposable
         GameInstallResult result = await coordinator.InstallAsync("A", VersionEntry());
 
         Assert.False(result.IsSuccess);
-        Assert.Contains("组件", result.Message, StringComparison.Ordinal);
+        Assert.Equal(TestStrings.Instance.GetString("Dd_Missing"), result.Message);
         Assert.Empty(store.Current.Instances);
         Assert.Empty(Directory.GetDirectories(_root));
     }
@@ -143,7 +143,10 @@ public sealed class DownloadCoordinatorTests : IDisposable
         GameInstallResult result = await coordinator.InstallAsync("A", VersionEntry());
 
         Assert.False(result.IsSuccess);
-        Assert.Contains("boom happened", result.Message, StringComparison.Ordinal);
+        Assert.Equal(
+            TestStrings.Instance.Format("Install_FailedWithReasonFormat", "boom happened"),
+            result.Message
+        );
         Assert.Null(result.Instance);
         Assert.Empty(store.Current.Instances);
         Assert.Empty(Directory.GetDirectories(_root));
@@ -166,7 +169,7 @@ public sealed class DownloadCoordinatorTests : IDisposable
         GameInstallResult result = await coordinator.InstallAsync("A", VersionEntry());
 
         Assert.False(result.IsSuccess);
-        Assert.Contains("Among Us.exe", result.Message, StringComparison.Ordinal);
+        Assert.Equal(TestStrings.Instance.GetString("Install_ExeMissing"), result.Message);
         Assert.Null(result.Instance);
         Assert.Empty(store.Current.Instances);
         Assert.Empty(Directory.GetDirectories(_root));
@@ -191,7 +194,7 @@ public sealed class DownloadCoordinatorTests : IDisposable
         GameInstallResult result = await coordinator.InstallAsync("A", VersionEntry());
 
         Assert.False(result.IsSuccess);
-        Assert.Contains("kaboom", result.Message, StringComparison.Ordinal);
+        Assert.Equal(TestStrings.Instance.Format("Install_FailedFormat", "kaboom"), result.Message);
         Assert.Null(result.Instance);
         Assert.Empty(store.Current.Instances);
         Assert.Empty(Directory.GetDirectories(_root));
@@ -248,7 +251,7 @@ public sealed class DownloadCoordinatorTests : IDisposable
         GameInstallResult result = await coordinator.InstallAsync("A", VersionEntry());
 
         Assert.False(result.IsSuccess);
-        Assert.Equal("下载已取消。", result.Message);
+        Assert.Equal(TestStrings.Instance.GetString("Install_Cancelled"), result.Message);
         Assert.Null(result.Instance);
         Assert.Empty(store.Current.Instances);
         Assert.Empty(Directory.GetDirectories(_root));
