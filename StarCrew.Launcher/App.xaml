@@ -2,7 +2,6 @@
     x:Class="StarCrew.Launcher.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:media="using:CommunityToolkit.WinUI.Media"
 >
     <Application.Resources>
         <ResourceDictionary>
@@ -18,12 +17,12 @@
                     <Color x:Key="SystemAccentColorDark1">#1771AE</Color>
                     <Color x:Key="SystemAccentColorDark2">#115380</Color>
                     <Color x:Key="SystemAccentColorDark3">#0B3551</Color>
-                    <media:AcrylicBrush
+                    <AcrylicBrush
                         x:Key="LauncherAcrylicBrush"
-                        BlurAmount="18"
-                        FallbackColor="#F9F9F9"
+                        FallbackColor="#F7F7F7"
                         TintColor="#FCFCFC"
-                        TintOpacity="0.8"
+                        TintLuminosityOpacity="0.88"
+                        TintOpacity="0.55"
                     />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
@@ -34,12 +33,12 @@
                     <Color x:Key="SystemAccentColorDark1">#7FCCFF</Color>
                     <Color x:Key="SystemAccentColorDark2">#6CADD9</Color>
                     <Color x:Key="SystemAccentColorDark3">#598FB3</Color>
-                    <media:AcrylicBrush
+                    <AcrylicBrush
                         x:Key="LauncherAcrylicBrush"
-                        BlurAmount="18"
                         FallbackColor="#1C1C1C"
                         TintColor="#202020"
-                        TintOpacity="0.5"
+                        TintLuminosityOpacity="0.68"
+                        TintOpacity="0.25"
                     />
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
