@@ -54,9 +54,13 @@ public sealed class SmokeTests
     }
 
     private const string LaunchButtonText = "启动游戏";
+    private const string LaunchButtonAutomationId = "LaunchButton";
 
+    // WinUI 部分元素不暴露 Name 属性，直接读会抛 PropertyNotSupportedException。
     private static bool IsLaunchButton(AutomationElement element) =>
-        ContainsLaunchText(element.Name) || ContainsLaunchText(element.AutomationId);
+        element.Properties.AutomationId.ValueOrDefault == LaunchButtonAutomationId
+        || ContainsLaunchText(element.Properties.Name.ValueOrDefault)
+        || ContainsLaunchText(element.Properties.AutomationId.ValueOrDefault);
 
     private static bool ContainsLaunchText(string? value) =>
         value is not null
