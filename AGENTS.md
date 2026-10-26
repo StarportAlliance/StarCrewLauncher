@@ -33,23 +33,6 @@ dotnet husky install
 - 依赖审计：`NuGetAudit=all`（restore 即审计）+ Dependabot 按需。
 - 云端门禁：CodeQL 扫描（`.github/workflows/codeql.yml`）。
 
-## 更新与打包（Velopack）
-
-- 更新源：自建静态 HTTP，地址常量 `VelopackUpdateClient.DefaultFeedUrl`；
-  把 `vpk pack` 产出的 `Releases/` 内容原样部署到该地址即可，无需服务端逻辑。
-- 接口：`IUpdateClient`（`VelopackUpdateClient` 实现）+ `AppUpdater.CheckOnlyAsync`（仅检查，命中回 Available）
-  与 `DownloadAndPrepareAsync`（用户确认后下载→安排重启后应用，成功后调用方直接退出即自动重启）；
-  开发直跑回 NotInstalled，不抛。UI 已接入设置页，需要时在界面层直接构造调用。
-- 启动约束：`App` 构造器首行必须是 `VelopackApp.Build().Run()`，否则 `UpdateManager` 构造失败；
-  测试宿主用 `VelopackTestBootstrap`（ModuleInitializer）补初始化。
-- 打包：`pack.bat <版本> [rid]`（默认 `win-x64`，另有 `win-arm64`），版本须与主工程 `Version` 一致；
-  先装同版本 vpk：`dotnet tool install -g vpk --version 1.2.161`（与 NuGet 的 Velopack 包同版本）。
-- 主工程 `EnableMsixTooling` 必须保持 `true`（`WindowsPackageType` 仍是 `None`，不会打出 MSIX）：
-  设为 `false` 会连带关掉 publish 期的 PRI 生成，`vpk pack` 拿到的就是缺 `StarCrew.Launcher.pri` 的半成品，
-  装完启动即崩。
-- DepotDownloader 随包分发：`StarCrew.Launcher.csproj` 的 `FetchDepotDownloader` 目标按 RID 下载并校验 SHA-256，
-  解出到 `Tools\DepotDownloader\` 随构建/发布输出；升级 DD 只改该文件的版本与 SHA 常量（首次构建需联网）。
-
 ## 新增代码铁律
 
 - 业务类型默认 `internal`（CA1515 门禁）；测试靠 `InternalsVisibleTo` 可见。XAML 代码隐藏类保持 `public`。
