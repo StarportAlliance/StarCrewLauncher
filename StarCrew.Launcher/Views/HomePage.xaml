@@ -23,10 +23,14 @@
                 Width="240"
                 Height="48"
                 Command="{x:Bind ViewModel.LaunchCommand}"
-                Content="{x:Bind ViewModel.LaunchButtonText, Mode=OneWay}"
                 FontSize="18"
                 Style="{StaticResource AccentButtonStyle}"
-            />
+            >
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="{x:Bind ViewModel.LaunchButtonGlyph, Mode=OneWay}" />
+                    <TextBlock Text="{x:Bind ViewModel.LaunchButtonText, Mode=OneWay}" />
+                </StackPanel>
+            </Button>
         </StackPanel>
 
         <TextBlock

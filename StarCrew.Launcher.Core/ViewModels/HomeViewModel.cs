@@ -48,6 +48,7 @@ internal sealed partial class HomeViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasInstances))]
     [NotifyPropertyChangedFor(nameof(LaunchButtonText))]
+    [NotifyPropertyChangedFor(nameof(LaunchButtonGlyph))]
     public partial IReadOnlyList<GameInstance> Instances { get; set; }
 
     [ObservableProperty]
@@ -60,6 +61,8 @@ internal sealed partial class HomeViewModel : ObservableObject
         HasInstances
             ? _strings.GetString("Home_LaunchGame")
             : _strings.GetString("Home_DownloadGame");
+
+    public string LaunchButtonGlyph => HasInstances ? "\uF5B0" : "\uE896";
 
     public string CurrentInstanceName => SelectedInstance?.Name ?? string.Empty;
 

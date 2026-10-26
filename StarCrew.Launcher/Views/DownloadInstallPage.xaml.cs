@@ -11,6 +11,8 @@ namespace StarCrew.Launcher.Views;
 public sealed partial class DownloadInstallPage : Page
 {
     private readonly IAppStrings _strings = App.Services.GetRequiredService<IAppStrings>();
+    private readonly FrameNavigationService _navigation =
+        App.Services.GetRequiredService<FrameNavigationService>();
 
     public DownloadInstallPage()
     {
@@ -23,7 +25,25 @@ public sealed partial class DownloadInstallPage : Page
     {
         ArgumentNullException.ThrowIfNull(e);
         ViewModel = e.Parameter as DownloadPageViewModel;
+        TitleBreadcrumb.ItemsSource = new[]
+        {
+            // XAML 的 x:Uid 后缀在 PRI 里是层级路径，ResourceLoader 需用斜杠形式
+            _strings.GetString("Download_SectionTitle/Text"),
+            ViewModel?.SelectedVersion?.VersionLabel ?? string.Empty,
+        };
         Bindings.Update();
+    }
+
+    private void TitleBreadcrumb_ItemClicked(
+        BreadcrumbBar sender,
+        BreadcrumbBarItemClickedEventArgs args
+    )
+    {
+        _ = sender;
+        if (args.Index == 0)
+        {
+            _navigation.GoBack();
+        }
     }
 
     private void InstallButton_Click(object sender, RoutedEventArgs e)
@@ -77,7 +97,7 @@ public sealed partial class DownloadInstallPage : Page
 
         if (result.IsSuccess)
         {
-            App.Services.GetRequiredService<FrameNavigationService>().GoBack();
+            _navigation.GoBack();
         }
     }
 }

@@ -6,11 +6,30 @@
 >
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <ScrollViewer x:Name="ContentScroll" Grid.Row="0" VerticalScrollBarVisibility="Auto">
+        <BreadcrumbBar
+            x:Name="TitleBreadcrumb"
+            Grid.Row="0"
+            Margin="14,16,24,8"
+            ItemClicked="TitleBreadcrumb_ItemClicked"
+        >
+            <BreadcrumbBar.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                    <TextBlock
+                        Margin="10,0"
+                        Style="{StaticResource TitleTextBlockStyle}"
+                        Text="{x:Bind}"
+                        TextTrimming="CharacterEllipsis"
+                    />
+                </DataTemplate>
+            </BreadcrumbBar.ItemTemplate>
+        </BreadcrumbBar>
+
+        <ScrollViewer x:Name="ContentScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <Grid Padding="24,0,24,24">
                 <StackPanel MaxWidth="1000" HorizontalAlignment="Stretch" Spacing="4">
                     <InfoBar
@@ -34,7 +53,7 @@
             </Grid>
         </ScrollViewer>
 
-        <Grid Grid.Row="1" Padding="24,8,24,16">
+        <Grid Grid.Row="2" Padding="24,8,24,16">
             <Button
                 Width="240"
                 Height="48"

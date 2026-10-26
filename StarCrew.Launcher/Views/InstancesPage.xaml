@@ -15,8 +15,8 @@
                 <TextBlock
                     x:Uid="Instances_SectionTitle"
                     Grid.Row="0"
-                    Margin="0,0,0,4"
-                    Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                    Margin="0,16,0,12"
+                    Style="{StaticResource TitleTextBlockStyle}"
                 />
 
                 <StackPanel

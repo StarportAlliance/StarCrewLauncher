@@ -185,7 +185,7 @@
 
   <!-- 实例管理 -->
   <data name="Instances_SectionTitle.Text" xml:space="preserve">
-    <value>我的实例</value>
+    <value>实例管理</value>
   </data>
   <data name="Instances_EmptyHint.Text" xml:space="preserve">
     <value>还没有任何实例。去「游戏下载」页下载一个原版 Among Us，实例就会出现在这里。</value>
@@ -264,6 +264,9 @@
   </data>
 
   <!-- 游戏下载 -->
+  <data name="Download_SectionTitle.Text" xml:space="preserve">
+    <value>游戏下载</value>
+  </data>
   <data name="DownloadSection_Base.Content" xml:space="preserve">
     <value>原版游戏</value>
   </data>
