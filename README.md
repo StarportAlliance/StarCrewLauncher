@@ -22,6 +22,13 @@
 StarCrew Launcher (SCL) 是一个开源，适用于 Windows 平台的 Among Us 启动器。\
 启动器使用现代化、精美的界面，为你提供强大高效的实例 / 模组 / 服务器的管理、下载功能。目的旨在解决玩家手动管理模组、服务器繁琐困难的问题。
 
+### 环境要求
+
+SCL 仅支持 x64 与 Arm64 架构，理论最低支持版本为 Windows 10 1809 (10.0.17763)。\
+但我们仅在 Windows 11 26H2 (10.0.26300) 上进行测试，因而在较低版本上遇到问题请积极[向我们反馈](https://github.com/StarportAlliance/StarCrewLauncher/issues)！
+
+SCL 仅支持 Windows Steam 版本的 Among Us，多平台支持正处于较低优先级的规划中，可能需要敬请期待一段时间...
+
 ## 下载
 
 可通过我们的 [GitHub Release](https://github.com/StarportAlliance/StarCrewLauncher/releases) 下载安装程序。
@@ -35,9 +42,3 @@ StarCrew Launcher (SCL) 是一个开源，适用于 Windows 平台的 Among Us �
 <a href="https://github.com/StarportAlliance/StarCrewLauncher/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=StarportAlliance/StarCrewLauncher" />
 </a> -->
-
-<!-- ## 鸣谢
-
-- Fledge Alpha (Stealth Model) - 成功的 refactor 了设置页的屎山动画代码，解决了差点把我气到脑溢血的 Bug。
-
--->
