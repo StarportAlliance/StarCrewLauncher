@@ -18,4 +18,7 @@ internal static class AppPaths
 
     /// <summary>远端资源缓存目录。</summary>
     public static string CacheDirectory { get; } = Path.Combine(DataDirectory, "cache");
+
+    /// <summary>日志文件目录。</summary>
+    public static string LogDirectory { get; } = Path.Combine(DataDirectory, "Logs");
 }

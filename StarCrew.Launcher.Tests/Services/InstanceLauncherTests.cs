@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using StarCrew.Launcher.Models;
 using StarCrew.Launcher.Services;
@@ -53,7 +54,12 @@ public sealed class InstanceLauncherTests : IDisposable
         ISteamClient steam = Substitute.For<ISteamClient>();
 
         Assert.Throws<ArgumentNullException>(() =>
-            new InstanceLauncher(null!, steam, TestStrings.Instance)
+            new InstanceLauncher(
+                null!,
+                steam,
+                TestStrings.Instance,
+                NullLogger<InstanceLauncher>.Instance
+            )
         );
     }
 
@@ -63,7 +69,12 @@ public sealed class InstanceLauncherTests : IDisposable
         IProcessStarter starter = Substitute.For<IProcessStarter>();
 
         Assert.Throws<ArgumentNullException>(() =>
-            new InstanceLauncher(starter, null!, TestStrings.Instance)
+            new InstanceLauncher(
+                starter,
+                null!,
+                TestStrings.Instance,
+                NullLogger<InstanceLauncher>.Instance
+            )
         );
     }
 
@@ -72,7 +83,12 @@ public sealed class InstanceLauncherTests : IDisposable
     {
         IProcessStarter starter = Substitute.For<IProcessStarter>();
         ISteamClient steam = Substitute.For<ISteamClient>();
-        InstanceLauncher launcher = new(starter, steam, TestStrings.Instance);
+        InstanceLauncher launcher = new(
+            starter,
+            steam,
+            TestStrings.Instance,
+            NullLogger<InstanceLauncher>.Instance
+        );
         GameInstance instance = CreateInstance(state: InstanceState.Incomplete);
 
         LaunchOutcome outcome = await launcher.LaunchAsync(instance);
@@ -89,7 +105,12 @@ public sealed class InstanceLauncherTests : IDisposable
         IProcessStarter starter = Substitute.For<IProcessStarter>();
         ISteamClient steam = Substitute.For<ISteamClient>();
         steam.IsSteamRunning().Returns(true);
-        InstanceLauncher launcher = new(starter, steam, TestStrings.Instance);
+        InstanceLauncher launcher = new(
+            starter,
+            steam,
+            TestStrings.Instance,
+            NullLogger<InstanceLauncher>.Instance
+        );
         GameInstance instance = CreateInstance();
         Directory.CreateDirectory(instance.InstallDirectory);
 
@@ -106,7 +127,12 @@ public sealed class InstanceLauncherTests : IDisposable
         starter.TryStart(Arg.Any<string>(), Arg.Any<string>(), out _).Returns(true);
         ISteamClient steam = Substitute.For<ISteamClient>();
         steam.IsSteamRunning().Returns(true);
-        InstanceLauncher launcher = new(starter, steam, TestStrings.Instance);
+        InstanceLauncher launcher = new(
+            starter,
+            steam,
+            TestStrings.Instance,
+            NullLogger<InstanceLauncher>.Instance
+        );
         GameInstance instance = CreateInstance();
         _ = CreateExeFor(instance);
 
@@ -124,7 +150,12 @@ public sealed class InstanceLauncherTests : IDisposable
         ISteamClient steam = Substitute.For<ISteamClient>();
         steam.IsSteamRunning().Returns(false);
         steam.TryStartSteam(out _).Returns(false);
-        InstanceLauncher launcher = new(starter, steam, TestStrings.Instance);
+        InstanceLauncher launcher = new(
+            starter,
+            steam,
+            TestStrings.Instance,
+            NullLogger<InstanceLauncher>.Instance
+        );
         GameInstance instance = CreateInstance();
         _ = CreateExeFor(instance);
 
@@ -143,7 +174,12 @@ public sealed class InstanceLauncherTests : IDisposable
         // 首次 false，之后 true（启动成功后视为已在线）
         steam.IsSteamRunning().Returns(false, true);
         steam.TryStartSteam(out _).Returns(true);
-        InstanceLauncher launcher = new(starter, steam, TestStrings.Instance);
+        InstanceLauncher launcher = new(
+            starter,
+            steam,
+            TestStrings.Instance,
+            NullLogger<InstanceLauncher>.Instance
+        );
         GameInstance instance = CreateInstance();
         _ = CreateExeFor(instance);
 
@@ -165,7 +201,12 @@ public sealed class InstanceLauncherTests : IDisposable
             });
         ISteamClient steam = Substitute.For<ISteamClient>();
         steam.IsSteamRunning().Returns(true);
-        InstanceLauncher launcher = new(starter, steam, TestStrings.Instance);
+        InstanceLauncher launcher = new(
+            starter,
+            steam,
+            TestStrings.Instance,
+            NullLogger<InstanceLauncher>.Instance
+        );
         GameInstance instance = CreateInstance();
         _ = CreateExeFor(instance);
 
@@ -180,7 +221,12 @@ public sealed class InstanceLauncherTests : IDisposable
     {
         IProcessStarter starter = Substitute.For<IProcessStarter>();
         ISteamClient steam = Substitute.For<ISteamClient>();
-        InstanceLauncher launcher = new(starter, steam, TestStrings.Instance);
+        InstanceLauncher launcher = new(
+            starter,
+            steam,
+            TestStrings.Instance,
+            NullLogger<InstanceLauncher>.Instance
+        );
         GameInstance instance = CreateInstance();
         using CancellationTokenSource cts = new();
         await cts.CancelAsync();

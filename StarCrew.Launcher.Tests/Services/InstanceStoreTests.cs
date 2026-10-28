@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using StarCrew.Launcher.Models;
 using StarCrew.Launcher.Services;
 
@@ -26,7 +27,7 @@ public sealed class InstanceStoreTests : IDisposable
     [Fact]
     public void Load_WithMissingFile_ReturnsEmptyState()
     {
-        InstanceStore store = new(_filePath);
+        InstanceStore store = new(_filePath, NullLogger<InstanceStore>.Instance);
 
         LauncherState state = store.Load();
 
@@ -39,7 +40,7 @@ public sealed class InstanceStoreTests : IDisposable
     [Fact]
     public void SaveThenLoad_RoundTripsAllFields()
     {
-        InstanceStore store = new(_filePath);
+        InstanceStore store = new(_filePath, NullLogger<InstanceStore>.Instance);
         Guid id = Guid.NewGuid();
         DateTimeOffset created = DateTimeOffset.UtcNow.AddDays(-1);
         GameInstance instance = new(
@@ -68,7 +69,7 @@ public sealed class InstanceStoreTests : IDisposable
     public void Load_WithCorruptFile_ReturnsEmptyAndLeavesBackup()
     {
         File.WriteAllText(_filePath, "{ this is not valid json");
-        InstanceStore store = new(_filePath);
+        InstanceStore store = new(_filePath, NullLogger<InstanceStore>.Instance);
 
         LauncherState state = store.Load();
 
@@ -80,7 +81,7 @@ public sealed class InstanceStoreTests : IDisposable
     public void Save_CreatesDirectoryIfMissing()
     {
         string nested = Path.Combine(_root, "deep", "instances.json");
-        InstanceStore store = new(nested);
+        InstanceStore store = new(nested, NullLogger<InstanceStore>.Instance);
 
         store.Save(LauncherState.Empty);
 
@@ -116,7 +117,7 @@ public sealed class InstanceStoreTests : IDisposable
             }
             """;
         File.WriteAllText(_filePath, json);
-        InstanceStore store = new(_filePath);
+        InstanceStore store = new(_filePath, NullLogger<InstanceStore>.Instance);
 
         LauncherState state = store.Load();
 

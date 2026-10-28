@@ -4,5 +4,6 @@ namespace StarCrew.Launcher.Models;
 internal sealed record ExecutableCommand(
     string FilePath,
     IReadOnlyList<string> Arguments,
-    string? StandardInput
+    string? StandardInput,
+    bool LogOutput = true
 );

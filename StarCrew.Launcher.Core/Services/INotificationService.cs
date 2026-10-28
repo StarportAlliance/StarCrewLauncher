@@ -9,5 +9,14 @@ internal interface INotificationService
     event EventHandler<NotificationMessage>? Requested;
 
     /// <summary>发送一条 Toast 通知。</summary>
-    void Notify(string title, string? message, NotificationSeverity severity);
+    /// <param name="title">通知标题。</param>
+    /// <param name="message">通知正文，可为 null。</param>
+    /// <param name="severity">通知级别。</param>
+    /// <param name="action">可选的行动按钮，为 null 时不显示按钮。</param>
+    void Notify(
+        string title,
+        string? message,
+        NotificationSeverity severity,
+        NotificationAction? action = null
+    );
 }

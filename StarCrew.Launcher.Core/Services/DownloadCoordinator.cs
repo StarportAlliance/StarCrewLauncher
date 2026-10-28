@@ -1,4 +1,5 @@
 using System.Globalization;
+using Microsoft.Extensions.Logging;
 using StarCrew.Launcher.Models;
 
 namespace StarCrew.Launcher.Services;
@@ -13,32 +14,37 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
     private readonly IDepotDownloaderRunner _runner;
     private readonly string _instancesRoot;
     private readonly IAppStrings _strings;
+    private readonly ILogger<DownloadCoordinator> _logger;
 
     public DownloadCoordinator(
         IInstanceStore store,
         DepotDownloaderLocator locator,
         IDepotDownloaderRunner runner,
-        IAppStrings strings
+        IAppStrings strings,
+        ILogger<DownloadCoordinator> logger
     )
-        : this(store, locator, runner, AppPaths.InstancesDirectory, strings) { }
+        : this(store, locator, runner, AppPaths.InstancesDirectory, strings, logger) { }
 
     internal DownloadCoordinator(
         IInstanceStore store,
         DepotDownloaderLocator locator,
         IDepotDownloaderRunner runner,
         string instancesRoot,
-        IAppStrings strings
+        IAppStrings strings,
+        ILogger<DownloadCoordinator> logger
     )
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(locator);
         ArgumentNullException.ThrowIfNull(runner);
         ArgumentNullException.ThrowIfNull(strings);
+        ArgumentNullException.ThrowIfNull(logger);
         ArgumentException.ThrowIfNullOrWhiteSpace(instancesRoot);
         _store = store;
         _locator = locator;
         _runner = runner;
         _strings = strings;
+        _logger = logger;
         _instancesRoot = instancesRoot;
     }
 
@@ -56,8 +62,16 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
         string? accountName = state.SteamAccountName;
         if (string.IsNullOrWhiteSpace(accountName))
         {
+            _logger.LogWarning("下载 {Version} 失败：未登录 Steam", version.VersionLabel);
             return new GameInstallResult(false, _strings.GetString("Install_LoginRequired"));
         }
+
+        _logger.LogInformation(
+            "开始下载 {Version} 到实例 {Instance}（账号 {Account}）",
+            version.VersionLabel,
+            instanceName,
+            LogRedaction.MaskAccountName(accountName)
+        );
 
         progress?.Report(
             new DownloadProgressInfo(
@@ -163,6 +177,11 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
                     _strings.Format("Install_CompletedFormat", version.VersionLabel)
                 )
             );
+            _logger.LogInformation(
+                "下载 {Version} 完成，实例目录 {Directory}",
+                version.VersionLabel,
+                instanceDirectory
+            );
             return new GameInstallResult(
                 true,
                 _strings.Format("Install_DownloadedFormat", version.VersionLabel),
@@ -175,11 +194,17 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "下载 {Version} 过程中出现异常", version.VersionLabel);
             return await FailAsync(_strings.Format("Install_FailedFormat", ex.Message));
         }
 
         async Task<GameInstallResult> FailAsync(string message)
         {
+            _logger.LogError(
+                "下载 {Version} 失败：{Reason}",
+                version.VersionLabel,
+                LogRedaction.Scrub(message)
+            );
             TryDeleteDirectory(instanceDirectory);
             progress?.Report(new DownloadProgressInfo(DownloadStage.Failed, 0, message));
             return new GameInstallResult(false, message);

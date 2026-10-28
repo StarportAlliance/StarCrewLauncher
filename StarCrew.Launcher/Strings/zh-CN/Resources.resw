@@ -73,6 +73,65 @@
     <value>深色</value>
   </data>
 
+  <!-- 日志设置 -->
+  <data name="Logging_SectionTitle.Text" xml:space="preserve">
+    <value>日志</value>
+  </data>
+  <data name="Logging_Expander.Header" xml:space="preserve">
+    <value>日志记录</value>
+  </data>
+  <data name="Logging_Expander.Description" xml:space="preserve">
+    <value>更改后需重启生效</value>
+  </data>
+  <data name="Logging_EnableToggle.OnContent" xml:space="preserve">
+    <value>开</value>
+  </data>
+  <data name="Logging_EnableToggle.OffContent" xml:space="preserve">
+    <value>关</value>
+  </data>
+  <data name="Logging_LevelCard.Header" xml:space="preserve">
+    <value>日志等级</value>
+  </data>
+  <data name="Logging_LevelVerbose.Content" xml:space="preserve">
+    <value>Verbose</value>
+  </data>
+  <data name="Logging_LevelDebug.Content" xml:space="preserve">
+    <value>Debug</value>
+  </data>
+  <data name="Logging_LevelInformation.Content" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="Logging_LevelWarning.Content" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="Logging_LevelError.Content" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Logging_LevelFatal.Content" xml:space="preserve">
+    <value>Fatal</value>
+  </data>
+  <data name="Logging_RetentionCard.Header" xml:space="preserve">
+    <value>保留天数</value>
+  </data>
+  <data name="Logging_RetentionCard.Description" xml:space="preserve">
+    <value>超出该天数的日志会被自动删除</value>
+  </data>
+  <data name="Logging_FolderCard.Header" xml:space="preserve">
+    <value>日志文件夹</value>
+  </data>
+  <data name="Logging_FolderCard.ActionIconToolTip" xml:space="preserve">
+    <value>打开日志文件夹</value>
+  </data>
+  <data name="Logging_RestartTitle" xml:space="preserve">
+    <value>重新启动 SCL 以使更改生效。</value>
+  </data>
+  <data name="Logging_RestartNow" xml:space="preserve">
+    <value>立即重启</value>
+  </data>
+  <data name="Logging_OpenFailedTitle" xml:space="preserve">
+    <value>无法打开日志文件夹</value>
+  </data>
+
   <!-- 关于页 -->
   <data name="About_SectionTitle.Text" xml:space="preserve">
     <value>关于</value>

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Logging;
 using StarCrew.Launcher.Models;
 
 namespace StarCrew.Launcher.Services;
@@ -7,6 +8,7 @@ namespace StarCrew.Launcher.Services;
 internal sealed class InstanceStore : IInstanceStore
 {
     private readonly string _filePath;
+    private readonly ILogger<InstanceStore> _logger;
     private static readonly JsonSerializerOptions Options = new()
     {
         WriteIndented = true,
@@ -14,10 +16,12 @@ internal sealed class InstanceStore : IInstanceStore
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) },
     };
 
-    public InstanceStore(string filePath)
+    public InstanceStore(string filePath, ILogger<InstanceStore> logger)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+        ArgumentNullException.ThrowIfNull(logger);
         _filePath = filePath;
+        _logger = logger;
     }
 
     public LauncherState Load()
@@ -32,8 +36,9 @@ internal sealed class InstanceStore : IInstanceStore
             string json = File.ReadAllText(_filePath);
             return JsonSerializer.Deserialize<LauncherState>(json, Options) ?? LauncherState.Empty;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogWarning(ex, "实例状态文件 {Path} 解析失败，已备份并回退为空状态", _filePath);
             TryBackupCorruptFile();
             return LauncherState.Empty;
         }
@@ -54,10 +59,11 @@ internal sealed class InstanceStore : IInstanceStore
             string tempPath = _filePath + ".tmp";
             File.WriteAllText(tempPath, JsonSerializer.Serialize(state, Options));
             File.Move(tempPath, _filePath, overwrite: true);
+            _logger.LogDebug("实例状态已保存：{Count} 个实例", state.Instances.Count);
         }
-        catch (IOException)
+        catch (IOException ex)
         {
-            // 写入失败不影响当前会话
+            _logger.LogWarning(ex, "写入实例状态文件 {Path} 失败", _filePath);
         }
     }
 
@@ -67,9 +73,9 @@ internal sealed class InstanceStore : IInstanceStore
         {
             File.Move(_filePath, _filePath + ".bak", overwrite: true);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // 备份失败也无所谓
+            _logger.LogDebug(ex, "备份损坏的实例状态文件失败");
         }
     }
 }

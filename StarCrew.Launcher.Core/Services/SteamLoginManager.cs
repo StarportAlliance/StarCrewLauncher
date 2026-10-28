@@ -1,4 +1,5 @@
 using System.Globalization;
+using Microsoft.Extensions.Logging;
 using StarCrew.Launcher.Models;
 
 namespace StarCrew.Launcher.Services;
@@ -12,22 +13,26 @@ internal sealed class SteamLoginManager : ISteamLoginManager
     private readonly IDepotDownloaderRunner _runner;
     private readonly IInstanceStore _store;
     private readonly IAppStrings _strings;
+    private readonly ILogger<SteamLoginManager> _logger;
 
     public SteamLoginManager(
         DepotDownloaderLocator locator,
         IDepotDownloaderRunner runner,
         IInstanceStore store,
-        IAppStrings strings
+        IAppStrings strings,
+        ILogger<SteamLoginManager> logger
     )
     {
         ArgumentNullException.ThrowIfNull(locator);
         ArgumentNullException.ThrowIfNull(runner);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(strings);
+        ArgumentNullException.ThrowIfNull(logger);
         _locator = locator;
         _runner = runner;
         _store = store;
         _strings = strings;
+        _logger = logger;
     }
 
     public async Task<SteamLoginOutcome> LoginAsync(
@@ -40,9 +45,12 @@ internal sealed class SteamLoginManager : ISteamLoginManager
         ArgumentException.ThrowIfNullOrWhiteSpace(username);
         ArgumentNullException.ThrowIfNull(password);
 
+        _logger.LogInformation("开始账号登录 {Account}", LogRedaction.MaskAccountName(username));
+
         string? depotDownloaderPath = _locator.Find();
         if (depotDownloaderPath is null)
         {
+            _logger.LogWarning("账号登录失败：未找到 DepotDownloader");
             return new SteamLoginOutcome(false, null, _strings.GetString("Dd_Missing"));
         }
 
@@ -79,9 +87,14 @@ internal sealed class SteamLoginManager : ISteamLoginManager
             {
                 LauncherState state = _store.Load();
                 _store.Save(state with { SteamAccountName = username });
+                _logger.LogInformation(
+                    "账号登录成功 {Account}",
+                    LogRedaction.MaskAccountName(username)
+                );
                 return new SteamLoginOutcome(true, username, null);
             }
 
+            _logger.LogWarning("账号登录失败，退出码 {ExitCode}", outcome.ExitCode);
             string? last = outcome.OutputLines.LastOrDefault(l => !string.IsNullOrWhiteSpace(l));
             return new SteamLoginOutcome(
                 false,
@@ -100,9 +113,12 @@ internal sealed class SteamLoginManager : ISteamLoginManager
         CancellationToken cancellationToken = default
     )
     {
+        _logger.LogInformation("开始二维码登录");
+
         string? depotDownloaderPath = _locator.Find();
         if (depotDownloaderPath is null)
         {
+            _logger.LogWarning("二维码登录失败：未找到 DepotDownloader");
             return new SteamLoginOutcome(false, null, _strings.GetString("Dd_Missing"));
         }
 
@@ -124,13 +140,14 @@ internal sealed class SteamLoginManager : ISteamLoginManager
             ];
 
             ExecutableOutcome outcome = await _runner.RunAsync(
-                new ExecutableCommand(depotDownloaderPath, arguments, null),
+                new ExecutableCommand(depotDownloaderPath, arguments, null, LogOutput: false),
                 output,
                 cancellationToken
             );
 
             if (outcome.ExitCode != 0)
             {
+                _logger.LogWarning("二维码登录失败，退出码 {ExitCode}", outcome.ExitCode);
                 string? lastQr = outcome.OutputLines.LastOrDefault(l =>
                     !string.IsNullOrWhiteSpace(l)
                 );
@@ -145,6 +162,7 @@ internal sealed class SteamLoginManager : ISteamLoginManager
             string? accountName = ExtractAccountName(outcome.OutputLines);
             if (accountName is null)
             {
+                _logger.LogWarning("二维码登录成功但未能解析账号名");
                 return new SteamLoginOutcome(
                     false,
                     null,
@@ -154,6 +172,10 @@ internal sealed class SteamLoginManager : ISteamLoginManager
 
             LauncherState state = _store.Load();
             _store.Save(state with { SteamAccountName = accountName });
+            _logger.LogInformation(
+                "二维码登录成功 {Account}",
+                LogRedaction.MaskAccountName(accountName)
+            );
             return new SteamLoginOutcome(true, accountName, null);
         }
         finally

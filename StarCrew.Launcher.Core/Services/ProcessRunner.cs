@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 using StarCrew.Launcher.Models;
 
 namespace StarCrew.Launcher.Services;
@@ -6,12 +7,17 @@ namespace StarCrew.Launcher.Services;
 /// <summary>基于 <see cref="Process" /> 的外部程序执行器。</summary>
 internal sealed class ProcessRunner : IDepotDownloaderRunner
 {
-    private readonly IAppStrings _strings;
+    private const int FailureTailLines = 100;
 
-    public ProcessRunner(IAppStrings strings)
+    private readonly IAppStrings _strings;
+    private readonly ILogger<ProcessRunner> _logger;
+
+    public ProcessRunner(IAppStrings strings, ILogger<ProcessRunner> logger)
     {
         ArgumentNullException.ThrowIfNull(strings);
+        ArgumentNullException.ThrowIfNull(logger);
         _strings = strings;
+        _logger = logger;
     }
 
     public async Task<ExecutableOutcome> RunAsync(
@@ -22,6 +28,9 @@ internal sealed class ProcessRunner : IDepotDownloaderRunner
     {
         ArgumentNullException.ThrowIfNull(command);
         cancellationToken.ThrowIfCancellationRequested();
+
+        string program = Path.GetFileName(command.FilePath);
+        _logger.LogInformation("启动外部程序 {Program}", program);
 
         using Process process = new();
         process.StartInfo.FileName = command.FilePath;
@@ -49,6 +58,11 @@ internal sealed class ProcessRunner : IDepotDownloaderRunner
 
             lines.Add(e.Data);
             output?.Report(e.Data);
+            // 命令行含明文密码，输出含账号名与二维码，故记录输出时统一过脱敏后再落盘
+            if (command.LogOutput && _logger.IsEnabled(LogLevel.Trace))
+            {
+                _logger.LogTrace("{Output}", LogRedaction.Scrub(e.Data));
+            }
         }
 
         process.OutputDataReceived += CaptureLine;
@@ -58,6 +72,7 @@ internal sealed class ProcessRunner : IDepotDownloaderRunner
         {
             if (!process.Start())
             {
+                _logger.LogError("外部程序 {Program} 启动失败", program);
                 return new ExecutableOutcome(-1, [_strings.GetString("Runner_StartFailed")]);
             }
 
@@ -96,11 +111,30 @@ internal sealed class ProcessRunner : IDepotDownloaderRunner
                 // 这还杀不掉就不管了
             }
 
+            _logger.LogWarning("外部程序 {Program} 已取消", program);
             throw;
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "外部程序 {Program} 执行异常", program);
             return new ExecutableOutcome(-1, [ex.Message]);
+        }
+
+        _logger.LogInformation(
+            "外部程序 {Program} 退出，代码 {ExitCode}",
+            program,
+            process.ExitCode
+        );
+        if (process.ExitCode != 0 && command.LogOutput)
+        {
+            _logger.LogError(
+                "外部程序 {Program} 失败，末尾输出：{Tail}",
+                program,
+                string.Join(
+                    Environment.NewLine,
+                    lines.TakeLast(FailureTailLines).Select(LogRedaction.Scrub)
+                )
+            );
         }
 
         return new ExecutableOutcome(process.ExitCode, lines);

@@ -51,6 +51,12 @@ dotnet_diagnostic.SYSLIB1054.severity = suggestion
 dotnet_diagnostic.CA2007.severity = none
 # WinUI 事件处理器允许 async void，其余 async void 由 CA2011 按默认处理
 dotnet_diagnostic.CA2011.severity = warning
+# 日志全部走 ILogger<T> 的常规方法：本项目的日志频率不高，为每条日志生成 LoggerMessage 委托
+# 会让 7 个服务各背一堆样板代码，收益抵不上维护成本
+dotnet_diagnostic.CA1848.severity = none
+# 对应地不做「参数可能昂贵」的逐处 IsEnabled 包裹：热点路径（子进程逐行输出）已单独判 IsEnabled，
+# 其余日志参数都是字符串模板占位，无需再为每条日志套一层 if
+dotnet_diagnostic.CA1873.severity = none
 
 # 测试工程豁免：Method_Scenario_Result 下划线命名是 xUnit 社区标准，可读性优先
 [StarCrew.Launcher.Tests/{*.cs,**/*.cs}]

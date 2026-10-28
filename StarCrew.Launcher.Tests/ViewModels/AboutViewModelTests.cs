@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using StarCrew.Launcher.Models;
 using StarCrew.Launcher.Services;
@@ -23,7 +24,11 @@ public sealed class AboutViewModelTests
     public void Ctor_WithNullLauncher_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new AboutViewModel(
-                new AppUpdater(Substitute.For<IUpdateClient>(), TestStrings.Instance),
+                new AppUpdater(
+                    Substitute.For<IUpdateClient>(),
+                    TestStrings.Instance,
+                    NullLogger<AppUpdater>.Instance
+                ),
                 null!,
                 Substitute.For<INotificationService>(),
                 Substitute.For<IAppInfo>(),
@@ -35,7 +40,11 @@ public sealed class AboutViewModelTests
     public void Ctor_WithNullNotifications_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new AboutViewModel(
-                new AppUpdater(Substitute.For<IUpdateClient>(), TestStrings.Instance),
+                new AppUpdater(
+                    Substitute.For<IUpdateClient>(),
+                    TestStrings.Instance,
+                    NullLogger<AppUpdater>.Instance
+                ),
                 Substitute.For<IExternalLauncher>(),
                 null!,
                 Substitute.For<IAppInfo>(),
@@ -47,7 +56,11 @@ public sealed class AboutViewModelTests
     public void Ctor_WithNullAppInfo_ThrowsArgumentNullException() =>
         Assert.Throws<ArgumentNullException>(() =>
             new AboutViewModel(
-                new AppUpdater(Substitute.For<IUpdateClient>(), TestStrings.Instance),
+                new AppUpdater(
+                    Substitute.For<IUpdateClient>(),
+                    TestStrings.Instance,
+                    NullLogger<AppUpdater>.Instance
+                ),
                 Substitute.For<IExternalLauncher>(),
                 Substitute.For<INotificationService>(),
                 null!,
@@ -234,7 +247,7 @@ public sealed class AboutViewModelTests
         INotificationService notifications = Substitute.For<INotificationService>();
         IAppInfo appInfo = Substitute.For<IAppInfo>();
         appInfo.Version.Returns("0.3.0");
-        AppUpdater updater = new(client, TestStrings.Instance);
+        AppUpdater updater = new(client, TestStrings.Instance, NullLogger<AppUpdater>.Instance);
         return (
             new AboutViewModel(updater, launcher, notifications, appInfo, TestStrings.Instance),
             client,

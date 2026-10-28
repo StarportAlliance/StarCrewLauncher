@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using StarCrew.Launcher.Models;
 using StarCrew.Launcher.Services;
@@ -36,7 +37,8 @@ public sealed class SteamLoginManagerTests : IDisposable
                 null!,
                 Substitute.For<IDepotDownloaderRunner>(),
                 Substitute.For<IInstanceStore>(),
-                TestStrings.Instance
+                TestStrings.Instance,
+                NullLogger<SteamLoginManager>.Instance
             )
         );
 
@@ -47,7 +49,8 @@ public sealed class SteamLoginManagerTests : IDisposable
                 new DepotDownloaderLocator(_tools),
                 null!,
                 Substitute.For<IInstanceStore>(),
-                TestStrings.Instance
+                TestStrings.Instance,
+                NullLogger<SteamLoginManager>.Instance
             )
         );
 
@@ -58,7 +61,8 @@ public sealed class SteamLoginManagerTests : IDisposable
                 new DepotDownloaderLocator(_tools),
                 Substitute.For<IDepotDownloaderRunner>(),
                 null!,
-                TestStrings.Instance
+                TestStrings.Instance,
+                NullLogger<SteamLoginManager>.Instance
             )
         );
 
@@ -307,7 +311,13 @@ public sealed class SteamLoginManagerTests : IDisposable
                 .Returns(runnerOutcome);
         }
 
-        return new SteamLoginManager(locator, targetRunner, target, TestStrings.Instance);
+        return new SteamLoginManager(
+            locator,
+            targetRunner,
+            target,
+            TestStrings.Instance,
+            NullLogger<SteamLoginManager>.Instance
+        );
     }
 
     private sealed class FakeStore(LauncherState state) : IInstanceStore

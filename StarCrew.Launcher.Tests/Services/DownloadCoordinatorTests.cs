@@ -1,4 +1,5 @@
 using System.Globalization;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using StarCrew.Launcher.Models;
 using StarCrew.Launcher.Services;
@@ -38,7 +39,8 @@ public sealed class DownloadCoordinatorTests : IDisposable
                 new DepotDownloaderLocator(_tools),
                 Substitute.For<IDepotDownloaderRunner>(),
                 _root,
-                TestStrings.Instance
+                TestStrings.Instance,
+                NullLogger<DownloadCoordinator>.Instance
             )
         );
 
@@ -50,7 +52,8 @@ public sealed class DownloadCoordinatorTests : IDisposable
                 null!,
                 Substitute.For<IDepotDownloaderRunner>(),
                 _root,
-                TestStrings.Instance
+                TestStrings.Instance,
+                NullLogger<DownloadCoordinator>.Instance
             )
         );
 
@@ -62,7 +65,8 @@ public sealed class DownloadCoordinatorTests : IDisposable
                 new DepotDownloaderLocator(_tools),
                 null!,
                 _root,
-                TestStrings.Instance
+                TestStrings.Instance,
+                NullLogger<DownloadCoordinator>.Instance
             )
         );
 
@@ -76,7 +80,8 @@ public sealed class DownloadCoordinatorTests : IDisposable
                 new DepotDownloaderLocator(_tools),
                 Substitute.For<IDepotDownloaderRunner>(),
                 root,
-                TestStrings.Instance
+                TestStrings.Instance,
+                NullLogger<DownloadCoordinator>.Instance
             )
         );
 
@@ -115,7 +120,8 @@ public sealed class DownloadCoordinatorTests : IDisposable
             new DepotDownloaderLocator(Path.Combine(_root, "empty-tools")),
             Substitute.For<IDepotDownloaderRunner>(),
             _root,
-            TestStrings.Instance
+            TestStrings.Instance,
+            NullLogger<DownloadCoordinator>.Instance
         );
 
         GameInstallResult result = await coordinator.InstallAsync("A", VersionEntry());
@@ -423,7 +429,8 @@ public sealed class DownloadCoordinatorTests : IDisposable
             new DepotDownloaderLocator(_tools),
             runner ?? Substitute.For<IDepotDownloaderRunner>(),
             _root,
-            TestStrings.Instance
+            TestStrings.Instance,
+            NullLogger<DownloadCoordinator>.Instance
         );
 
     private static FakeStore StoreWithAccount(string account = "user") =>

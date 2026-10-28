@@ -22,7 +22,7 @@
                     </controls:SettingsCard.HeaderIcon>
                     <ComboBox
                         x:Name="ThemeCombo"
-                        Width="200"
+                        Width="120"
                         SelectedIndex="{x:Bind ViewModel.SelectedThemeIndex, Mode=TwoWay}"
                     >
                         <ComboBoxItem x:Uid="Appearance_ThemeSystem" Tag="System" />
@@ -30,6 +30,53 @@
                         <ComboBoxItem x:Uid="Appearance_ThemeDark" Tag="Dark" />
                     </ComboBox>
                 </controls:SettingsCard>
+
+                <TextBlock
+                    x:Uid="Logging_SectionTitle"
+                    Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                />
+                <controls:SettingsExpander x:Uid="Logging_Expander">
+                    <controls:SettingsExpander.HeaderIcon>
+                        <FontIcon Glyph="&#xE9D9;" />
+                    </controls:SettingsExpander.HeaderIcon>
+                    <ToggleSwitch
+                        x:Uid="Logging_EnableToggle"
+                        IsOn="{x:Bind ViewModel.LoggingEnabled, Mode=TwoWay}"
+                    />
+                    <controls:SettingsExpander.Items>
+                        <controls:SettingsCard x:Uid="Logging_LevelCard">
+                            <ComboBox
+                                Width="120"
+                                SelectedIndex="{x:Bind ViewModel.SelectedLevelIndex, Mode=TwoWay}"
+                            >
+                                <ComboBoxItem x:Uid="Logging_LevelVerbose" />
+                                <ComboBoxItem x:Uid="Logging_LevelDebug" />
+                                <ComboBoxItem x:Uid="Logging_LevelInformation" />
+                                <ComboBoxItem x:Uid="Logging_LevelWarning" />
+                                <ComboBoxItem x:Uid="Logging_LevelError" />
+                                <ComboBoxItem x:Uid="Logging_LevelFatal" />
+                            </ComboBox>
+                        </controls:SettingsCard>
+                        <controls:SettingsCard x:Uid="Logging_RetentionCard">
+                            <NumberBox
+                                Minimum="1"
+                                Maximum="33550336"
+                                LostFocus="RetentionBox_LostFocus"
+                                SpinButtonPlacementMode="Inline"
+                                Value="{x:Bind ViewModel.RetentionDays, Mode=TwoWay}"
+                            />
+                        </controls:SettingsCard>
+                        <controls:SettingsCard
+                            x:Uid="Logging_FolderCard"
+                            IsClickEnabled="True"
+                            Click="FolderCard_Click"
+                        >
+                            <controls:SettingsCard.ActionIcon>
+                                <FontIcon Glyph="&#xE8B7;" />
+                            </controls:SettingsCard.ActionIcon>
+                        </controls:SettingsCard>
+                    </controls:SettingsExpander.Items>
+                </controls:SettingsExpander>
             </StackPanel>
         </Grid>
     </ScrollViewer>

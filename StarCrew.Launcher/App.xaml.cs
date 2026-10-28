@@ -1,5 +1,9 @@
+using System.Globalization;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
+using Serilog;
 using StarCrew.Launcher.Services;
 using StarCrew.Launcher.ViewModels;
 using Velopack;
@@ -16,8 +20,15 @@ public sealed partial class App : Application
     public App()
     {
         VelopackApp.Build().Run();
+
+        IDictionary<string, object> store = CreateSettingsStore();
+        ILoggingSettings loggingSettings = new LoggingSettings(store);
+        LoggingBootstrap.Configure(loggingSettings);
+        AttachGlobalExceptionHandlers();
+
         InitializeComponent();
-        Services = BuildServices();
+        Services = BuildServices(store, loggingSettings);
+        WriteStartupSummary();
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
@@ -26,10 +37,46 @@ public sealed partial class App : Application
         _window.Activate();
     }
 
-    private static ServiceProvider BuildServices()
+    private void AttachGlobalExceptionHandlers()
+    {
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+        {
+            Log.Fatal(e.ExceptionObject as Exception, "未处理的异常，进程即将终止");
+            Log.CloseAndFlush();
+        };
+
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            Log.Error(e.Exception, "未观察到的任务异常");
+            e.SetObserved();
+        };
+
+        UnhandledException += (_, e) =>
+        {
+            Log.Fatal(e.Exception, "UI 线程未处理的异常");
+            Log.CloseAndFlush();
+        };
+    }
+
+    private static void WriteStartupSummary() =>
+        Log.Information(
+            "StarCrew Launcher {Version} 启动：OS {Os}，架构 {Architecture}，语言 {Language}，日志目录 {LogDirectory}",
+            Services.GetRequiredService<IAppInfo>().Version ?? "unknown",
+            Environment.OSVersion.VersionString,
+            RuntimeInformation.OSArchitecture,
+            CultureInfo.CurrentUICulture.Name,
+            AppPaths.LogDirectory
+        );
+
+    private static ServiceProvider BuildServices(
+        IDictionary<string, object> store,
+        ILoggingSettings loggingSettings
+    )
     {
         ServiceCollection services = [];
-        services.AddSingleton(_ => CreateSettingsStore());
+        services.AddLogging(builder => builder.AddSerilog(Log.Logger, dispose: false));
+        services.AddSingleton(store);
+        services.AddSingleton(loggingSettings);
         services.AddSingleton<IAppStrings, AppStrings>();
         services.AddSingleton<IThemeSettings>(sp => new ThemeSettings(
             sp.GetRequiredService<IDictionary<string, object>>()
@@ -38,6 +85,7 @@ public sealed partial class App : Application
         services.AddSingleton<IExternalLauncher, ExternalLauncher>();
         services.AddSingleton<IFilePickerService, FilePickerService>();
         services.AddSingleton<INotificationService, NotificationService>();
+        services.AddSingleton<IAppRestarter, AppRestarter>();
         services.AddSingleton<FrameNavigationService>();
         services.AddSingleton<INavigationService>(sp =>
             sp.GetRequiredService<FrameNavigationService>()
@@ -50,7 +98,10 @@ public sealed partial class App : Application
         services.AddSingleton<ISteamEnvironment, WindowsSteamEnvironment>();
         services.AddSingleton<ISteamClient, WindowsSteamClient>();
         services.AddSingleton<IInstanceLauncher, InstanceLauncher>();
-        services.AddSingleton<IInstanceStore>(_ => new InstanceStore(AppPaths.StateFile));
+        services.AddSingleton<IInstanceStore>(sp => new InstanceStore(
+            AppPaths.StateFile,
+            sp.GetRequiredService<ILogger<InstanceStore>>()
+        ));
         services.AddSingleton<IGameVersionCatalog, GameVersionCatalog>();
         services.AddSingleton<IDepotDownloaderRunner, ProcessRunner>();
         services.AddSingleton<DepotDownloaderLocator>();

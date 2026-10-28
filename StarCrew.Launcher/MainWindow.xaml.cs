@@ -160,7 +160,8 @@ public sealed partial class MainWindow : Window
                 NotificationSeverity.Warning => InfoBarSeverity.Warning,
                 NotificationSeverity.Error => InfoBarSeverity.Error,
                 _ => InfoBarSeverity.Informational,
-            }
+            },
+            message.Action
         );
 
     private void OnFirstActivated(object sender, WindowActivatedEventArgs args)
@@ -305,17 +306,27 @@ public sealed partial class MainWindow : Window
         string title,
         string? message,
         InfoBarSeverity severity,
+        NotificationAction? action = null,
         int autoCloseSeconds = 4
-    ) =>
-        ToastQueue.Show(
-            new Notification
-            {
-                Title = title,
-                Message = message ?? string.Empty,
-                Severity = severity,
-                Duration = TimeSpan.FromSeconds(autoCloseSeconds),
-            }
-        );
+    )
+    {
+        Notification notification = new()
+        {
+            Title = title,
+            Message = message ?? string.Empty,
+            Severity = severity,
+            Duration = TimeSpan.FromSeconds(autoCloseSeconds),
+        };
+
+        if (action is not null)
+        {
+            Button button = new() { Content = action.Label };
+            button.Click += (_, _) => action.Callback();
+            notification.ActionButton = button;
+        }
+
+        ToastQueue.Show(notification);
+    }
 
     private bool _isToastExitAnimating;
 

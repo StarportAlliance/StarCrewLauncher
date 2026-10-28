@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
@@ -14,16 +15,19 @@ internal sealed class FrameNavigationService : INavigationService
     internal event Action<NavigationTarget>? SectionFrameNavigated;
 
     private readonly IServiceProvider _services;
+    private readonly ILogger<FrameNavigationService> _logger;
     private Frame? _mainFrame;
     private Frame? _sectionFrame;
     private NavigationTarget? _mainTarget;
     private NavigationTarget? _sectionTarget;
     private NavigationTarget? _pendingSection;
 
-    public FrameNavigationService(IServiceProvider services)
+    public FrameNavigationService(IServiceProvider services, ILogger<FrameNavigationService> logger)
     {
         ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(logger);
         _services = services;
+        _logger = logger;
     }
 
     public void AttachMainFrame(Frame frame)
@@ -176,6 +180,7 @@ internal sealed class FrameNavigationService : INavigationService
         object? viewModel = viewModelType is null
             ? parameter
             : _services.GetRequiredService(viewModelType);
+        _logger.LogDebug("导航到 {Target}", target);
         if (transitionInfo is null)
         {
             frame.Navigate(pageType, viewModel);
