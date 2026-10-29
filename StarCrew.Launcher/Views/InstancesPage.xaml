@@ -26,18 +26,17 @@
                     VerticalAlignment="Center"
                     Spacing="12"
                 >
-                    <TextBlock
-                        x:Uid="Instances_EmptyHint"
-                        MaxWidth="480"
-                        TextAlignment="Center"
-                        TextWrapping="Wrap"
-                    />
-                    <Button
+                    <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="8">
+                        <TextBlock
+                            x:Uid="Instances_EmptyHint"
+                            VerticalAlignment="Center"
+                            Style="{StaticResource TitleTextBlockStyle}"
+                        />
+                    </StackPanel>
+                    <HyperlinkButton
                         x:Uid="Instances_GoDownloadButton"
-                        Width="200"
                         HorizontalAlignment="Center"
                         Command="{x:Bind ViewModel.GoDownloadCommand}"
-                        Style="{StaticResource AccentButtonStyle}"
                     />
                 </StackPanel>
 

@@ -250,7 +250,7 @@
     <value>实例管理</value>
   </data>
   <data name="Instances_EmptyHint.Text" xml:space="preserve">
-    <value>还没有任何实例。去「游戏下载」页下载一个原版 Among Us，实例就会出现在这里。</value>
+    <value>这里还没有任何实例...</value>
   </data>
   <data name="Instances_GoDownloadButton.Content" xml:space="preserve">
     <value>前往下载</value>
