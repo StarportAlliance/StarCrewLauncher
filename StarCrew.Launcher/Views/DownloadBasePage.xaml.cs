@@ -97,7 +97,7 @@ public sealed partial class DownloadBasePage : Page
         TextBlock description = new()
         {
             Text = _strings.Format("DownloadBase_PublishedAtFormat", dateText),
-            FontSize = 12,
+            Style = (Style)Application.Current.Resources["CaptionTextBlockStyle"],
             TextWrapping = TextWrapping.Wrap,
         };
         try
@@ -115,7 +115,7 @@ public sealed partial class DownloadBasePage : Page
         {
             Width = 40,
             Height = 40,
-            CornerRadius = new CornerRadius(4),
+            CornerRadius = (CornerRadius)Application.Current.Resources["ControlCornerRadius"],
             Background = new ImageBrush
             {
                 ImageSource = new BitmapImage(new Uri("ms-appx:///Assets/AmongUs.png")),

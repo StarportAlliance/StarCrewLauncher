@@ -153,28 +153,28 @@
                     IsClosable="True"
                     IsOpen="False"
                 >
-                    <!-- App.xaml 的 ThemeDictionaries 会被 XamlControlsResources 抢先，只能挂在元素上覆盖 -->
+                    <!-- 默认 Info 背景在深色下接近透明，悬浮在背景图上会糊，这里换成实色表面色 -->
                     <InfoBar.Resources>
                         <ResourceDictionary>
                             <ResourceDictionary.ThemeDictionaries>
-                                <ResourceDictionary x:Key="Dark">
-                                    <SolidColorBrush
+                                <ResourceDictionary x:Key="Light">
+                                    <StaticResource
                                         x:Key="InfoBarInformationalSeverityBackgroundBrush"
-                                        Color="#2E2E2E"
+                                        ResourceKey="SolidBackgroundFillColorTertiaryBrush"
                                     />
-                                    <SolidColorBrush
+                                    <StaticResource
                                         x:Key="InfoBarInformationalSeverityIconBackground"
-                                        Color="#4CC2FF"
+                                        ResourceKey="SystemFillColorAttentionBrush"
                                     />
                                 </ResourceDictionary>
-                                <ResourceDictionary x:Key="Light">
-                                    <SolidColorBrush
+                                <ResourceDictionary x:Key="Dark">
+                                    <StaticResource
                                         x:Key="InfoBarInformationalSeverityBackgroundBrush"
-                                        Color="#F7F7F7"
+                                        ResourceKey="SolidBackgroundFillColorTertiaryBrush"
                                     />
-                                    <SolidColorBrush
+                                    <StaticResource
                                         x:Key="InfoBarInformationalSeverityIconBackground"
-                                        Color="#0078D4"
+                                        ResourceKey="SystemFillColorAttentionBrush"
                                     />
                                 </ResourceDictionary>
                             </ResourceDictionary.ThemeDictionaries>

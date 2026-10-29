@@ -12,13 +12,16 @@
                 Property="Foreground"
                 Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
             />
-            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontSize" Value="{ThemeResource InfoBadgeValueFontSize}" />
             <Setter Property="Padding" Value="8,1,8,2" />
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="InfoBadge">
-                        <Grid Background="{TemplateBinding Background}" CornerRadius="4">
+                        <Grid
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{StaticResource ControlCornerRadius}"
+                        >
                             <ContentPresenter
                                 Margin="{TemplateBinding Padding}"
                                 HorizontalAlignment="Center"
