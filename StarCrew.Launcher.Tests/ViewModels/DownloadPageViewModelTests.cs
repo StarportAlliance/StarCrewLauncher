@@ -146,6 +146,25 @@ public sealed class DownloadPageViewModelTests
     }
 
     [Fact]
+    public async Task RefreshCommand_WhileLoading_KeepsIsRefreshingUntilDone()
+    {
+        TaskCompletionSource<VersionCatalog> gate = new();
+        IGameVersionCatalog catalog = Substitute.For<IGameVersionCatalog>();
+        catalog.LoadAsync(Arg.Any<CancellationToken>()).Returns(gate.Task);
+        (DownloadPageViewModel vm, _, _, _, _, _) = Create(catalogMock: catalog);
+
+        Task refresh = vm.RefreshCommand.ExecuteAsync(null);
+        Assert.True(vm.IsRefreshing);
+        Assert.False(vm.IsNotRefreshing);
+
+        gate.SetResult(new VersionCatalog(1, [VersionEntry()]));
+        await refresh;
+
+        Assert.False(vm.IsRefreshing);
+        Assert.True(vm.IsNotRefreshing);
+    }
+
+    [Fact]
     public async Task FilteredItems_WithBlankSearch_ReturnsAllVersions()
     {
         GameVersionEntry latest = VersionEntry();

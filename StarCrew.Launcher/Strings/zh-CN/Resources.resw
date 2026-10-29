@@ -341,7 +341,7 @@
   <data name="DownloadBase_SearchBox.PlaceholderText" xml:space="preserve">
     <value>搜索版本名称</value>
   </data>
-  <data name="DownloadBase_RefreshButton.Content" xml:space="preserve">
+  <data name="DownloadBase_RefreshButton.Text" xml:space="preserve">
     <value>刷新</value>
   </data>
   <data name="DownloadBase_PublishedAtFormat" xml:space="preserve">

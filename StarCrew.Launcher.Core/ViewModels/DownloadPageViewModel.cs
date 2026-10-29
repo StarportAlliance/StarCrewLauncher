@@ -85,11 +85,18 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
 
     public bool CanStartInstall => !NeedsLogin;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsNotRefreshing))]
+    public partial bool IsRefreshing { get; set; }
+
+    public bool IsNotRefreshing => !IsRefreshing;
+
     [RelayCommand]
     private async Task RefreshAsync() => await LoadVersionsAsync();
 
     private async Task LoadVersionsAsync()
     {
+        IsRefreshing = true;
         try
         {
             VersionCatalog catalog = await _catalog.LoadAsync();
@@ -100,6 +107,10 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         {
             Items = [];
             StatusMessage = _strings.Format("Download_VersionListFailedFormat", ex.Message);
+        }
+        finally
+        {
+            IsRefreshing = false;
         }
     }
 
