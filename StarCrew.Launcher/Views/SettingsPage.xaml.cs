@@ -43,6 +43,7 @@ public sealed partial class SettingsPage : Page
         string? tag = target switch
         {
             NavigationTarget.Appearance => "Appearance",
+            NavigationTarget.Advanced => "Advanced",
             NavigationTarget.About => "About",
             _ => null,
         };
@@ -72,6 +73,7 @@ public sealed partial class SettingsPage : Page
         NavigationTarget? target = selected.Tag switch
         {
             "Appearance" => NavigationTarget.Appearance,
+            "Advanced" => NavigationTarget.Advanced,
             "About" => NavigationTarget.About,
             _ => null,
         };

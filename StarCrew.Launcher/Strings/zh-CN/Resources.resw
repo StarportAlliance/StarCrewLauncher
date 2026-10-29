@@ -47,7 +47,10 @@
     <value>设置</value>
   </data>
   <data name="SettingsSection_Appearance.Content" xml:space="preserve">
-    <value>通用</value>
+    <value>外观</value>
+  </data>
+  <data name="SettingsSection_Advanced.Content" xml:space="preserve">
+    <value>高级</value>
   </data>
   <data name="SettingsSection_About.Content" xml:space="preserve">
     <value>关于</value>
@@ -55,10 +58,10 @@
 
   <!-- 外观设置 -->
   <data name="Appearance_SectionTitle.Text" xml:space="preserve">
-    <value>外观</value>
+    <value>主题</value>
   </data>
   <data name="Appearance_ThemeCard.Header" xml:space="preserve">
-    <value>主题</value>
+    <value>颜色模式</value>
   </data>
   <data name="Appearance_ThemeCard.Description" xml:space="preserve">
     <value>选择启动器要显示哪种颜色的主题</value>

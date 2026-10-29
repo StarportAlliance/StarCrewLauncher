@@ -109,6 +109,7 @@ public sealed partial class App : Application
         services.AddSingleton<IDownloadCoordinator, DownloadCoordinator>();
         services.AddTransient<HomeViewModel>();
         services.AddTransient<AppearanceViewModel>();
+        services.AddTransient<AdvancedViewModel>();
         services.AddTransient<AboutViewModel>();
         services.AddTransient<InstancesViewModel>();
         services.AddTransient<DownloadPageViewModel>();

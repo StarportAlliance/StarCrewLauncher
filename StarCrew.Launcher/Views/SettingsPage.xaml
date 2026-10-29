@@ -49,7 +49,12 @@
                         IsSelected="True"
                     >
                         <NavigationViewItem.Icon>
-                            <FontIcon Glyph="&#xE74C;" />
+                            <FontIcon Glyph="&#xE790;" />
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                    <NavigationViewItem x:Uid="SettingsSection_Advanced" Tag="Advanced">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xEC7A;" />
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
                     <NavigationViewItem x:Uid="SettingsSection_About" Tag="About">

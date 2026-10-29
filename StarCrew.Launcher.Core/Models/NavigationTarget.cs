@@ -18,8 +18,11 @@ internal enum NavigationTarget
     /// <summary>设置主页。</summary>
     Settings,
 
-    /// <summary>设置 - 通用。</summary>
+    /// <summary>设置 - 主题。</summary>
     Appearance,
+
+    /// <summary>设置 - 高级。</summary>
+    Advanced,
 
     /// <summary>设置 - 关于。</summary>
     About,

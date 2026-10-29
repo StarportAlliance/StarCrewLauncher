@@ -1,0 +1,64 @@
+<Page
+    x:Class="StarCrew.Launcher.Views.AdvancedPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Padding="24,0,24,24">
+            <StackPanel
+                x:Name="AdvancedPanel"
+                MaxWidth="1000"
+                HorizontalAlignment="Stretch"
+                Spacing="{StaticResource SettingsCardSpacing}"
+            >
+                <TextBlock
+                    x:Uid="Logging_SectionTitle"
+                    Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                />
+                <controls:SettingsExpander x:Uid="Logging_Expander">
+                    <controls:SettingsExpander.HeaderIcon>
+                        <FontIcon Glyph="&#xE9D9;" />
+                    </controls:SettingsExpander.HeaderIcon>
+                    <ToggleSwitch
+                        x:Uid="Logging_EnableToggle"
+                        IsOn="{x:Bind ViewModel.LoggingEnabled, Mode=TwoWay}"
+                    />
+                    <controls:SettingsExpander.Items>
+                        <controls:SettingsCard x:Uid="Logging_LevelCard">
+                            <ComboBox
+                                Width="120"
+                                SelectedIndex="{x:Bind ViewModel.SelectedLevelIndex, Mode=TwoWay}"
+                            >
+                                <ComboBoxItem x:Uid="Logging_LevelVerbose" />
+                                <ComboBoxItem x:Uid="Logging_LevelDebug" />
+                                <ComboBoxItem x:Uid="Logging_LevelInformation" />
+                                <ComboBoxItem x:Uid="Logging_LevelWarning" />
+                                <ComboBoxItem x:Uid="Logging_LevelError" />
+                                <ComboBoxItem x:Uid="Logging_LevelFatal" />
+                            </ComboBox>
+                        </controls:SettingsCard>
+                        <controls:SettingsCard x:Uid="Logging_RetentionCard">
+                            <NumberBox
+                                Minimum="1"
+                                Maximum="33550336"
+                                LostFocus="RetentionBox_LostFocus"
+                                SpinButtonPlacementMode="Inline"
+                                Value="{x:Bind ViewModel.RetentionDays, Mode=TwoWay}"
+                            />
+                        </controls:SettingsCard>
+                        <controls:SettingsCard
+                            x:Uid="Logging_FolderCard"
+                            IsClickEnabled="True"
+                            Click="FolderCard_Click"
+                        >
+                            <controls:SettingsCard.ActionIcon>
+                                <FontIcon Glyph="&#xE8B7;" />
+                            </controls:SettingsCard.ActionIcon>
+                        </controls:SettingsCard>
+                    </controls:SettingsExpander.Items>
+                </controls:SettingsExpander>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Page>

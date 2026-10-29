@@ -35,6 +35,13 @@ using System.Diagnostics.CodeAnalysis;
     "CA1515:TypesCanBeMadeInternal",
     Justification = "同上：XAML 代码隐藏类保持 public。",
     Scope = "type",
+    Target = "~T:StarCrew.Launcher.Views.AdvancedPage"
+)]
+[assembly: SuppressMessage(
+    "Maintainability",
+    "CA1515:TypesCanBeMadeInternal",
+    Justification = "同上：XAML 代码隐藏类保持 public。",
+    Scope = "type",
     Target = "~T:StarCrew.Launcher.Views.AboutPage"
 )]
 [assembly: SuppressMessage(
