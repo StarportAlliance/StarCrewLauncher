@@ -19,6 +19,8 @@ internal sealed partial class AdvancedViewModel
     ];
 
     private readonly ILoggingSettings _loggingSettings;
+    private readonly IVersionCacheSettings _versionCacheSettings;
+    private readonly IGameVersionCatalog _catalog;
     private readonly IAppStrings _strings;
     private readonly INotificationService _notifications;
     private readonly IAppRestarter _restarter;
@@ -28,6 +30,8 @@ internal sealed partial class AdvancedViewModel
 
     public AdvancedViewModel(
         ILoggingSettings loggingSettings,
+        IVersionCacheSettings versionCacheSettings,
+        IGameVersionCatalog catalog,
         IAppStrings strings,
         INotificationService notifications,
         IAppRestarter restarter,
@@ -36,12 +40,16 @@ internal sealed partial class AdvancedViewModel
     )
     {
         ArgumentNullException.ThrowIfNull(loggingSettings);
+        ArgumentNullException.ThrowIfNull(versionCacheSettings);
+        ArgumentNullException.ThrowIfNull(catalog);
         ArgumentNullException.ThrowIfNull(strings);
         ArgumentNullException.ThrowIfNull(notifications);
         ArgumentNullException.ThrowIfNull(restarter);
         ArgumentNullException.ThrowIfNull(external);
         ArgumentNullException.ThrowIfNull(logger);
         _loggingSettings = loggingSettings;
+        _versionCacheSettings = versionCacheSettings;
+        _catalog = catalog;
         _strings = strings;
         _notifications = notifications;
         _restarter = restarter;
@@ -103,6 +111,35 @@ internal sealed partial class AdvancedViewModel
 
             _loggingSettings.RetentionDays = days;
             MarkRestartNeeded();
+        }
+    }
+
+    // 与 NumberBox.Value 同型（double，清空时为 NaN）；落库前取整并夹取到 0-720，0 表示禁用缓存
+    public double VersionCacheHours
+    {
+        get => _versionCacheSettings.MaxAgeHours;
+        set
+        {
+            if (!double.IsFinite(value))
+            {
+                return;
+            }
+
+            int hours = Math.Clamp(
+                (int)Math.Round(value),
+                VersionCacheSettings.MinMaxAgeHours,
+                VersionCacheSettings.MaxMaxAgeHours
+            );
+            if (_versionCacheSettings.MaxAgeHours == hours)
+            {
+                return;
+            }
+
+            _versionCacheSettings.MaxAgeHours = hours;
+            if (hours == 0)
+            {
+                _catalog.ClearCache();
+            }
         }
     }
 

@@ -135,6 +135,17 @@
     <value>无法打开日志文件夹</value>
   </data>
 
+  <!-- 缓存设置 -->
+  <data name="Cache_SectionTitle.Text" xml:space="preserve">
+    <value>缓存</value>
+  </data>
+  <data name="Cache_VersionExpiryCard.Header" xml:space="preserve">
+    <value>游戏版本列表过期时间</value>
+  </data>
+  <data name="Cache_VersionExpiryCard.Description" xml:space="preserve">
+    <value>指示启动器要缓存游戏版本列表的时间，单位为小时。设为 0 时禁用。手动刷新按钮不受该影响。</value>
+  </data>
+
   <!-- 关于页 -->
   <data name="About_SectionTitle.Text" xml:space="preserve">
     <value>关于</value>
@@ -346,6 +357,9 @@
   </data>
   <data name="DownloadBase_PublishedAtFormat" xml:space="preserve">
     <value>发布于 {0}</value>
+  </data>
+  <data name="DownloadBase_UpdatedAtFormat" xml:space="preserve">
+    <value>更新于 {0}</value>
   </data>
   <data name="DownloadBase_LoginHintTitle" xml:space="preserve">
     <value>未登录 Steam 账号</value>

@@ -32,4 +32,12 @@ public sealed partial class AdvancedPage : Page
             box.Value = ViewModel.RetentionDays;
         }
     }
+
+    private void VersionExpiryBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        if (sender is NumberBox box && double.IsNaN(box.Value) && ViewModel is not null)
+        {
+            box.Value = ViewModel.VersionCacheHours;
+        }
+    }
 }

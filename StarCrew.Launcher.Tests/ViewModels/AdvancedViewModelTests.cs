@@ -11,12 +11,16 @@ public sealed class AdvancedViewModelTests
 {
     private static AdvancedViewModel Create(
         ILoggingSettings? logging = null,
+        IVersionCacheSettings? cache = null,
+        IGameVersionCatalog? catalog = null,
         INotificationService? notifications = null,
         IAppRestarter? restarter = null,
         IExternalLauncher? external = null
     ) =>
         new(
             logging ?? Substitute.For<ILoggingSettings>(),
+            cache ?? Substitute.For<IVersionCacheSettings>(),
+            catalog ?? Substitute.For<IGameVersionCatalog>(),
             TestStrings.Instance,
             notifications ?? Substitute.For<INotificationService>(),
             restarter ?? Substitute.For<IAppRestarter>(),
@@ -99,6 +103,74 @@ public sealed class AdvancedViewModelTests
         vm.RetentionDays = double.NaN;
 
         settings.DidNotReceive().RetentionDays = Arg.Any<int>();
+    }
+
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(-3, 0)]
+    [InlineData(0.4, 0)]
+    [InlineData(48.6, 49)]
+    [InlineData(999, 720)]
+    public void VersionCacheHours_RoundsAndClamps(double input, int expected)
+    {
+        IVersionCacheSettings settings = Substitute.For<IVersionCacheSettings>();
+        settings.MaxAgeHours.Returns(24);
+        AdvancedViewModel vm = Create(cache: settings);
+
+        vm.VersionCacheHours = input;
+
+        settings.Received(1).MaxAgeHours = expected;
+    }
+
+    [Fact]
+    public void VersionCacheHours_NaN_Ignores()
+    {
+        IVersionCacheSettings settings = Substitute.For<IVersionCacheSettings>();
+        AdvancedViewModel vm = Create(cache: settings);
+
+        vm.VersionCacheHours = double.NaN;
+
+        settings.DidNotReceive().MaxAgeHours = Arg.Any<int>();
+    }
+
+    [Fact]
+    public void VersionCacheHours_Zero_ClearsCache()
+    {
+        IVersionCacheSettings settings = Substitute.For<IVersionCacheSettings>();
+        settings.MaxAgeHours.Returns(24);
+        IGameVersionCatalog catalog = Substitute.For<IGameVersionCatalog>();
+        AdvancedViewModel vm = Create(cache: settings, catalog: catalog);
+
+        vm.VersionCacheHours = 0;
+
+        catalog.Received(1).ClearCache();
+    }
+
+    [Fact]
+    public void VersionCacheHours_NonZero_KeepsCache()
+    {
+        IVersionCacheSettings settings = Substitute.For<IVersionCacheSettings>();
+        settings.MaxAgeHours.Returns(24);
+        IGameVersionCatalog catalog = Substitute.For<IGameVersionCatalog>();
+        AdvancedViewModel vm = Create(cache: settings, catalog: catalog);
+
+        vm.VersionCacheHours = 48;
+
+        catalog.DidNotReceive().ClearCache();
+    }
+
+    [Fact]
+    public void VersionCacheHours_DoesNotNotifyRestart()
+    {
+        IVersionCacheSettings settings = Substitute.For<IVersionCacheSettings>();
+        settings.MaxAgeHours.Returns(24);
+        INotificationService notifications = Substitute.For<INotificationService>();
+        AdvancedViewModel vm = Create(cache: settings, notifications: notifications);
+
+        vm.VersionCacheHours = 48;
+
+        settings.Received(1).MaxAgeHours = 48;
+        notifications.DidNotReceiveWithAnyArgs().Notify(default!, default, default);
     }
 
     [Fact]

@@ -20,27 +20,46 @@ internal sealed class GameVersionCatalog : IGameVersionCatalog
     private readonly HttpClient _http;
     private readonly string _cacheDirectory;
     private readonly IAppStrings _strings;
+    private readonly IVersionCacheSettings _settings;
 
-    public GameVersionCatalog(IAppStrings strings)
-        : this(new HttpClient(), AppPaths.CacheDirectory, strings) { }
+    public GameVersionCatalog(IAppStrings strings, IVersionCacheSettings settings)
+        : this(new HttpClient(), AppPaths.CacheDirectory, strings, settings) { }
 
-    internal GameVersionCatalog(HttpClient httpClient, string cacheDirectory, IAppStrings strings)
+    internal GameVersionCatalog(
+        HttpClient httpClient,
+        string cacheDirectory,
+        IAppStrings strings,
+        IVersionCacheSettings settings
+    )
     {
         ArgumentNullException.ThrowIfNull(strings);
+        ArgumentNullException.ThrowIfNull(settings);
         _strings = strings;
         _http = httpClient;
         _cacheDirectory = cacheDirectory;
+        _settings = settings;
     }
 
-    public async Task<VersionCatalog> LoadAsync(CancellationToken cancellationToken = default)
+    public async Task<VersionCatalogLoadResult> LoadAsync(
+        bool forceRefresh = false,
+        CancellationToken cancellationToken = default
+    )
     {
+        bool cacheEnabled = _settings.MaxAgeHours > 0;
+        VersionCatalogLoadResult? cached = cacheEnabled
+            ? await TryReadCacheAsync(cancellationToken)
+            : null;
+        if (!forceRefresh && cached is not null && IsFresh(cached.WrittenAt))
+        {
+            return cached;
+        }
+
         VersionCatalog? remote = await TryFetchRemoteAsync(cancellationToken);
         if (remote is not null)
         {
-            return remote;
+            return new VersionCatalogLoadResult(remote, DateTimeOffset.UtcNow);
         }
 
-        VersionCatalog? cached = await TryReadCacheAsync(cancellationToken);
         if (cached is not null)
         {
             return cached;
@@ -49,13 +68,31 @@ internal sealed class GameVersionCatalog : IGameVersionCatalog
         throw new InvalidOperationException(_strings.GetString("Catalog_FetchFailed"));
     }
 
+    public void ClearCache()
+    {
+        try
+        {
+            string cacheFile = Path.Combine(_cacheDirectory, CacheFileName);
+            File.Delete(cacheFile);
+            File.Delete(cacheFile + ".tmp");
+        }
+        catch (Exception)
+        {
+            // 删除失败时静默忽略，禁用缓存后同样不会再读取
+        }
+    }
+
+    private bool IsFresh(DateTimeOffset writtenAt) =>
+        DateTimeOffset.UtcNow - writtenAt <= TimeSpan.FromHours(_settings.MaxAgeHours);
+
     private async Task<VersionCatalog?> TryFetchRemoteAsync(CancellationToken cancellationToken)
     {
         try
         {
             string json = await _http.GetStringAsync(CatalogUri, cancellationToken);
             VersionCatalog? parsed = Parse(json);
-            if (parsed is not null)
+            // 服务端返回空列表时不覆盖本地可用缓存；禁用缓存时也不落盘
+            if (parsed is not null && parsed.Versions.Count > 0 && _settings.MaxAgeHours > 0)
             {
                 await TryWriteCacheAsync(json, cancellationToken);
             }
@@ -72,7 +109,9 @@ internal sealed class GameVersionCatalog : IGameVersionCatalog
         }
     }
 
-    private async Task<VersionCatalog?> TryReadCacheAsync(CancellationToken cancellationToken)
+    private async Task<VersionCatalogLoadResult?> TryReadCacheAsync(
+        CancellationToken cancellationToken
+    )
     {
         try
         {
@@ -83,7 +122,17 @@ internal sealed class GameVersionCatalog : IGameVersionCatalog
             }
 
             string json = await File.ReadAllTextAsync(cacheFile, cancellationToken);
-            return Parse(json);
+            VersionCatalog? parsed = Parse(json);
+            if (parsed is null)
+            {
+                return null;
+            }
+
+            DateTime writtenAt = File.GetLastWriteTimeUtc(cacheFile);
+            return new VersionCatalogLoadResult(
+                parsed,
+                new DateTimeOffset(writtenAt, TimeSpan.Zero)
+            );
         }
         catch (OperationCanceledException)
         {
@@ -101,7 +150,9 @@ internal sealed class GameVersionCatalog : IGameVersionCatalog
         {
             Directory.CreateDirectory(_cacheDirectory);
             string cacheFile = Path.Combine(_cacheDirectory, CacheFileName);
-            await File.WriteAllTextAsync(cacheFile, json, cancellationToken);
+            string tempFile = cacheFile + ".tmp";
+            await File.WriteAllTextAsync(tempFile, json, cancellationToken);
+            File.Move(tempFile, cacheFile, overwrite: true);
         }
         catch (OperationCanceledException)
         {

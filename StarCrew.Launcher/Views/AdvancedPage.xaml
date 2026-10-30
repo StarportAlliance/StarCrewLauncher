@@ -58,6 +58,23 @@
                         </controls:SettingsCard>
                     </controls:SettingsExpander.Items>
                 </controls:SettingsExpander>
+                <TextBlock
+                    x:Uid="Cache_SectionTitle"
+                    Margin="1,12,0,6"
+                    Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                />
+                <controls:SettingsCard x:Uid="Cache_VersionExpiryCard">
+                    <controls:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xECC5;" />
+                    </controls:SettingsCard.HeaderIcon>
+                    <NumberBox
+                        Minimum="0"
+                        Maximum="720"
+                        LostFocus="VersionExpiryBox_LostFocus"
+                        SpinButtonPlacementMode="Inline"
+                        Value="{x:Bind ViewModel.VersionCacheHours, Mode=TwoWay}"
+                    />
+                </controls:SettingsCard>
             </StackPanel>
         </Grid>
     </ScrollViewer>

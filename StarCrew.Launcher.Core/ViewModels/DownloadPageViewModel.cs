@@ -1,3 +1,4 @@
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using StarCrew.Launcher.Models;
@@ -39,7 +40,7 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         AccountName = _store.Load().SteamAccountName;
         Items = [];
         StatusMessage = _strings.GetString("Download_Ready");
-        _ = LoadVersionsAsync();
+        _ = LoadVersionsAsync(forceRefresh: false);
     }
 
     [ObservableProperty]
@@ -71,6 +72,12 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     [ObservableProperty]
     public partial string StatusMessage { get; set; }
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasCatalogUpdatedAt))]
+    public partial string? CatalogUpdatedAtText { get; set; }
+
+    public bool HasCatalogUpdatedAt => CatalogUpdatedAtText is not null;
+
     /// <summary>进度百分比。</summary>
     [ObservableProperty]
     public partial double Progress { get; set; }
@@ -92,20 +99,30 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     public bool IsNotRefreshing => !IsRefreshing;
 
     [RelayCommand]
-    private async Task RefreshAsync() => await LoadVersionsAsync();
+    private async Task RefreshAsync() => await LoadVersionsAsync(forceRefresh: true);
 
-    private async Task LoadVersionsAsync()
+    private async Task LoadVersionsAsync(bool forceRefresh)
     {
         IsRefreshing = true;
         try
         {
-            VersionCatalog catalog = await _catalog.LoadAsync();
-            Items = catalog.Versions;
-            StatusMessage = _strings.Format("Download_VersionsCountFormat", catalog.Versions.Count);
+            VersionCatalogLoadResult result = await _catalog.LoadAsync(forceRefresh: forceRefresh);
+            Items = result.Catalog.Versions;
+            StatusMessage = _strings.Format(
+                "Download_VersionsCountFormat",
+                result.Catalog.Versions.Count
+            );
+            CatalogUpdatedAtText = _strings.Format(
+                "DownloadBase_UpdatedAtFormat",
+                result
+                    .WrittenAt.ToLocalTime()
+                    .ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
+            );
         }
         catch (Exception ex)
         {
             Items = [];
+            CatalogUpdatedAtText = null;
             StatusMessage = _strings.Format("Download_VersionListFailedFormat", ex.Message);
         }
         finally

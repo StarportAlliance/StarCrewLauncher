@@ -1,3 +1,4 @@
+using System.Globalization;
 using NSubstitute;
 using StarCrew.Launcher.Models;
 using StarCrew.Launcher.Services;
@@ -128,17 +129,66 @@ public sealed class DownloadPageViewModelTests
     }
 
     [Fact]
+    public async Task RefreshCommand_ForcesRemoteRefresh()
+    {
+        IGameVersionCatalog catalog = Substitute.For<IGameVersionCatalog>();
+        catalog
+            .LoadAsync(Arg.Any<bool>(), Arg.Any<CancellationToken>())
+            .Returns(
+                new VersionCatalogLoadResult(
+                    new VersionCatalog(1, [VersionEntry()]),
+                    DateTimeOffset.UtcNow
+                )
+            );
+        (DownloadPageViewModel vm, _, _, _, _, _) = Create(catalogMock: catalog);
+
+        await vm.RefreshCommand.ExecuteAsync(null);
+
+        await catalog.Received(1).LoadAsync(true, Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task RefreshCommand_WithLoadedCatalog_ShowsUpdatedAtText()
+    {
+        DateTimeOffset writtenAt = new(2026, 10, 30, 2, 0, 0, TimeSpan.Zero);
+        IGameVersionCatalog catalog = Substitute.For<IGameVersionCatalog>();
+        catalog
+            .LoadAsync(Arg.Any<bool>(), Arg.Any<CancellationToken>())
+            .Returns(
+                new VersionCatalogLoadResult(new VersionCatalog(1, [VersionEntry()]), writtenAt)
+            );
+        (DownloadPageViewModel vm, _, _, _, _, _) = Create(catalogMock: catalog);
+
+        await vm.RefreshCommand.ExecuteAsync(null);
+
+        string dateText = writtenAt
+            .ToLocalTime()
+            .ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+        Assert.Equal(
+            TestStrings.Instance.Format("DownloadBase_UpdatedAtFormat", dateText),
+            vm.CatalogUpdatedAtText
+        );
+        Assert.True(vm.HasCatalogUpdatedAt);
+    }
+
+    [Fact]
     public async Task RefreshCommand_WhenCatalogThrows_ShowsFailureStatus()
     {
         IGameVersionCatalog catalog = Substitute.For<IGameVersionCatalog>();
         catalog
-            .LoadAsync(Arg.Any<CancellationToken>())
-            .Returns(Task.FromException<VersionCatalog>(new InvalidOperationException("net down")));
+            .LoadAsync(Arg.Any<bool>(), Arg.Any<CancellationToken>())
+            .Returns(
+                Task.FromException<VersionCatalogLoadResult>(
+                    new InvalidOperationException("net down")
+                )
+            );
         (DownloadPageViewModel vm, _, _, _, _, _) = Create(catalogMock: catalog);
 
         await vm.RefreshCommand.ExecuteAsync(null);
 
         Assert.Empty(vm.Items);
+        Assert.Null(vm.CatalogUpdatedAtText);
+        Assert.False(vm.HasCatalogUpdatedAt);
         Assert.Equal(
             TestStrings.Instance.Format("Download_VersionListFailedFormat", "net down"),
             vm.StatusMessage
@@ -148,16 +198,21 @@ public sealed class DownloadPageViewModelTests
     [Fact]
     public async Task RefreshCommand_WhileLoading_KeepsIsRefreshingUntilDone()
     {
-        TaskCompletionSource<VersionCatalog> gate = new();
+        TaskCompletionSource<VersionCatalogLoadResult> gate = new();
         IGameVersionCatalog catalog = Substitute.For<IGameVersionCatalog>();
-        catalog.LoadAsync(Arg.Any<CancellationToken>()).Returns(gate.Task);
+        catalog.LoadAsync(Arg.Any<bool>(), Arg.Any<CancellationToken>()).Returns(gate.Task);
         (DownloadPageViewModel vm, _, _, _, _, _) = Create(catalogMock: catalog);
 
         Task refresh = vm.RefreshCommand.ExecuteAsync(null);
         Assert.True(vm.IsRefreshing);
         Assert.False(vm.IsNotRefreshing);
 
-        gate.SetResult(new VersionCatalog(1, [VersionEntry()]));
+        gate.SetResult(
+            new VersionCatalogLoadResult(
+                new VersionCatalog(1, [VersionEntry()]),
+                DateTimeOffset.UtcNow
+            )
+        );
         await refresh;
 
         Assert.False(vm.IsRefreshing);
@@ -447,8 +502,13 @@ public sealed class DownloadPageViewModelTests
         if (catalogMock is null)
         {
             catalogTarget
-                .LoadAsync(Arg.Any<CancellationToken>())
-                .Returns(catalog ?? new VersionCatalog(1, []));
+                .LoadAsync(Arg.Any<bool>(), Arg.Any<CancellationToken>())
+                .Returns(
+                    new VersionCatalogLoadResult(
+                        catalog ?? new VersionCatalog(1, []),
+                        DateTimeOffset.UtcNow
+                    )
+                );
         }
 
         ISteamLoginManager loginTarget = loginMock ?? Substitute.For<ISteamLoginManager>();

@@ -103,6 +103,13 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage(
     "Design",
     "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "缓存删除失败时静默忽略，禁用缓存后不会再读取。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.Services.GameVersionCatalog.ClearCache"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
     Justification = "下载失败时转失败结果回显，不崩。",
     Scope = "member",
     Target = "~M:StarCrew.Launcher.Services.DownloadCoordinator.InstallAsync(System.String,StarCrew.Launcher.Models.GameVersionEntry,System.IProgress{StarCrew.Launcher.Models.DownloadProgressInfo},System.Threading.CancellationToken)"
@@ -119,7 +126,7 @@ using System.Diagnostics.CodeAnalysis;
     "CA1031:DoNotCatchGeneralExceptionTypes",
     Justification = "版本列表加载失败时转空列表与状态提示，不崩。",
     Scope = "member",
-    Target = "~M:StarCrew.Launcher.ViewModels.DownloadPageViewModel.LoadVersionsAsync~System.Threading.Tasks.Task"
+    Target = "~M:StarCrew.Launcher.ViewModels.DownloadPageViewModel.LoadVersionsAsync(System.Boolean)"
 )]
 [assembly: SuppressMessage(
     "Design",
