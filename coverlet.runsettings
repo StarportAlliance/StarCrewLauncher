@@ -7,9 +7,6 @@
           <Format>cobertura</Format>
           <ExcludeByFile>**/*.xaml.cs,**/obj/**/*.cs,**/*.g.cs,**/*.g.i.cs,**/*AutoInitializer.cs</ExcludeByFile>
           <Exclude>[StarCrew.Launcher]*</Exclude>
-          <Threshold>80</Threshold>
-          <ThresholdType>line</ThresholdType>
-          <ThresholdStat>total</ThresholdStat>
         </Configuration>
       </DataCollector>
     </DataCollectors>

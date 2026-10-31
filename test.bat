@@ -14,8 +14,9 @@ rem Build csproj directly: the slnx only declares Debug/Release solution configu
 rem UI smoke tests launch this same ReleaseGate exe (SmokeTests.ResolveLauncherExe), so no extra Release build is needed.
 dotnet build StarCrew.Launcher\StarCrew.Launcher.csproj -c ReleaseGate --nologo --no-restore -p:TreatWarningsAsErrors=true || exit /b 1
 dotnet build StarCrew.Launcher.Tests\StarCrew.Launcher.Tests.csproj -c ReleaseGate --nologo --no-restore -p:TreatWarningsAsErrors=true || exit /b 1
-echo [5/6] Unit tests + coverage...
+echo [5/6] Unit tests + coverage (threshold enforced)...
 dotnet test StarCrew.Launcher.Tests\StarCrew.Launcher.Tests.csproj -c ReleaseGate --nologo --settings coverlet.runsettings --collect "XPlat Code Coverage" --results-directory ./TestResults --logger "trx;LogFileName=test.trx" || goto fail
+powershell -NoProfile -ExecutionPolicy Bypass -File check-coverage.ps1 || goto fail
 echo [6/6] UI smoke tests (launches the real window, no clicks)...
 dotnet test StarCrew.Launcher.UITests\StarCrew.Launcher.UITests.csproj -c ReleaseGate --nologo --results-directory ./TestResults --logger "trx;LogFileName=uitest.trx" || goto fail
 goto ok

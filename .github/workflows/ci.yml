@@ -47,6 +47,9 @@ jobs:
       - name: 全套测试 + 覆盖率
         run: dotnet test StarCrew.Launcher.slnx -c Release --nologo --no-build --settings coverlet.runsettings --collect "XPlat Code Coverage" --results-directory ./TestResults --logger "trx;LogFileName=test.trx"
 
+      - name: 校验覆盖率阈值（80% 行覆盖）
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File check-coverage.ps1
+
       - name: 上传测试产物
         if: always()
         uses: actions/upload-artifact@v4
@@ -71,7 +74,8 @@ jobs:
           language: C#
           label: code-coverage/dotnet-test
           # Code Quality 是付费功能（2026-10 实测约 $10/月），未启用时上传会 403。
-          # 这里故意 fail-open：真正的覆盖率门禁在 runsettings 的 80 硬门（免费、本地同样生效），
+          # 这里故意 fail-open：真正的覆盖率门禁由 check-coverage.ps1 校验（免费、本地同样生效）；
+          # coverlet 的 VSTest 收集器不支持 runsettings 阈值，别把 Threshold 写回去。
           # 上传只是给 GitHub 侧做展示/合并门禁用的。若将来启用了 Code Quality，
           # 上传会自动恢复工作，无需改 workflow。
           fail-on-error: false
