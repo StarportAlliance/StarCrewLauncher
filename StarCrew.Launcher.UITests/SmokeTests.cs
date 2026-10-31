@@ -11,8 +11,6 @@ public sealed class SmokeTests
     private const string SolutionFileName = "StarCrew.Launcher.slnx";
     private const string LauncherExeFileName = "StarCrew.Launcher.exe";
     private const string DownloadButtonText = "下载游戏";
-    private const string TargetFramework = "net10.0-windows10.0.26100.0";
-    private const string Architecture = "win-x64";
 
     [Fact]
     public void MainWindow_Shows_WithLaunchButton()
@@ -72,48 +70,32 @@ public sealed class SmokeTests
     private static string ResolveLauncherExe()
     {
         string repositoryRoot = FindRepositoryRoot();
-        string releaseExe = Path.Combine(
-            repositoryRoot,
-            "StarCrew.Launcher",
-            "bin",
-            "Release",
-            TargetFramework,
-            Architecture,
-            LauncherExeFileName
-        );
-        if (File.Exists(releaseExe))
+        string[] configurations = ["Release", "ReleaseGate", "Debug"];
+        foreach (string configuration in configurations)
         {
-            return releaseExe;
+            string binDirectory = Path.Combine(
+                repositoryRoot,
+                "StarCrew.Launcher",
+                "bin",
+                configuration
+            );
+            if (!Directory.Exists(binDirectory))
+            {
+                continue;
+            }
+
+            string? exe = Directory
+                .EnumerateFiles(binDirectory, LauncherExeFileName, SearchOption.AllDirectories)
+                .FirstOrDefault();
+            if (exe is not null)
+            {
+                return exe;
+            }
         }
 
-        string releaseGateExe = Path.Combine(
-            repositoryRoot,
-            "StarCrew.Launcher",
-            "bin",
-            "ReleaseGate",
-            TargetFramework,
-            Architecture,
-            LauncherExeFileName
+        throw new Xunit.Sdk.XunitException(
+            "StarCrew.Launcher.exe not found in Release, ReleaseGate or Debug output. Build the main project first (test.bat does this)."
         );
-        if (File.Exists(releaseGateExe))
-        {
-            return releaseGateExe;
-        }
-
-        string debugExe = Path.Combine(
-            repositoryRoot,
-            "StarCrew.Launcher",
-            "bin",
-            "Debug",
-            TargetFramework,
-            Architecture,
-            LauncherExeFileName
-        );
-        Assert.True(
-            File.Exists(debugExe),
-            "StarCrew.Launcher.exe not found in Release, ReleaseGate or Debug output. Build the main project first (check.bat does this)."
-        );
-        return debugExe;
     }
 
     private static string FindRepositoryRoot()

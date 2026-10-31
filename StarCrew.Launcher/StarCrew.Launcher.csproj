@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
         <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
         <RootNamespace>StarCrew.Launcher</RootNamespace>
         <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -14,11 +13,7 @@
         <EnableMsixTooling>true</EnableMsixTooling>
         <WindowsPackageType>None</WindowsPackageType>
         <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-        <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Version>0.3.0</Version>
-        <LangVersion>14</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(DesignTimeBuild)' == 'true'">
@@ -35,21 +30,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.251219" />
-        <PackageReference
-            Include="CommunityToolkit.WinUI.Controls.Primitives"
-            Version="8.2.251219"
-        />
-        <PackageReference
-            Include="CommunityToolkit.WinUI.Controls.SettingsControls"
-            Version="8.2.251219"
-        />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.12" />
-        <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.5.1" />
-        <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" />
-        <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
-        <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-        <PackageReference Include="Velopack" Version="1.2.161" />
+        <PackageReference Include="CommunityToolkit.WinUI.Behaviors" />
+        <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" />
+        <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="Microsoft.WindowsAppSDK" />
+        <PackageReference Include="Microsoft.Windows.SDK.BuildTools" />
+        <PackageReference Include="Serilog.Extensions.Logging" />
+        <PackageReference Include="Serilog.Sinks.File" />
+        <PackageReference Include="Velopack" />
     </ItemGroup>
 
     <ItemGroup>
@@ -71,7 +60,6 @@
         </Content>
     </ItemGroup>
 
-    <!-- DepotDownloader 随包分发：按 RID 从固定 Release 拉取并校验，缓存于 obj/ -->
     <PropertyGroup>
         <DepotDownloaderVersion>3.4.0</DepotDownloaderVersion>
         <DepotDownloaderDownloadBaseUrl Condition="'$(DepotDownloaderDownloadBaseUrl)' == ''"

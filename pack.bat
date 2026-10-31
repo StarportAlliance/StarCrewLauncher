@@ -5,7 +5,7 @@ echo.
 if "%~1"=="" (
   echo Usage: pack.bat ^<version^> [rid]
   echo Example: pack.bat 0.3.0 win-x64
-  echo Note: version must match the Version in StarCrew.Launcher.csproj.
+  echo Note: version must match the Version in Directory.Build.props.
   exit /b 1
 )
 set VERSION=%~1
@@ -22,7 +22,7 @@ where vpk >nul 2>nul
 if errorlevel 1 (
   echo [ERROR] vpk not found. Install it first: dotnet tool install -g vpk
   exit /b 1
-)-
+)
 vpk pack --packId StarCrew.Launcher --packVersion %VERSION% --packDir publish\%RID% --mainExe StarCrew.Launcher.exe --runtime %RID% || exit /b 1
 echo.
 echo [OK] Release ready under Releases\. Copy it to the update feed.
