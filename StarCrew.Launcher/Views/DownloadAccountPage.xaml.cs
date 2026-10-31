@@ -64,7 +64,14 @@ public sealed partial class DownloadAccountPage : Page
         AccountToggleText.Text = _strings.GetString(
             loggedIn ? "Account_ToggleLogout" : "Account_ToggleLogin"
         );
-        AccountToggle.Style = loggedIn ? null : (Style)Resources["AccountButtonAccentStyle"];
+        if (loggedIn)
+        {
+            AccountToggle.ClearValue(FrameworkElement.StyleProperty);
+        }
+        else
+        {
+            AccountToggle.Style = (Style)Resources["AccountButtonAccentStyle"];
+        }
     }
 
     private async void AccountToggle_Click(object sender, RoutedEventArgs e)
