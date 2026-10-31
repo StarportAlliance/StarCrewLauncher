@@ -243,6 +243,9 @@
   <data name="About_VersionFormat" xml:space="preserve">
     <value>版本 {0}</value>
   </data>
+  <data name="About_VersionFormatAlpha" xml:space="preserve">
+    <value>版本 {0} (Alpha Version)</value>
+  </data>
   <data name="About_UpdateAvailableTitle" xml:space="preserve">
     <value>发现新版本</value>
   </data>

@@ -1,7 +1,9 @@
 namespace StarCrew.Launcher.Services;
 
-internal sealed class AppInfo : IAppInfo
+internal sealed class AppInfo(IUpdateClient updateClient) : IAppInfo
 {
+    public bool IsDevelopment => !updateClient.IsInstalled;
+
     public string? Version
     {
         get

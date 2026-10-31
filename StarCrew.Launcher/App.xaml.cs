@@ -118,7 +118,8 @@ public sealed partial class App : Application
             sp.GetRequiredService<IThemeSettings>(),
             sp.GetRequiredService<INotificationService>(),
             sp.GetRequiredService<FrameNavigationService>(),
-            sp.GetRequiredService<IFilePickerService>()
+            sp.GetRequiredService<IFilePickerService>(),
+            sp.GetRequiredService<IAppInfo>()
         ));
         return services.BuildServiceProvider();
     }

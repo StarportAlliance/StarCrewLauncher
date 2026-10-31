@@ -36,7 +36,10 @@ internal sealed partial class AboutViewModel : ObservableObject
     public string VersionDescription =>
         _appInfo.Version is null
             ? _strings.GetString("About_VersionUnknown")
-            : _strings.Format("About_VersionFormat", _appInfo.Version);
+            : _strings.Format(
+                _appInfo.IsDevelopment ? "About_VersionFormatAlpha" : "About_VersionFormat",
+                _appInfo.Version
+            );
 
     public event EventHandler<string>? UpdateAvailable;
 

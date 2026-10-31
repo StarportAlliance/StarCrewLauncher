@@ -83,6 +83,18 @@ public sealed class AboutViewModelTests
     }
 
     [Fact]
+    public void VersionDescription_WhenDevelopment_FormatsAlphaVersion()
+    {
+        (AboutViewModel vm, _, _, _, IAppInfo appInfo) = Create();
+        appInfo.IsDevelopment.Returns(true);
+
+        Assert.Equal(
+            TestStrings.Instance.Format("About_VersionFormatAlpha", "0.3.0"),
+            vm.VersionDescription
+        );
+    }
+
+    [Fact]
     public async Task CheckUpdateCommand_WhenUpToDate_NotifiesLatest()
     {
         (AboutViewModel vm, IUpdateClient client, _, INotificationService notifications, _) =
@@ -247,6 +259,7 @@ public sealed class AboutViewModelTests
         INotificationService notifications = Substitute.For<INotificationService>();
         IAppInfo appInfo = Substitute.For<IAppInfo>();
         appInfo.Version.Returns("0.3.0");
+        appInfo.IsDevelopment.Returns(false);
         AppUpdater updater = new(client, TestStrings.Instance, NullLogger<AppUpdater>.Instance);
         return (
             new AboutViewModel(updater, launcher, notifications, appInfo, TestStrings.Instance),

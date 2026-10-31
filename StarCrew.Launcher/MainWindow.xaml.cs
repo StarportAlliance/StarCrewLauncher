@@ -30,16 +30,19 @@ public sealed partial class MainWindow : Window
         IThemeSettings themeSettings,
         INotificationService notifications,
         FrameNavigationService navigation,
-        IFilePickerService filePicker
+        IFilePickerService filePicker,
+        IAppInfo appInfo
     )
     {
         ArgumentNullException.ThrowIfNull(themeSettings);
         ArgumentNullException.ThrowIfNull(notifications);
         ArgumentNullException.ThrowIfNull(navigation);
         ArgumentNullException.ThrowIfNull(filePicker);
+        ArgumentNullException.ThrowIfNull(appInfo);
 
         InitializeComponent();
         Title = "StarCrew Launcher";
+        AppTitleBar.Subtitle = appInfo.IsDevelopment ? "Alpha" : null;
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "icon.ico"));
         SystemBackdrop = new MicaBackdrop();
         ExtendsContentIntoTitleBar = true;
