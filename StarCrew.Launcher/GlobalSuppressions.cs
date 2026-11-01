@@ -101,6 +101,13 @@ using System.Diagnostics.CodeAnalysis;
     Target = "~M:StarCrew.Launcher.Views.InstancesPage.BuildCard(StarCrew.Launcher.ViewModels.InstanceItemViewModel)"
 )]
 [assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "启动期任何异常都必须弹窗告知并退出，此时日志尚未初始化。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.App.#ctor"
+)]
+[assembly: SuppressMessage(
     "Security",
     "CA5392:UseDefaultDllImportSearchPathsAttributeForPInvokes",
     Justification = "第三方包自带文件，无权修改；自有 P/Invoke 已全加 DefaultDllImportSearchPaths。",

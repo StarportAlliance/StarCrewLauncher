@@ -19,16 +19,24 @@ public sealed partial class App : Application
 
     public App()
     {
-        VelopackApp.Build().Run();
+        try
+        {
+            VelopackApp.Build().Run();
 
-        IDictionary<string, object> store = CreateSettingsStore();
-        ILoggingSettings loggingSettings = new LoggingSettings(store);
-        LoggingBootstrap.Configure(loggingSettings);
-        AttachGlobalExceptionHandlers();
+            IDictionary<string, object> store = CreateSettingsStore();
+            ILoggingSettings loggingSettings = new LoggingSettings(store);
+            LoggingBootstrap.Configure(loggingSettings);
+            AttachGlobalExceptionHandlers();
 
-        InitializeComponent();
-        Services = BuildServices(store, loggingSettings);
-        WriteStartupSummary();
+            InitializeComponent();
+            Services = BuildServices(store, loggingSettings);
+            WriteStartupSummary();
+        }
+        catch (Exception ex)
+        {
+            StartupFailureDialog.Show(ex);
+            Environment.Exit(1);
+        }
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
@@ -125,5 +133,7 @@ public sealed partial class App : Application
     }
 
     private static IDictionary<string, object> CreateSettingsStore() =>
-        ApplicationData.GetForUnpackaged("StarportAlliance", "StarCrewLauncher").LocalSettings.Values;
+        ApplicationData
+            .GetForUnpackaged("StarportAlliance", "StarCrewLauncher")
+            .LocalSettings.Values;
 }
