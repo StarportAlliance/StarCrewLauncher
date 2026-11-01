@@ -3,11 +3,11 @@ using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
+using Microsoft.Windows.Storage;
 using Serilog;
 using StarCrew.Launcher.Services;
 using StarCrew.Launcher.ViewModels;
 using Velopack;
-using Windows.Storage;
 
 namespace StarCrew.Launcher;
 
@@ -124,18 +124,6 @@ public sealed partial class App : Application
         return services.BuildServiceProvider();
     }
 
-    private static IDictionary<string, object> CreateSettingsStore()
-    {
-        try
-        {
-            // LocalSettings.Values 即 IDictionary，开发期取不到时用内存回退
-            if (ApplicationData.Current?.LocalSettings.Values is IDictionary<string, object> store)
-            {
-                return store;
-            }
-        }
-        catch (InvalidOperationException) { }
-
-        return new Dictionary<string, object>();
-    }
+    private static IDictionary<string, object> CreateSettingsStore() =>
+        ApplicationData.GetForUnpackaged("StarportAlliance", "StarCrewLauncher").LocalSettings.Values;
 }
