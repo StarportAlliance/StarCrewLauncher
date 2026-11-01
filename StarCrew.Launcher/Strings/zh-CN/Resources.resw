@@ -75,6 +75,45 @@
   <data name="Appearance_ThemeDark.Content" xml:space="preserve">
     <value>深色</value>
   </data>
+  <data name="Appearance_AccentExpander.Header" xml:space="preserve">
+    <value>主题色</value>
+  </data>
+  <data name="Appearance_AccentExpander.Description" xml:space="preserve">
+    <value>设置启动器所用的强调色</value>
+  </data>
+  <data name="Appearance_AccentLightCard.Header" xml:space="preserve">
+    <value>浅色主题色</value>
+  </data>
+  <data name="Appearance_AccentDarkCard.Header" xml:space="preserve">
+    <value>深色主题色</value>
+  </data>
+  <data name="Appearance_AccentLightPicker.AutomationProperties.Name" xml:space="preserve">
+    <value>浅色主题色取色器</value>
+  </data>
+  <data name="Appearance_AccentDarkPicker.AutomationProperties.Name" xml:space="preserve">
+    <value>深色主题色取色器</value>
+  </data>
+  <data name="Appearance_AccentLightReset.Content" xml:space="preserve">
+    <value>重置</value>
+  </data>
+  <data name="Appearance_AccentLightReset.ToolTipService.ToolTip" xml:space="preserve">
+    <value>重置为默认主题色</value>
+  </data>
+  <data name="Appearance_AccentLightReset.AutomationProperties.Name" xml:space="preserve">
+    <value>重置浅色主题色</value>
+  </data>
+  <data name="Appearance_AccentDarkReset.Content" xml:space="preserve">
+    <value>重置</value>
+  </data>
+  <data name="Appearance_AccentDarkReset.ToolTipService.ToolTip" xml:space="preserve">
+    <value>重置为默认主题色</value>
+  </data>
+  <data name="Appearance_AccentDarkReset.AutomationProperties.Name" xml:space="preserve">
+    <value>重置深色主题色</value>
+  </data>
+  <data name="Appearance_AccentHighContrastBar.Title" xml:space="preserve">
+    <value>高对比度模式下不支持设定主题色。</value>
+  </data>
 
   <!-- 日志设置 -->
   <data name="Logging_SectionTitle.Text" xml:space="preserve">

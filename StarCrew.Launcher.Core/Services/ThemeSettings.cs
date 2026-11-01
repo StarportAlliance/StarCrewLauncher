@@ -5,6 +5,8 @@ namespace StarCrew.Launcher.Services;
 internal sealed class ThemeSettings : IThemeSettings
 {
     public const string ThemeKey = "AppTheme";
+    public const string LightAccentColorKey = "LightAccentColor";
+    public const string DarkAccentColorKey = "DarkAccentColor";
 
     private readonly IDictionary<string, object> _store;
 
@@ -15,6 +17,8 @@ internal sealed class ThemeSettings : IThemeSettings
     }
 
     public event EventHandler<AppTheme>? ThemeChanged;
+
+    public event EventHandler? AccentColorsChanged;
 
     public AppTheme Theme
     {
@@ -29,6 +33,18 @@ internal sealed class ThemeSettings : IThemeSettings
             Save(value);
             ThemeChanged?.Invoke(this, value);
         }
+    }
+
+    public string? LightAccentColor
+    {
+        get => LoadAccent(LightAccentColorKey);
+        set => SaveAccent(LightAccentColorKey, value);
+    }
+
+    public string? DarkAccentColor
+    {
+        get => LoadAccent(DarkAccentColorKey);
+        set => SaveAccent(DarkAccentColorKey, value);
     }
 
     private AppTheme Load()
@@ -58,5 +74,34 @@ internal sealed class ThemeSettings : IThemeSettings
         }
 
         _store[ThemeKey] = theme.ToString();
+    }
+
+    private string? LoadAccent(string key) =>
+        _store.TryGetValue(key, out object? raw) && raw is string text
+            ? AccentPalette.Normalize(text)
+            : null;
+
+    private void SaveAccent(string key, string? value)
+    {
+        string? normalized = value is null
+            ? null
+            : AccentPalette.Normalize(value)
+                ?? throw new ArgumentException("强调色必须是 #RRGGBB 格式。", nameof(value));
+
+        if (normalized == LoadAccent(key))
+        {
+            return;
+        }
+
+        if (normalized is null)
+        {
+            _store.Remove(key);
+        }
+        else
+        {
+            _store[key] = normalized;
+        }
+
+        AccentColorsChanged?.Invoke(this, EventArgs.Empty);
     }
 }

@@ -3,7 +3,12 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:views="using:StarCrew.Launcher.Views"
 >
+    <Page.Resources>
+        <views:AccentHexColorConverter x:Key="AccentHexColorConverter" />
+        <controls:ContrastBrushConverter x:Key="ContrastBrushConverter" />
+    </Page.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Padding="24,0,24,24">
             <StackPanel
@@ -30,6 +35,76 @@
                         <ComboBoxItem x:Uid="Appearance_ThemeDark" Tag="Dark" />
                     </ComboBox>
                 </controls:SettingsCard>
+                <controls:SettingsExpander x:Uid="Appearance_AccentExpander" IsExpanded="False">
+                    <controls:SettingsExpander.HeaderIcon>
+                        <FontIcon Glyph="&#xE771;" />
+                    </controls:SettingsExpander.HeaderIcon>
+                    <controls:SettingsExpander.ItemsHeader>
+                        <InfoBar
+                            x:Name="AccentHighContrastBar"
+                            x:Uid="Appearance_AccentHighContrastBar"
+                            Margin="58,8,44,8"
+                            IsClosable="False"
+                            IsOpen="False"
+                            Severity="Warning"
+                            Visibility="Collapsed"
+                        />
+                    </controls:SettingsExpander.ItemsHeader>
+                    <controls:SettingsExpander.Items>
+                        <controls:SettingsCard
+                            x:Uid="Appearance_AccentLightCard"
+                            x:Name="AccentLightCard"
+                        >
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <controls:ColorPickerButton
+                                    x:Name="LightAccentPicker"
+                                    x:Uid="Appearance_AccentLightPicker"
+                                    MinWidth="128"
+                                    HorizontalContentAlignment="Center"
+                                    SelectedColor="{x:Bind ViewModel.LightAccentColor, Mode=TwoWay, Converter={StaticResource AccentHexColorConverter}}"
+                                >
+                                    <TextBlock
+                                        Margin="6,0"
+                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                        Text="{x:Bind ViewModel.LightAccentColor, Mode=OneWay}"
+                                        Foreground="{x:Bind LightAccentPicker.SelectedColor, Mode=OneWay, Converter={StaticResource ContrastBrushConverter}}"
+                                    />
+                                </controls:ColorPickerButton>
+                                <Button
+                                    x:Uid="Appearance_AccentLightReset"
+                                    Command="{x:Bind ViewModel.ResetLightAccentCommand}"
+                                    IsEnabled="{x:Bind ViewModel.CanResetLightAccent, Mode=OneWay}"
+                                />
+                            </StackPanel>
+                        </controls:SettingsCard>
+                        <controls:SettingsCard
+                            x:Uid="Appearance_AccentDarkCard"
+                            x:Name="AccentDarkCard"
+                        >
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <controls:ColorPickerButton
+                                    x:Name="DarkAccentPicker"
+                                    x:Uid="Appearance_AccentDarkPicker"
+                                    MinWidth="128"
+                                    HorizontalContentAlignment="Center"
+                                    SelectedColor="{x:Bind ViewModel.DarkAccentColor, Mode=TwoWay, Converter={StaticResource AccentHexColorConverter}}"
+                                >
+                                    <TextBlock
+                                        Margin="6,0"
+                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                        Text="{x:Bind ViewModel.DarkAccentColor, Mode=OneWay}"
+                                        Foreground="{x:Bind DarkAccentPicker.SelectedColor, Mode=OneWay, Converter={StaticResource ContrastBrushConverter}}"
+                                    />
+                                </controls:ColorPickerButton>
+                                <Button
+                                    x:Uid="Appearance_AccentDarkReset"
+                                    Command="{x:Bind ViewModel.ResetDarkAccentCommand}"
+                                    IsEnabled="{x:Bind ViewModel.CanResetDarkAccent, Mode=OneWay}"
+                                />
+                            </StackPanel>
+                        </controls:SettingsCard>
+                    </controls:SettingsExpander.Items>
+                </controls:SettingsExpander>
             </StackPanel>
         </Grid>
     </ScrollViewer>

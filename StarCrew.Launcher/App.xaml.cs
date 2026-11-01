@@ -122,12 +122,14 @@ public sealed partial class App : Application
         services.AddTransient<AboutViewModel>();
         services.AddTransient<InstancesViewModel>();
         services.AddTransient<DownloadPageViewModel>();
+        services.AddSingleton<HighContrastWatcher>();
         services.AddSingleton(sp => new MainWindow(
             sp.GetRequiredService<IThemeSettings>(),
             sp.GetRequiredService<INotificationService>(),
             sp.GetRequiredService<FrameNavigationService>(),
             sp.GetRequiredService<IFilePickerService>(),
-            sp.GetRequiredService<IAppInfo>()
+            sp.GetRequiredService<IAppInfo>(),
+            sp.GetRequiredService<HighContrastWatcher>()
         ));
         return services.BuildServiceProvider();
     }

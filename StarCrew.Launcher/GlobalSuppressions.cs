@@ -87,6 +87,13 @@ using System.Diagnostics.CodeAnalysis;
     Target = "~T:StarCrew.Launcher.Views.DownloadInstallPage"
 )]
 [assembly: SuppressMessage(
+    "Maintainability",
+    "CA1515:TypesCanBeMadeInternal",
+    Justification = "XAML 资源需要实例化，类型必须 public。",
+    Scope = "type",
+    Target = "~T:StarCrew.Launcher.Views.AccentHexColorConverter"
+)]
+[assembly: SuppressMessage(
     "Design",
     "CA1031:DoNotCatchGeneralExceptionTypes",
     Justification = "可选资源缺失时退回默认样式/空图标，不影响卡片生成。",

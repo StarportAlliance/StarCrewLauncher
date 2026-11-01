@@ -21,17 +21,32 @@ public sealed partial class MainWindow : Window
     private const int MinWidthPx = 1280;
     private const int MinHeightPx = 720;
 
+    private static readonly string[] AccentResourceKeys =
+    [
+        "SystemAccentColor",
+        "SystemAccentColorLight1",
+        "SystemAccentColorLight2",
+        "SystemAccentColorLight3",
+        "SystemAccentColorDark1",
+        "SystemAccentColorDark2",
+        "SystemAccentColorDark3",
+    ];
+
     private readonly IThemeSettings _themeSettings;
     private readonly FrameNavigationService _navigation;
     private readonly SubclassProc _subclassProc;
     private readonly nint _hwnd;
+    private readonly HighContrastWatcher _highContrast;
+    private bool _refreshingAccent;
+    private bool _accentRefreshPending;
 
     internal MainWindow(
         IThemeSettings themeSettings,
         INotificationService notifications,
         FrameNavigationService navigation,
         IFilePickerService filePicker,
-        IAppInfo appInfo
+        IAppInfo appInfo,
+        HighContrastWatcher highContrast
     )
     {
         ArgumentNullException.ThrowIfNull(themeSettings);
@@ -39,6 +54,7 @@ public sealed partial class MainWindow : Window
         ArgumentNullException.ThrowIfNull(navigation);
         ArgumentNullException.ThrowIfNull(filePicker);
         ArgumentNullException.ThrowIfNull(appInfo);
+        ArgumentNullException.ThrowIfNull(highContrast);
 
         InitializeComponent();
         Title = "StarCrew Launcher";
@@ -53,7 +69,17 @@ public sealed partial class MainWindow : Window
 
         _themeSettings = themeSettings;
         _themeSettings.ThemeChanged += OnThemeChanged;
+        _themeSettings.AccentColorsChanged += OnAccentColorsChanged;
         ApplyTheme(_themeSettings.Theme);
+
+        _highContrast = highContrast;
+        _highContrast.Changed += OnHighContrastChanged;
+        if (Content is FrameworkElement accentRoot)
+        {
+            accentRoot.ActualThemeChanged += OnActualThemeChanged;
+        }
+
+        ApplyAccentColors(refreshThemeResources: false);
 
         _hwnd = WindowNative.GetWindowHandle(this);
         filePicker.AttachHostWindow(_hwnd);
@@ -151,7 +177,11 @@ public sealed partial class MainWindow : Window
         Content?.Focus(FocusState.Pointer);
     }
 
-    private void OnThemeChanged(object? sender, AppTheme theme) => ApplyTheme(theme);
+    private void OnThemeChanged(object? sender, AppTheme theme)
+    {
+        ApplyTheme(theme);
+        ApplyAccentColors(refreshThemeResources: true);
+    }
 
     private void OnNotificationRequested(object? sender, NotificationMessage message) =>
         ShowToast(
@@ -270,6 +300,112 @@ public sealed partial class MainWindow : Window
             };
         }
     }
+
+    private void OnAccentColorsChanged(object? sender, EventArgs e)
+    {
+        _ = sender;
+        _ = e;
+        ApplyAccentColors(refreshThemeResources: true);
+    }
+
+    private void OnActualThemeChanged(FrameworkElement sender, object args)
+    {
+        _ = sender;
+        _ = args;
+        // 强制刷新期间的主题抖动不应再写资源
+        if (_refreshingAccent)
+        {
+            return;
+        }
+
+        ApplyAccentColors(refreshThemeResources: false);
+    }
+
+    private void OnHighContrastChanged(object? sender, EventArgs e)
+    {
+        _ = sender;
+        _ = e;
+        ApplyAccentColors(refreshThemeResources: false);
+    }
+
+    // 强调色写在 Application.Resources 顶层键，覆盖主题字典；只对当前生效的主题写，切换主题时重算
+    private void ApplyAccentColors(bool refreshThemeResources)
+    {
+        ResourceDictionary resources = Application.Current.Resources;
+        string? custom = null;
+        if (!_highContrast.IsEnabled && Content is FrameworkElement root)
+        {
+            custom =
+                root.ActualTheme == ElementTheme.Dark
+                    ? _themeSettings.DarkAccentColor
+                    : _themeSettings.LightAccentColor;
+        }
+
+        if (custom is null)
+        {
+            foreach (string key in AccentResourceKeys)
+            {
+                resources.Remove(key);
+            }
+        }
+        else
+        {
+            AccentShades shades = AccentPalette.Derive(custom);
+            resources["SystemAccentColor"] = ToColor(shades.Base);
+            resources["SystemAccentColorLight1"] = ToColor(shades.Light1);
+            resources["SystemAccentColorLight2"] = ToColor(shades.Light2);
+            resources["SystemAccentColorLight3"] = ToColor(shades.Light3);
+            resources["SystemAccentColorDark1"] = ToColor(shades.Dark1);
+            resources["SystemAccentColorDark2"] = ToColor(shades.Dark2);
+            resources["SystemAccentColorDark3"] = ToColor(shades.Dark3);
+        }
+
+        if (refreshThemeResources)
+        {
+            QueueAccentRefresh();
+        }
+    }
+
+    // 改写资源不会通知已解析的 ThemeResource，只能靠切换一次 RequestedTheme 让子树重新解析；
+    // 同一轮内切回不会产生中间渲染，按帧合并避免拖拽取色时反复全树重解析
+    private void QueueAccentRefresh()
+    {
+        if (_accentRefreshPending)
+        {
+            return;
+        }
+
+        _accentRefreshPending = true;
+        DispatcherQueue.TryEnqueue(() =>
+        {
+            _accentRefreshPending = false;
+            RefreshThemeResources();
+        });
+    }
+
+    private void RefreshThemeResources()
+    {
+        if (Content is not FrameworkElement root)
+        {
+            return;
+        }
+
+        ElementTheme requested = root.RequestedTheme;
+        _refreshingAccent = true;
+        try
+        {
+            root.RequestedTheme =
+                requested == ElementTheme.Light ? ElementTheme.Dark : ElementTheme.Light;
+            root.RequestedTheme = requested;
+        }
+        finally
+        {
+            _refreshingAccent = false;
+        }
+    }
+
+    private static Windows.UI.Color ToColor(AccentRgb rgb) =>
+        Windows.UI.Color.FromArgb(255, rgb.R, rgb.G, rgb.B);
 
     private void PlaceWindow()
     {
@@ -403,6 +539,7 @@ public sealed partial class MainWindow : Window
     }
 
     private const uint WM_GETMINMAXINFO = 0x24;
+    private const uint WM_THEMECHANGED = 0x031A;
 
     private nint WndSubclassProc(
         nint hWnd,
@@ -419,6 +556,11 @@ public sealed partial class MainWindow : Window
             mmi.MinTrackSize = new NativePoint { X = MinWidthPx, Y = MinHeightPx };
             Marshal.StructureToPtr(mmi, lParam, false);
             return nint.Zero;
+        }
+
+        if (uMsg == WM_THEMECHANGED)
+        {
+            _highContrast.NotifyThemeChanged();
         }
 
         return DefSubclassProc(hWnd, uMsg, wParam, lParam);
