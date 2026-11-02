@@ -33,6 +33,7 @@ public sealed partial class MainWindow : Window
     ];
 
     private readonly IThemeSettings _themeSettings;
+    private readonly ISystemFontCatalog _fontCatalog;
     private readonly FrameNavigationService _navigation;
     private readonly SubclassProc _subclassProc;
     private readonly nint _hwnd;
@@ -42,6 +43,7 @@ public sealed partial class MainWindow : Window
 
     internal MainWindow(
         IThemeSettings themeSettings,
+        ISystemFontCatalog fontCatalog,
         INotificationService notifications,
         FrameNavigationService navigation,
         IFilePickerService filePicker,
@@ -50,6 +52,7 @@ public sealed partial class MainWindow : Window
     )
     {
         ArgumentNullException.ThrowIfNull(themeSettings);
+        ArgumentNullException.ThrowIfNull(fontCatalog);
         ArgumentNullException.ThrowIfNull(notifications);
         ArgumentNullException.ThrowIfNull(navigation);
         ArgumentNullException.ThrowIfNull(filePicker);
@@ -71,6 +74,24 @@ public sealed partial class MainWindow : Window
         _themeSettings.ThemeChanged += OnThemeChanged;
         _themeSettings.AccentColorsChanged += OnAccentColorsChanged;
         ApplyTheme(_themeSettings.Theme);
+
+        _fontCatalog = fontCatalog;
+        string? displayFont = _themeSettings.DisplayFont;
+        if (
+            displayFont is not null
+            && !fontCatalog
+                .GetFonts()
+                .Any(font =>
+                    string.Equals(font.FamilyName, displayFont, StringComparison.OrdinalIgnoreCase)
+                )
+        )
+        {
+            // 字体已卸载：回到默认并清除记录
+            _themeSettings.DisplayFont = null;
+        }
+
+        _themeSettings.DisplayFontChanged += OnDisplayFontChanged;
+        ApplyDisplayFont();
 
         _highContrast = highContrast;
         _highContrast.Changed += OnHighContrastChanged;
@@ -300,6 +321,90 @@ public sealed partial class MainWindow : Window
             };
         }
     }
+
+    private void OnDisplayFontChanged(object? sender, EventArgs e)
+    {
+        _ = sender;
+        _ = e;
+        ApplyDisplayFont();
+        RefreshThemeResources();
+    }
+
+    // 字体写入应用级资源，并同步覆盖已存在元素的本地字体：ThemeResource 不会刷新已创建的文字
+    private void ApplyDisplayFont()
+    {
+        string? name = _themeSettings.DisplayFont;
+        FontFamily family = name is null ? FontFamily.XamlAutoFontFamily : new FontFamily(name);
+        Application.Current.Resources["AppDisplayFontFamily"] = family;
+        if (name is null)
+        {
+            Application.Current.Resources.Remove("ContentControlThemeFontFamily");
+        }
+        else
+        {
+            Application.Current.Resources["ContentControlThemeFontFamily"] = family;
+        }
+
+        if (Content is FrameworkElement root)
+        {
+            ApplyFontToTree(root, family);
+        }
+    }
+
+    // 图标控件的模板内部也有 TextBlock，覆盖字体会让图标变成文字
+    private static void ApplyFontToTree(DependencyObject node, FontFamily family)
+    {
+        if (node is IconElement)
+        {
+            return;
+        }
+
+        switch (node)
+        {
+            case TextBlock textBlock:
+                if (!IsIconFont(textBlock.FontFamily))
+                {
+                    textBlock.FontFamily = family;
+                }
+
+                break;
+            case Control control:
+                if (!IsIconFont(control.FontFamily))
+                {
+                    control.FontFamily = family;
+                }
+
+                break;
+            case ContentPresenter presenter:
+                if (!IsIconFont(presenter.FontFamily))
+                {
+                    presenter.FontFamily = family;
+                }
+
+                break;
+            case RichTextBlock richTextBlock:
+                if (!IsIconFont(richTextBlock.FontFamily))
+                {
+                    richTextBlock.FontFamily = family;
+                }
+
+                break;
+        }
+
+        int count = VisualTreeHelper.GetChildrenCount(node);
+        for (int index = 0; index < count; index++)
+        {
+            ApplyFontToTree(VisualTreeHelper.GetChild(node, index), family);
+        }
+    }
+
+    // InfoBar 等模板用 TextBlock 画图标，字形只存在于符号字体
+    private static bool IsIconFont(FontFamily? fontFamily) =>
+        fontFamily?.Source is { } source
+        && (
+            source.Contains("Segoe Fluent Icons", StringComparison.OrdinalIgnoreCase)
+            || source.Contains("Segoe MDL2 Assets", StringComparison.OrdinalIgnoreCase)
+        );
 
     private void OnAccentColorsChanged(object? sender, EventArgs e)
     {

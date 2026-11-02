@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:models="using:StarCrew.Launcher.Models"
     xmlns:views="using:StarCrew.Launcher.Views"
 >
     <Page.Resources>
@@ -105,6 +106,49 @@
                         </controls:SettingsCard>
                     </controls:SettingsExpander.Items>
                 </controls:SettingsExpander>
+                <controls:SettingsCard x:Uid="Appearance_FontCard">
+                    <controls:SettingsCard.HeaderIcon>
+                        <SymbolIcon Symbol="Font" />
+                    </controls:SettingsCard.HeaderIcon>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <ComboBox
+                            x:Name="FontCombo"
+                            x:Uid="Appearance_FontCombo"
+                            MinWidth="300"
+                            MaxDropDownHeight="400"
+                            ItemsSource="{x:Bind ViewModel.FontOptions}"
+                            SelectedItem="{x:Bind ViewModel.SelectedFontOption, Mode=TwoWay}"
+                        >
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="models:FontOption">
+                                    <Grid ColumnSpacing="16" MinWidth="260">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock
+                                            Text="{x:Bind DisplayName}"
+                                            TextTrimming="CharacterEllipsis"
+                                        />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            MaxWidth="160"
+                                            Text="{x:Bind OriginalName}"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            TextTrimming="CharacterEllipsis"
+                                        />
+                                    </Grid>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button
+                            x:Uid="Appearance_FontReset"
+                            VerticalAlignment="Center"
+                            Command="{x:Bind ViewModel.ResetFontCommand}"
+                            IsEnabled="{x:Bind ViewModel.CanResetFont, Mode=OneWay}"
+                        />
+                    </StackPanel>
+                </controls:SettingsCard>
             </StackPanel>
         </Grid>
     </ScrollViewer>

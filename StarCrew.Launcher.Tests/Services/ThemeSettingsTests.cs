@@ -215,4 +215,85 @@ public sealed class ThemeSettingsTests
 
         Assert.Throws<ArgumentException>(() => settings.LightAccentColor = value);
     }
+
+    [Fact]
+    public void DisplayFont_WithEmptyStore_ReturnsNull()
+    {
+        ThemeSettings settings = new(new Dictionary<string, object>());
+
+        Assert.Null(settings.DisplayFont);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData(42)]
+    public void DisplayFont_WithInvalidStoredValue_ReturnsNull(object stored)
+    {
+        Dictionary<string, object> store = new() { [ThemeSettings.DisplayFontKey] = stored };
+        ThemeSettings settings = new(store);
+
+        Assert.Null(settings.DisplayFont);
+    }
+
+    [Fact]
+    public void DisplayFont_SetTrimsBeforeStoring()
+    {
+        Dictionary<string, object> store = [];
+        ThemeSettings settings = new(store);
+
+        settings.DisplayFont = "  Microsoft YaHei  ";
+
+        Assert.Equal("Microsoft YaHei", store[ThemeSettings.DisplayFontKey]);
+        Assert.Equal("Microsoft YaHei", settings.DisplayFont);
+    }
+
+    [Fact]
+    public void DisplayFont_SetSameValue_DoesNotRaiseChanged()
+    {
+        Dictionary<string, object> store = new() { [ThemeSettings.DisplayFontKey] = "SimSun" };
+        ThemeSettings settings = new(store);
+        bool raised = false;
+        settings.DisplayFontChanged += (_, _) => raised = true;
+
+        settings.DisplayFont = "SimSun";
+
+        Assert.False(raised);
+    }
+
+    [Fact]
+    public void DisplayFont_WhenChanged_RaisesOnce()
+    {
+        ThemeSettings settings = new(new Dictionary<string, object>());
+        int raised = 0;
+        settings.DisplayFontChanged += (_, _) => raised++;
+
+        settings.DisplayFont = "SimSun";
+        settings.DisplayFont = "Microsoft YaHei";
+
+        Assert.Equal(2, raised);
+    }
+
+    [Fact]
+    public void DisplayFont_SetNull_RemovesKeyAndRaises()
+    {
+        Dictionary<string, object> store = new() { [ThemeSettings.DisplayFontKey] = "SimSun" };
+        ThemeSettings settings = new(store);
+        bool raised = false;
+        settings.DisplayFontChanged += (_, _) => raised = true;
+
+        settings.DisplayFont = null;
+
+        Assert.False(store.ContainsKey(ThemeSettings.DisplayFontKey));
+        Assert.Null(settings.DisplayFont);
+        Assert.True(raised);
+    }
+
+    [Fact]
+    public void DisplayFont_SetWhitespace_ThrowsArgumentException()
+    {
+        ThemeSettings settings = new(new Dictionary<string, object>());
+
+        Assert.Throws<ArgumentException>(() => settings.DisplayFont = "   ");
+    }
 }

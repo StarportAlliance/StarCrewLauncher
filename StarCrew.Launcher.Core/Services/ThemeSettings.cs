@@ -7,6 +7,7 @@ internal sealed class ThemeSettings : IThemeSettings
     public const string ThemeKey = "AppTheme";
     public const string LightAccentColorKey = "LightAccentColor";
     public const string DarkAccentColorKey = "DarkAccentColor";
+    public const string DisplayFontKey = "DisplayFont";
 
     private readonly IDictionary<string, object> _store;
 
@@ -19,6 +20,8 @@ internal sealed class ThemeSettings : IThemeSettings
     public event EventHandler<AppTheme>? ThemeChanged;
 
     public event EventHandler? AccentColorsChanged;
+
+    public event EventHandler? DisplayFontChanged;
 
     public AppTheme Theme
     {
@@ -45,6 +48,12 @@ internal sealed class ThemeSettings : IThemeSettings
     {
         get => LoadAccent(DarkAccentColorKey);
         set => SaveAccent(DarkAccentColorKey, value);
+    }
+
+    public string? DisplayFont
+    {
+        get => LoadDisplayFont();
+        set => SaveDisplayFont(value);
     }
 
     private AppTheme Load()
@@ -103,5 +112,37 @@ internal sealed class ThemeSettings : IThemeSettings
         }
 
         AccentColorsChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private string? LoadDisplayFont() =>
+        _store.TryGetValue(DisplayFontKey, out object? raw)
+        && raw is string text
+        && !string.IsNullOrWhiteSpace(text)
+            ? text.Trim()
+            : null;
+
+    private void SaveDisplayFont(string? value)
+    {
+        string? normalized =
+            value is null ? null
+            : string.IsNullOrWhiteSpace(value)
+                ? throw new ArgumentException("字体名称不能为空。", nameof(value))
+            : value.Trim();
+
+        if (normalized == LoadDisplayFont())
+        {
+            return;
+        }
+
+        if (normalized is null)
+        {
+            _store.Remove(DisplayFontKey);
+        }
+        else
+        {
+            _store[DisplayFontKey] = normalized;
+        }
+
+        DisplayFontChanged?.Invoke(this, EventArgs.Empty);
     }
 }

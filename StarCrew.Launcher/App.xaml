@@ -42,6 +42,63 @@
                     />
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
+            <FontFamily x:Key="AppDisplayFontFamily">XamlAutoFontFamily</FontFamily>
+            <Style TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="{ThemeResource AppDisplayFontFamily}" />
+            </Style>
+            <!-- 复刻 WinUI 排版样式，仅额外替换字体族；字号与字重需随 WindowsAppSDK 升级复核 -->
+            <Style
+                x:Key="CaptionTextBlockStyle"
+                BasedOn="{StaticResource BaseTextBlockStyle}"
+                TargetType="TextBlock"
+            >
+                <Setter Property="FontFamily" Value="{ThemeResource AppDisplayFontFamily}" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="FontWeight" Value="Normal" />
+            </Style>
+            <Style
+                x:Key="BodyTextBlockStyle"
+                BasedOn="{StaticResource BaseTextBlockStyle}"
+                TargetType="TextBlock"
+            >
+                <Setter Property="FontFamily" Value="{ThemeResource AppDisplayFontFamily}" />
+                <Setter Property="FontWeight" Value="Normal" />
+            </Style>
+            <Style
+                x:Key="BodyStrongTextBlockStyle"
+                BasedOn="{StaticResource BaseTextBlockStyle}"
+                TargetType="TextBlock"
+            >
+                <Setter Property="FontFamily" Value="{ThemeResource AppDisplayFontFamily}" />
+            </Style>
+            <Style
+                x:Key="BodyLargeTextBlockStyle"
+                BasedOn="{StaticResource BaseTextBlockStyle}"
+                TargetType="TextBlock"
+            >
+                <Setter Property="FontFamily" Value="{ThemeResource AppDisplayFontFamily}" />
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="FontWeight" Value="Normal" />
+                <Setter Property="OpticalMarginAlignment" Value="TrimSideBearings" />
+            </Style>
+            <Style
+                x:Key="SubtitleTextBlockStyle"
+                BasedOn="{StaticResource BaseTextBlockStyle}"
+                TargetType="TextBlock"
+            >
+                <Setter Property="FontFamily" Value="{ThemeResource AppDisplayFontFamily}" />
+                <Setter Property="FontSize" Value="20" />
+                <Setter Property="OpticalMarginAlignment" Value="TrimSideBearings" />
+            </Style>
+            <Style
+                x:Key="TitleTextBlockStyle"
+                BasedOn="{StaticResource BaseTextBlockStyle}"
+                TargetType="TextBlock"
+            >
+                <Setter Property="FontFamily" Value="{ThemeResource AppDisplayFontFamily}" />
+                <Setter Property="FontSize" Value="28" />
+                <Setter Property="OpticalMarginAlignment" Value="TrimSideBearings" />
+            </Style>
             <x:Double x:Key="SettingsCardSpacing">4</x:Double>
             <Style
                 x:Key="SettingsSectionHeaderTextBlockStyle"
@@ -50,6 +107,7 @@
             >
                 <Style.Setters>
                     <Setter Property="Margin" Value="1,0,0,6" />
+                    <Setter Property="FontFamily" Value="{ThemeResource AppDisplayFontFamily}" />
                 </Style.Setters>
             </Style>
         </ResourceDictionary>

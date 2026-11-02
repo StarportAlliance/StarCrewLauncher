@@ -8,11 +8,36 @@ namespace StarCrew.Launcher.ViewModels;
 internal sealed partial class AppearanceViewModel : ObservableObject
 {
     private readonly IThemeSettings _themeSettings;
+    private readonly FontOption _defaultFont;
+    private FontOption _selectedFontOption;
 
-    public AppearanceViewModel(IThemeSettings themeSettings)
+    public AppearanceViewModel(
+        IThemeSettings themeSettings,
+        ISystemFontCatalog fontCatalog,
+        IAppStrings strings
+    )
     {
         ArgumentNullException.ThrowIfNull(themeSettings);
+        ArgumentNullException.ThrowIfNull(fontCatalog);
+        ArgumentNullException.ThrowIfNull(strings);
+
         _themeSettings = themeSettings;
+        _defaultFont = new FontOption(
+            strings.GetString("Appearance_FontDefault"),
+            string.Empty,
+            null
+        );
+        List<FontOption> options = [_defaultFont, .. fontCatalog.GetFonts()];
+        FontOptions = options;
+        _selectedFontOption =
+            options.Find(option =>
+                option.FamilyName is { } family
+                && string.Equals(
+                    family,
+                    themeSettings.DisplayFont,
+                    StringComparison.OrdinalIgnoreCase
+                )
+            ) ?? _defaultFont;
     }
 
     /// <summary>下拉框下标。</summary>
@@ -67,6 +92,7 @@ internal sealed partial class AppearanceViewModel : ObservableObject
                 return;
             }
 
+            // 选回默认色等同于未自定义，避免“颜色没变但重置按钮亮着”
             string? stored = normalized == AccentPalette.DefaultDark ? null : normalized;
             if (stored == _themeSettings.DarkAccentColor)
             {
@@ -82,6 +108,27 @@ internal sealed partial class AppearanceViewModel : ObservableObject
     public bool CanResetLightAccent => _themeSettings.LightAccentColor is not null;
 
     public bool CanResetDarkAccent => _themeSettings.DarkAccentColor is not null;
+
+    public IReadOnlyList<FontOption> FontOptions { get; }
+
+    public FontOption SelectedFontOption
+    {
+        get => _selectedFontOption;
+        set
+        {
+            if (value is null || ReferenceEquals(value, _selectedFontOption))
+            {
+                return;
+            }
+
+            _selectedFontOption = value;
+            _themeSettings.DisplayFont = value.FamilyName;
+            OnPropertyChanged(nameof(SelectedFontOption));
+            OnPropertyChanged(nameof(CanResetFont));
+        }
+    }
+
+    public bool CanResetFont => _themeSettings.DisplayFont is not null;
 
     [RelayCommand]
     private void ResetLightAccent()
@@ -107,5 +154,19 @@ internal sealed partial class AppearanceViewModel : ObservableObject
         _themeSettings.DarkAccentColor = null;
         OnPropertyChanged(nameof(DarkAccentColor));
         OnPropertyChanged(nameof(CanResetDarkAccent));
+    }
+
+    [RelayCommand]
+    private void ResetFont()
+    {
+        if (_themeSettings.DisplayFont is null)
+        {
+            return;
+        }
+
+        _themeSettings.DisplayFont = null;
+        _selectedFontOption = _defaultFont;
+        OnPropertyChanged(nameof(SelectedFontOption));
+        OnPropertyChanged(nameof(CanResetFont));
     }
 }

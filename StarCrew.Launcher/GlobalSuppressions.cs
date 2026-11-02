@@ -121,3 +121,10 @@ using System.Diagnostics.CodeAnalysis;
     Scope = "member",
     Target = "~M:Microsoft.Windows.Foundation.UndockedRegFreeWinRTCS.NativeMethods.WindowsAppRuntime_EnsureIsLoaded~System.Int32"
 )]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "字体枚举失败等同于没有可选的系统字体，退回默认字体，不影响启动。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.Services.SystemFontCatalog.GetFonts~System.Collections.Generic.IReadOnlyList{StarCrew.Launcher.Models.FontOption}"
+)]

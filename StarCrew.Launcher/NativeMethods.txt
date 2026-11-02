@@ -1,0 +1,6 @@
+DWriteCreateFactory
+IDWriteFactory
+IDWriteFontCollection
+IDWriteFontFamily
+IDWriteFont
+IDWriteLocalizedStrings

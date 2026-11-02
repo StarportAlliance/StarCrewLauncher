@@ -7,12 +7,51 @@ namespace StarCrew.Launcher.Tests.ViewModels;
 
 public sealed class AppearanceViewModelTests
 {
-    private static AppearanceViewModel Create(IThemeSettings? theme = null) =>
-        new(theme ?? Substitute.For<IThemeSettings>());
+    private static readonly FontOption[] SampleFonts =
+    [
+        new("微软雅黑", "Microsoft YaHei", "Microsoft YaHei"),
+        new("宋体", "SimSun", "SimSun"),
+    ];
+
+    private static AppearanceViewModel Create(
+        IThemeSettings? theme = null,
+        ISystemFontCatalog? catalog = null
+    )
+    {
+        ISystemFontCatalog fonts = catalog ?? Substitute.For<ISystemFontCatalog>();
+        fonts.GetFonts().Returns(SampleFonts);
+        return new AppearanceViewModel(
+            theme ?? Substitute.For<IThemeSettings>(),
+            fonts,
+            TestStrings.Instance
+        );
+    }
 
     [Fact]
     public void Ctor_WithNullThemeSettings_ThrowsArgumentNullException() =>
-        Assert.Throws<ArgumentNullException>(() => new AppearanceViewModel(null!));
+        Assert.Throws<ArgumentNullException>(() =>
+            new AppearanceViewModel(
+                null!,
+                Substitute.For<ISystemFontCatalog>(),
+                TestStrings.Instance
+            )
+        );
+
+    [Fact]
+    public void Ctor_WithNullFontCatalog_ThrowsArgumentNullException() =>
+        Assert.Throws<ArgumentNullException>(() =>
+            new AppearanceViewModel(Substitute.For<IThemeSettings>(), null!, TestStrings.Instance)
+        );
+
+    [Fact]
+    public void Ctor_WithNullStrings_ThrowsArgumentNullException() =>
+        Assert.Throws<ArgumentNullException>(() =>
+            new AppearanceViewModel(
+                Substitute.For<IThemeSettings>(),
+                Substitute.For<ISystemFontCatalog>(),
+                null!
+            )
+        );
 
     [Theory]
     [InlineData("System", 0)]
@@ -46,7 +85,7 @@ public sealed class AppearanceViewModelTests
     [Fact]
     public void AccentColors_WithoutCustomization_ReturnBuiltInDefaults()
     {
-        AppearanceViewModel vm = new(new ThemeSettings(new Dictionary<string, object>()));
+        AppearanceViewModel vm = Create(theme: new ThemeSettings(new Dictionary<string, object>()));
 
         Assert.Equal(AccentPalette.DefaultLight, vm.LightAccentColor);
         Assert.Equal(AccentPalette.DefaultDark, vm.DarkAccentColor);
@@ -59,7 +98,7 @@ public sealed class AppearanceViewModelTests
     {
         Dictionary<string, object> store = [];
         ThemeSettings settings = new(store);
-        AppearanceViewModel vm = new(settings);
+        AppearanceViewModel vm = Create(theme: settings);
         List<string?> changed = [];
         vm.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
 
@@ -77,7 +116,7 @@ public sealed class AppearanceViewModelTests
     {
         Dictionary<string, object> store = [];
         ThemeSettings settings = new(store);
-        AppearanceViewModel vm = new(settings);
+        AppearanceViewModel vm = Create(theme: settings);
         List<string?> changed = [];
         vm.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
 
@@ -94,7 +133,7 @@ public sealed class AppearanceViewModelTests
     public void LightAccentColor_SetBuiltInDefault_TreatedAsNotCustomized()
     {
         ThemeSettings settings = new(new Dictionary<string, object>());
-        AppearanceViewModel vm = new(settings);
+        AppearanceViewModel vm = Create(theme: settings);
 
         vm.LightAccentColor = "#123456";
         vm.LightAccentColor = AccentPalette.DefaultLight;
@@ -107,7 +146,7 @@ public sealed class AppearanceViewModelTests
     public void LightAccentColor_SetInvalid_KeepsStoredValue()
     {
         ThemeSettings settings = new(new Dictionary<string, object>());
-        AppearanceViewModel vm = new(settings);
+        AppearanceViewModel vm = Create(theme: settings);
 
         vm.LightAccentColor = "oops";
 
@@ -123,7 +162,7 @@ public sealed class AppearanceViewModelTests
             [ThemeSettings.LightAccentColorKey] = "#123456",
         };
         ThemeSettings settings = new(store);
-        AppearanceViewModel vm = new(settings);
+        AppearanceViewModel vm = Create(theme: settings);
         List<string?> changed = [];
         vm.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
 
@@ -137,17 +176,110 @@ public sealed class AppearanceViewModelTests
     }
 
     [Fact]
-    public void ResetDarkAccent_WhenNotCustomized_DoesNothing()
+    public void FontOptions_PrependDefaultAndExposeSystemFonts()
+    {
+        AppearanceViewModel vm = Create(theme: new ThemeSettings(new Dictionary<string, object>()));
+
+        Assert.Equal(3, vm.FontOptions.Count);
+        Assert.True(vm.FontOptions[0].IsDefault);
+        Assert.Equal(
+            TestStrings.Instance.GetString("Appearance_FontDefault"),
+            vm.FontOptions[0].DisplayName
+        );
+        Assert.Equal("Microsoft YaHei", vm.FontOptions[1].FamilyName);
+    }
+
+    [Fact]
+    public void SelectedFontOption_WithoutCustomization_IsDefault()
+    {
+        AppearanceViewModel vm = Create(theme: new ThemeSettings(new Dictionary<string, object>()));
+
+        Assert.True(vm.SelectedFontOption.IsDefault);
+        Assert.False(vm.CanResetFont);
+    }
+
+    [Fact]
+    public void SelectedFontOption_WithStoredFont_SelectsMatchingOption()
+    {
+        ThemeSettings settings = new(new Dictionary<string, object>()) { DisplayFont = "SimSun" };
+
+        AppearanceViewModel vm = Create(theme: settings);
+
+        Assert.Equal("SimSun", vm.SelectedFontOption.FamilyName);
+        Assert.True(vm.CanResetFont);
+    }
+
+    [Fact]
+    public void SelectedFontOption_WithUninstalledFont_SelectsDefault()
+    {
+        ThemeSettings settings = new(new Dictionary<string, object>())
+        {
+            DisplayFont = "Gone Font",
+        };
+
+        AppearanceViewModel vm = Create(theme: settings);
+
+        Assert.True(vm.SelectedFontOption.IsDefault);
+    }
+
+    [Fact]
+    public void SelectedFontOption_SetFont_StoresAndRaisesNotifications()
     {
         ThemeSettings settings = new(new Dictionary<string, object>());
-        AppearanceViewModel vm = new(settings);
+        AppearanceViewModel vm = Create(theme: settings);
         List<string?> changed = [];
         vm.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
 
-        vm.ResetDarkAccentCommand.Execute(null);
+        vm.SelectedFontOption = vm.FontOptions[2];
 
-        Assert.Equal(AccentPalette.DefaultDark, vm.DarkAccentColor);
-        Assert.False(vm.CanResetDarkAccent);
+        Assert.Equal("SimSun", settings.DisplayFont);
+        Assert.True(vm.CanResetFont);
+        Assert.Contains(nameof(AppearanceViewModel.SelectedFontOption), changed);
+        Assert.Contains(nameof(AppearanceViewModel.CanResetFont), changed);
+    }
+
+    [Fact]
+    public void SelectedFontOption_SetDefault_ClearsStoredFont()
+    {
+        ThemeSettings settings = new(new Dictionary<string, object>()) { DisplayFont = "SimSun" };
+        AppearanceViewModel vm = Create(theme: settings);
+
+        vm.SelectedFontOption = vm.FontOptions[0];
+
+        Assert.Null(settings.DisplayFont);
+        Assert.False(vm.CanResetFont);
+    }
+
+    [Fact]
+    public void ResetFont_WhenCustomized_ClearsAndSelectsDefault()
+    {
+        Dictionary<string, object> store = new() { [ThemeSettings.DisplayFontKey] = "SimSun" };
+        ThemeSettings settings = new(store);
+        AppearanceViewModel vm = Create(theme: settings);
+        List<string?> changed = [];
+        vm.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+        vm.ResetFontCommand.Execute(null);
+
+        Assert.Null(settings.DisplayFont);
+        Assert.True(vm.SelectedFontOption.IsDefault);
+        Assert.False(vm.CanResetFont);
+        Assert.False(store.ContainsKey(ThemeSettings.DisplayFontKey));
+        Assert.Contains(nameof(AppearanceViewModel.SelectedFontOption), changed);
+        Assert.Contains(nameof(AppearanceViewModel.CanResetFont), changed);
+    }
+
+    [Fact]
+    public void ResetFont_WhenNotCustomized_DoesNothing()
+    {
+        AppearanceViewModel vm = Create(theme: new ThemeSettings(new Dictionary<string, object>()));
+        List<string?> changed = [];
+        vm.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+
+        vm.ResetFontCommand.Execute(null);
+
+        Assert.True(vm.SelectedFontOption.IsDefault);
+        Assert.False(vm.CanResetFont);
         Assert.Empty(changed);
     }
 }

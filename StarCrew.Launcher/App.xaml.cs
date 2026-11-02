@@ -87,6 +87,7 @@ public sealed partial class App : Application
         services.AddSingleton(loggingSettings);
         services.AddSingleton<IVersionCacheSettings>(new VersionCacheSettings(store));
         services.AddSingleton<IAppStrings, AppStrings>();
+        services.AddSingleton<ISystemFontCatalog, SystemFontCatalog>();
         services.AddSingleton<IThemeSettings>(sp => new ThemeSettings(
             sp.GetRequiredService<IDictionary<string, object>>()
         ));
@@ -125,6 +126,7 @@ public sealed partial class App : Application
         services.AddSingleton<HighContrastWatcher>();
         services.AddSingleton(sp => new MainWindow(
             sp.GetRequiredService<IThemeSettings>(),
+            sp.GetRequiredService<ISystemFontCatalog>(),
             sp.GetRequiredService<INotificationService>(),
             sp.GetRequiredService<FrameNavigationService>(),
             sp.GetRequiredService<IFilePickerService>(),
