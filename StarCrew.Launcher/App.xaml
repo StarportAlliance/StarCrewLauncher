@@ -43,17 +43,20 @@
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
             <FontFamily x:Key="AppDisplayFontFamily">XamlAutoFontFamily</FontFamily>
+            <!-- 150% 缩放下字形常落在半像素，灰度抗锯齿占比高；字号 +1 可压低灰边比例 -->
+            <x:Double x:Key="ControlContentThemeFontSize">15</x:Double>
+            <x:Double x:Key="SettingsCardDescriptionFontSize">13</x:Double>
             <Style TargetType="TextBlock">
                 <Setter Property="FontFamily" Value="{ThemeResource AppDisplayFontFamily}" />
             </Style>
-            <!-- 复刻 WinUI 排版样式，仅额外替换字体族；字号与字重需随 WindowsAppSDK 升级复核 -->
+            <!-- 复刻 WinUI 排版样式，额外替换字体族并整体上调字号；字重需随 WindowsAppSDK 升级复核 -->
             <Style
                 x:Key="CaptionTextBlockStyle"
                 BasedOn="{StaticResource BaseTextBlockStyle}"
                 TargetType="TextBlock"
             >
                 <Setter Property="FontFamily" Value="{ThemeResource AppDisplayFontFamily}" />
-                <Setter Property="FontSize" Value="12" />
+                <Setter Property="FontSize" Value="13" />
                 <Setter Property="FontWeight" Value="Normal" />
             </Style>
             <Style
@@ -62,6 +65,7 @@
                 TargetType="TextBlock"
             >
                 <Setter Property="FontFamily" Value="{ThemeResource AppDisplayFontFamily}" />
+                <Setter Property="FontSize" Value="15" />
                 <Setter Property="FontWeight" Value="Normal" />
             </Style>
             <Style
@@ -70,6 +74,7 @@
                 TargetType="TextBlock"
             >
                 <Setter Property="FontFamily" Value="{ThemeResource AppDisplayFontFamily}" />
+                <Setter Property="FontSize" Value="15" />
             </Style>
             <Style
                 x:Key="BodyLargeTextBlockStyle"
@@ -87,7 +92,7 @@
                 TargetType="TextBlock"
             >
                 <Setter Property="FontFamily" Value="{ThemeResource AppDisplayFontFamily}" />
-                <Setter Property="FontSize" Value="20" />
+                <Setter Property="FontSize" Value="21" />
                 <Setter Property="OpticalMarginAlignment" Value="TrimSideBearings" />
             </Style>
             <Style
@@ -96,7 +101,7 @@
                 TargetType="TextBlock"
             >
                 <Setter Property="FontFamily" Value="{ThemeResource AppDisplayFontFamily}" />
-                <Setter Property="FontSize" Value="28" />
+                <Setter Property="FontSize" Value="30" />
                 <Setter Property="OpticalMarginAlignment" Value="TrimSideBearings" />
             </Style>
             <x:Double x:Key="SettingsCardSpacing">4</x:Double>
