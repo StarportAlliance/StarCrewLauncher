@@ -94,6 +94,10 @@ public sealed partial class App : Application
         services.AddSingleton<IAppInfo, AppInfo>();
         services.AddSingleton<IExternalLauncher, ExternalLauncher>();
         services.AddSingleton<IFilePickerService, FilePickerService>();
+        services.AddSingleton<IBackdropSupport, BackdropSupport>();
+        services.AddSingleton<IBackgroundImageStore>(sp => new BackgroundImageStore(
+            AppPaths.BackgroundDirectory
+        ));
         services.AddSingleton<INotificationService, NotificationService>();
         services.AddSingleton<IAppRestarter, AppRestarter>();
         services.AddSingleton<FrameNavigationService>();
@@ -131,7 +135,8 @@ public sealed partial class App : Application
             sp.GetRequiredService<FrameNavigationService>(),
             sp.GetRequiredService<IFilePickerService>(),
             sp.GetRequiredService<IAppInfo>(),
-            sp.GetRequiredService<HighContrastWatcher>()
+            sp.GetRequiredService<HighContrastWatcher>(),
+            sp.GetRequiredService<IBackdropSupport>()
         ));
         return services.BuildServiceProvider();
     }

@@ -11,11 +11,28 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Image Grid.RowSpan="2" Source="ms-appx:///Assets/background.png" Stretch="UniformToFill" />
         <Border
-            x:Name="AcrylicLayer"
+            x:Name="SolidBackgroundLayer"
             Grid.RowSpan="2"
-            Background="{ThemeResource LauncherAcrylicBrush}"
+            Background="Transparent"
+            Visibility="Collapsed"
+        />
+        <Border
+            x:Name="CustomSolidBackgroundLayer"
+            Grid.RowSpan="2"
+            Background="Transparent"
+            Visibility="Collapsed"
+        />
+        <Image
+            x:Name="BackgroundImage"
+            Grid.RowSpan="2"
+            Source="ms-appx:///Assets/background.png"
+            Stretch="UniformToFill"
+        />
+        <Border
+            x:Name="ScrimLayer"
+            Grid.RowSpan="2"
+            Background="{ThemeResource LauncherScrimBrush}"
             Opacity="0"
         />
 

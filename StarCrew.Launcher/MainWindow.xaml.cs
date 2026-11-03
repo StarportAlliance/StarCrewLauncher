@@ -7,6 +7,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
+using Microsoft.UI.Xaml.Media.Imaging;
 using StarCrew.Launcher.Models;
 using StarCrew.Launcher.Services;
 using Windows.Graphics;
@@ -21,6 +22,18 @@ public sealed partial class MainWindow : Window
     private const int MinWidthPx = 1280;
     private const int MinHeightPx = 720;
 
+    private static readonly Windows.UI.Color SolidBackgroundLight = Windows.UI.Color.FromArgb(
+        255,
+        243,
+        243,
+        243
+    );
+    private static readonly Windows.UI.Color SolidBackgroundDark = Windows.UI.Color.FromArgb(
+        255,
+        32,
+        32,
+        32
+    );
     private static readonly string[] AccentResourceKeys =
     [
         "SystemAccentColor",
@@ -34,12 +47,16 @@ public sealed partial class MainWindow : Window
 
     private readonly IThemeSettings _themeSettings;
     private readonly ISystemFontCatalog _fontCatalog;
+    private readonly IBackdropSupport _backdropSupport;
     private readonly FrameNavigationService _navigation;
     private readonly SubclassProc _subclassProc;
     private readonly nint _hwnd;
     private readonly HighContrastWatcher _highContrast;
+    private readonly BitmapImage _bundledBackgroundSource;
     private bool _refreshingAccent;
     private bool _accentRefreshPending;
+    private NavigationTarget _currentTarget = NavigationTarget.Home;
+    private int _backgroundApplyVersion;
 
     internal MainWindow(
         IThemeSettings themeSettings,
@@ -48,7 +65,8 @@ public sealed partial class MainWindow : Window
         FrameNavigationService navigation,
         IFilePickerService filePicker,
         IAppInfo appInfo,
-        HighContrastWatcher highContrast
+        HighContrastWatcher highContrast,
+        IBackdropSupport backdropSupport
     )
     {
         ArgumentNullException.ThrowIfNull(themeSettings);
@@ -58,12 +76,17 @@ public sealed partial class MainWindow : Window
         ArgumentNullException.ThrowIfNull(filePicker);
         ArgumentNullException.ThrowIfNull(appInfo);
         ArgumentNullException.ThrowIfNull(highContrast);
+        ArgumentNullException.ThrowIfNull(backdropSupport);
 
         InitializeComponent();
         Title = "StarCrew Launcher";
         AppTitleBar.Subtitle = appInfo.IsDevelopment ? "Alpha" : null;
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "icon.ico"));
-        SystemBackdrop = new MicaBackdrop();
+        if (backdropSupport.IsMicaSupported)
+        {
+            SystemBackdrop = new MicaBackdrop();
+        }
+
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
@@ -71,9 +94,37 @@ public sealed partial class MainWindow : Window
         AppWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
         _themeSettings = themeSettings;
+        _backdropSupport = backdropSupport;
+        _bundledBackgroundSource = new BitmapImage(new Uri("ms-appx:///Assets/background.png"));
+
+        // Mica 需要 Win11；不支持时回退图片。自定义图片文件失联时按约定回退 Mica
+        if (_themeSettings.Background == BackgroundKind.Mica && !_backdropSupport.IsMicaSupported)
+        {
+            _themeSettings.Background = BackgroundKind.Image;
+        }
+        if (
+            _themeSettings.Background == BackgroundKind.Image
+            && _themeSettings.UseCustomBackgroundImage
+            && _themeSettings.BackgroundImagePath is { } backgroundPath
+            && !File.Exists(backgroundPath)
+        )
+        {
+            if (_backdropSupport.IsMicaSupported)
+            {
+                _themeSettings.Background = BackgroundKind.Mica;
+            }
+            else
+            {
+                _themeSettings.UseCustomBackgroundImage = false;
+            }
+        }
+
         _themeSettings.ThemeChanged += OnThemeChanged;
         _themeSettings.AccentColorsChanged += OnAccentColorsChanged;
+        _themeSettings.BackgroundChanged += OnBackgroundChanged;
+        _themeSettings.ScrimOpacityChanged += OnScrimOpacityChanged;
         ApplyTheme(_themeSettings.Theme);
+        ApplyBackground();
 
         _fontCatalog = fontCatalog;
         string? displayFont = _themeSettings.DisplayFont;
@@ -116,7 +167,7 @@ public sealed partial class MainWindow : Window
         _subclassProc = WndSubclassProc;
         SetWindowSubclass(_hwnd, _subclassProc, 0, 0);
 
-        AcrylicLayer.OpacityTransition = new ScalarTransition
+        ScrimLayer.OpacityTransition = new ScalarTransition
         {
             Duration = TimeSpan.FromMilliseconds(150),
         };
@@ -204,6 +255,135 @@ public sealed partial class MainWindow : Window
         ApplyAccentColors(refreshThemeResources: true);
     }
 
+    private void OnBackgroundChanged(object? sender, EventArgs e)
+    {
+        _ = sender;
+        _ = e;
+        ApplyBackground();
+    }
+
+    private void OnScrimOpacityChanged(object? sender, EventArgs e)
+    {
+        _ = sender;
+        _ = e;
+        UpdateScrimLayer(animate: false);
+    }
+
+    private void ApplyBackground()
+    {
+        int version = ++_backgroundApplyVersion;
+        BackgroundKind background = _themeSettings.Background;
+
+        bool solid = background == BackgroundKind.SolidColor;
+        SolidBackgroundLayer.Visibility = solid ? Visibility.Visible : Visibility.Collapsed;
+        BackgroundImage.Visibility =
+            background == BackgroundKind.Image ? Visibility.Visible : Visibility.Collapsed;
+
+        if (solid)
+        {
+            ApplySolidBackgroundColor();
+        }
+        else
+        {
+            CustomSolidBackgroundLayer.Visibility = Visibility.Collapsed;
+        }
+
+        if (background == BackgroundKind.Image)
+        {
+            _ = ApplyBackgroundImageAsync(version);
+        }
+
+        UpdateScrimLayer(animate: false);
+    }
+
+    private void ApplySolidBackgroundColor()
+    {
+        string? color = _themeSettings.SolidBackgroundFollowsTheme
+            ? null
+            : _themeSettings.SolidBackgroundColor;
+        if (color is not null && AccentPalette.TryParse(color, out AccentRgb rgb))
+        {
+            CustomSolidBackgroundLayer.Background = new SolidColorBrush(ToColor(rgb));
+            CustomSolidBackgroundLayer.Visibility = Visibility.Visible;
+            return;
+        }
+
+        CustomSolidBackgroundLayer.Visibility = Visibility.Collapsed;
+        ElementTheme actualTheme = Content is FrameworkElement root
+            ? root.ActualTheme
+            : ElementTheme.Dark;
+        SolidBackgroundLayer.Background = new SolidColorBrush(
+            actualTheme == ElementTheme.Light ? SolidBackgroundLight : SolidBackgroundDark
+        );
+    }
+
+    private async Task ApplyBackgroundImageAsync(int version)
+    {
+        string? customPath = _themeSettings.UseCustomBackgroundImage
+            ? _themeSettings.BackgroundImagePath
+            : null;
+        if (customPath is null)
+        {
+            BackgroundImage.Source = _bundledBackgroundSource;
+            return;
+        }
+
+        try
+        {
+            using FileStream stream = File.OpenRead(customPath);
+            BitmapImage bitmap = new();
+            await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
+            if (
+                version == _backgroundApplyVersion
+                && _themeSettings.Background == BackgroundKind.Image
+            )
+            {
+                BackgroundImage.Source = bitmap;
+            }
+        }
+        catch (Exception ex)
+        {
+            // 外部图片可能损坏或权限变化，解码失败统一按约定回退
+            Serilog.Log.Warning(ex, "背景图片加载失败：{Path}", customPath);
+            if (version != _backgroundApplyVersion)
+            {
+                return;
+            }
+
+            if (_backdropSupport.IsMicaSupported)
+            {
+                _themeSettings.Background = BackgroundKind.Mica;
+            }
+            else
+            {
+                _themeSettings.UseCustomBackgroundImage = false;
+                BackgroundImage.Source = _bundledBackgroundSource;
+            }
+        }
+    }
+
+    private void UpdateScrimLayer(bool animate = true)
+    {
+        // 遮罩只为图片背景压住内容页；Mica 与纯色直接显示背景
+        double opacity =
+            _themeSettings.Background == BackgroundKind.Image
+            && _currentTarget != NavigationTarget.Home
+                ? _themeSettings.ScrimOpacity
+                : 0;
+
+        if (animate)
+        {
+            ScrimLayer.Opacity = opacity;
+            return;
+        }
+
+        // 背景设置变化时跳过淡入，避免切换瞬间暴露原图
+        ScalarTransition? transition = ScrimLayer.OpacityTransition;
+        ScrimLayer.OpacityTransition = null;
+        ScrimLayer.Opacity = opacity;
+        ScrimLayer.OpacityTransition = transition;
+    }
+
     private void OnNotificationRequested(object? sender, NotificationMessage message) =>
         ShowToast(
             message.Title,
@@ -231,7 +411,8 @@ public sealed partial class MainWindow : Window
 
     private void OnMainFrameNavigated(NavigationTarget target)
     {
-        AcrylicLayer.Opacity = target == NavigationTarget.Home ? 0 : 1;
+        _currentTarget = target;
+        UpdateScrimLayer();
         SyncBackButton();
     }
 
@@ -424,6 +605,10 @@ public sealed partial class MainWindow : Window
         }
 
         ApplyAccentColors(refreshThemeResources: false);
+        if (_themeSettings.Background == BackgroundKind.SolidColor)
+        {
+            ApplySolidBackgroundColor();
+        }
     }
 
     private void OnHighContrastChanged(object? sender, EventArgs e)

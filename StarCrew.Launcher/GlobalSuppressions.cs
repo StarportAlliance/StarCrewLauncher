@@ -91,7 +91,28 @@ using System.Diagnostics.CodeAnalysis;
     "CA1515:TypesCanBeMadeInternal",
     Justification = "XAML 资源需要实例化，类型必须 public。",
     Scope = "type",
-    Target = "~T:StarCrew.Launcher.Views.AccentHexColorConverter"
+    Target = "~T:StarCrew.Launcher.Views.HexColorConverter"
+)]
+[assembly: SuppressMessage(
+    "Maintainability",
+    "CA1515:TypesCanBeMadeInternal",
+    Justification = "XAML 资源需要实例化，类型必须 public。",
+    Scope = "type",
+    Target = "~T:StarCrew.Launcher.Views.ScrimOpacityPercentConverter"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "外部背景图片可能损坏或权限变化，解码失败统一回退到其他背景。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.MainWindow.ApplyBackgroundImageAsync(System.Int32)"
+)]
+[assembly: SuppressMessage(
+    "Design",
+    "CA1031:DoNotCatchGeneralExceptionTypes",
+    Justification = "缩略图加载失败时留空，不影响背景本身。",
+    Scope = "member",
+    Target = "~M:StarCrew.Launcher.Views.AppearancePage.UpdateCustomBackgroundThumbnailAsync"
 )]
 [assembly: SuppressMessage(
     "Design",

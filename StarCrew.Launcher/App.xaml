@@ -17,13 +17,8 @@
                     <Color x:Key="SystemAccentColorDark1">#1771AE</Color>
                     <Color x:Key="SystemAccentColorDark2">#115380</Color>
                     <Color x:Key="SystemAccentColorDark3">#0B3551</Color>
-                    <AcrylicBrush
-                        x:Key="LauncherAcrylicBrush"
-                        FallbackColor="#F7F7F7"
-                        TintColor="#FCFCFC"
-                        TintLuminosityOpacity="0.88"
-                        TintOpacity="0.55"
-                    />
+                    <SolidColorBrush x:Key="LauncherScrimBrush" Color="#FFFCFCFC" />
+                    <SolidColorBrush x:Key="LauncherSolidBackgroundBrush" Color="#F3F3F3" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
                     <Color x:Key="SystemAccentColor">#8ED1FF</Color>
@@ -33,13 +28,8 @@
                     <Color x:Key="SystemAccentColorDark1">#7FCCFF</Color>
                     <Color x:Key="SystemAccentColorDark2">#6CADD9</Color>
                     <Color x:Key="SystemAccentColorDark3">#598FB3</Color>
-                    <AcrylicBrush
-                        x:Key="LauncherAcrylicBrush"
-                        FallbackColor="#1C1C1C"
-                        TintColor="#202020"
-                        TintLuminosityOpacity="0.68"
-                        TintOpacity="0.25"
-                    />
+                    <SolidColorBrush x:Key="LauncherScrimBrush" Color="#FF202020" />
+                    <SolidColorBrush x:Key="LauncherSolidBackgroundBrush" Color="#202020" />
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
             <FontFamily x:Key="AppDisplayFontFamily">XamlAutoFontFamily</FontFamily>

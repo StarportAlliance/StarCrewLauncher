@@ -10,10 +10,19 @@ internal sealed class FilePickerService : IFilePickerService
 
     public void AttachHostWindow(nint windowHandle) => _windowHandle = windowHandle;
 
-    public async Task<string?> PickGameExeAsync()
+    public Task<string?> PickGameExeAsync() => PickSingleFileAsync(".exe");
+
+    public Task<string?> PickBackgroundImageAsync() =>
+        PickSingleFileAsync(".png", ".jpg", ".jpeg", ".bmp");
+
+    private async Task<string?> PickSingleFileAsync(params string[] extensions)
     {
         FileOpenPicker picker = new() { SuggestedStartLocation = PickerLocationId.ComputerFolder };
-        picker.FileTypeFilter.Add(".exe");
+        foreach (string extension in extensions)
+        {
+            picker.FileTypeFilter.Add(extension);
+        }
+
         InitializeWithWindow.Initialize(picker, _windowHandle);
 
         StorageFile? file = await picker.PickSingleFileAsync();

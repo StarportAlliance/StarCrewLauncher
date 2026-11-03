@@ -10,4 +10,8 @@ internal interface IFilePickerService
     /// <summary>让用户选择一个游戏 exe 文件。</summary>
     /// <returns>选择的 exe 文件路径，取消时返回 null。</returns>
     Task<string?> PickGameExeAsync();
+
+    /// <summary>让用户选择一张背景图片。</summary>
+    /// <returns>选择的图片路径，取消时返回 null。</returns>
+    Task<string?> PickBackgroundImageAsync();
 }

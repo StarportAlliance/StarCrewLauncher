@@ -135,6 +135,90 @@
   <data name="Appearance_FontDefault" xml:space="preserve">
     <value>系统默认</value>
   </data>
+  <data name="Appearance_BackgroundSectionTitle.Text" xml:space="preserve">
+    <value>背景材质</value>
+  </data>
+  <data name="Appearance_MicaUnsupportedBar.Title" xml:space="preserve">
+    <value>当前系统不支持 Mica 材质。</value>
+  </data>
+  <data name="Appearance_MicaOptionTitle.Text" xml:space="preserve">
+    <value>Mica</value>
+  </data>
+  <data name="Appearance_MicaOptionDescription.Text" xml:space="preserve">
+    <value>Mica (云母)是一种不透明的动态材料。</value>
+  </data>
+  <data name="Appearance_MicaRadio.AutomationProperties.Name" xml:space="preserve">
+    <value>Mica</value>
+  </data>
+  <data name="Appearance_ImageOptionTitle.Text" xml:space="preserve">
+    <value>图片</value>
+  </data>
+  <data name="Appearance_ImageOptionDescription.Text" xml:space="preserve">
+    <value>使用图片作为背景时，非主页区域将覆盖遮罩以提高可读性。</value>
+  </data>
+  <data name="Appearance_ImageRadio.AutomationProperties.Name" xml:space="preserve">
+    <value>图片背景</value>
+  </data>
+  <data name="Appearance_BackgroundImageBuiltInCard.AutomationProperties.Name" xml:space="preserve">
+    <value>内置背景图</value>
+  </data>
+  <data name="Appearance_BackgroundImageBuiltInRadio.AutomationProperties.Name" xml:space="preserve">
+    <value>内置背景图</value>
+  </data>
+  <data name="Appearance_BackgroundImageRemove.AutomationProperties.Name" xml:space="preserve">
+    <value>删除自定义图片</value>
+  </data>
+  <data name="Appearance_BackgroundImageRemove.ToolTipService.ToolTip" xml:space="preserve">
+    <value>删除自定义图片</value>
+  </data>
+  <data name="Appearance_BackgroundImageAdd.AutomationProperties.Name" xml:space="preserve">
+    <value>选择本地图片</value>
+  </data>
+  <data name="Appearance_BackgroundImageAddText.Text" xml:space="preserve">
+    <value>选择本地图片</value>
+  </data>
+  <data name="Appearance_BackgroundImageBuiltIn" xml:space="preserve">
+    <value>内置背景图</value>
+  </data>
+  <data name="Appearance_BackgroundImageImportFailedTitle" xml:space="preserve">
+    <value>无法设置背景图片</value>
+  </data>
+  <data name="Appearance_BackgroundImageImportFailedMessage" xml:space="preserve">
+    <value>请确认图片文件正确且有效。</value>
+  </data>
+  <data name="Appearance_ScrimCard.Header" xml:space="preserve">
+    <value>遮罩不透明度</value>
+  </data>
+  <data name="Appearance_ScrimSlider.AutomationProperties.Name" xml:space="preserve">
+    <value>背景遮罩不透明度</value>
+  </data>
+  <data name="Appearance_SolidOptionTitle.Text" xml:space="preserve">
+    <value>纯色背景</value>
+  </data>
+  <data name="Appearance_SolidOptionDescription.Text" xml:space="preserve">
+    <value>使用单一颜色填充背景。</value>
+  </data>
+  <data name="Appearance_SolidRadio.AutomationProperties.Name" xml:space="preserve">
+    <value>纯色背景</value>
+  </data>
+  <data name="Appearance_SolidColorItem.Header" xml:space="preserve">
+    <value>背景颜色</value>
+  </data>
+  <data name="Appearance_SolidColorFollowTheme" xml:space="preserve">
+    <value>跟随主题</value>
+  </data>
+  <data name="Appearance_SolidColorPicker.AutomationProperties.Name" xml:space="preserve">
+    <value>纯色背景颜色</value>
+  </data>
+  <data name="Appearance_SolidColorReset.Content" xml:space="preserve">
+    <value>重置</value>
+  </data>
+  <data name="Appearance_SolidColorReset.ToolTipService.ToolTip" xml:space="preserve">
+    <value>恢复为跟随主题背景色</value>
+  </data>
+  <data name="Appearance_SolidColorReset.AutomationProperties.Name" xml:space="preserve">
+    <value>重置纯色背景颜色</value>
+  </data>
 
   <!-- 日志设置 -->
   <data name="Logging_SectionTitle.Text" xml:space="preserve">
