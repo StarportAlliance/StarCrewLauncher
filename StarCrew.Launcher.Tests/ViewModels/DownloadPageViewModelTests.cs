@@ -103,14 +103,26 @@ public sealed class DownloadPageViewModelTests
     }
 
     [Fact]
-    public void NeedsLogin_WithAccount_AllowsInstall()
+    public void CanStartInstall_WithAccountAndName_AllowsInstall()
     {
         (DownloadPageViewModel vm, _, _, _, _, _) = Create(
             state: new LauncherState(1, null, "gamer", [])
         );
+        vm.InstanceName = "MyInstance";
 
         Assert.False(vm.NeedsLogin);
         Assert.True(vm.CanStartInstall);
+    }
+
+    [Fact]
+    public void CanStartInstall_WithAccountAndBlankName_BlocksInstall()
+    {
+        (DownloadPageViewModel vm, _, _, _, _, _) = Create(
+            state: new LauncherState(1, null, "gamer", [])
+        );
+        vm.InstanceName = "   ";
+
+        Assert.False(vm.CanStartInstall);
     }
 
     [Fact]

@@ -46,7 +46,7 @@
                             x:Uid="Install_InstanceNameBox"
                             Width="360"
                             HorizontalAlignment="Left"
-                            Text="{x:Bind ViewModel.InstanceName, Mode=TwoWay}"
+                            Text="{x:Bind ViewModel.InstanceName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         />
                     </controls:SettingsCard>
                 </StackPanel>

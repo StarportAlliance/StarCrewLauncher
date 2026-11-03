@@ -86,11 +86,12 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     public partial GameVersionEntry? SelectedVersion { get; set; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanStartInstall))]
     public partial string InstanceName { get; set; } = string.Empty;
 
     public bool NeedsLogin => string.IsNullOrWhiteSpace(AccountName);
 
-    public bool CanStartInstall => !NeedsLogin;
+    public bool CanStartInstall => !NeedsLogin && !string.IsNullOrWhiteSpace(InstanceName);
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsNotRefreshing))]
