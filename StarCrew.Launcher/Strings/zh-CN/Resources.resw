@@ -163,10 +163,10 @@
     <value>图片背景</value>
   </data>
   <data name="Appearance_BackgroundImageBuiltInCard.AutomationProperties.Name" xml:space="preserve">
-    <value>内置背景图</value>
+    <value>The Fungle Sunset</value>
   </data>
   <data name="Appearance_BackgroundImageBuiltInRadio.AutomationProperties.Name" xml:space="preserve">
-    <value>内置背景图</value>
+    <value>The Fungle Sunset</value>
   </data>
   <data name="Appearance_BackgroundImageRemove.AutomationProperties.Name" xml:space="preserve">
     <value>删除自定义图片</value>
@@ -181,7 +181,7 @@
     <value>选择本地图片</value>
   </data>
   <data name="Appearance_BackgroundImageBuiltIn" xml:space="preserve">
-    <value>内置背景图</value>
+    <value>The Fungle Sunset</value>
   </data>
   <data name="Appearance_BackgroundImageImportFailedTitle" xml:space="preserve">
     <value>无法设置背景图片</value>
@@ -191,6 +191,9 @@
   </data>
   <data name="Appearance_ScrimCard.Header" xml:space="preserve">
     <value>遮罩不透明度</value>
+  </data>
+  <data name="Appearance_ScrimCard.Description" xml:space="preserve">
+    <value>更改后立即生效</value>
   </data>
   <data name="Appearance_ScrimSlider.AutomationProperties.Name" xml:space="preserve">
     <value>背景遮罩不透明度</value>
