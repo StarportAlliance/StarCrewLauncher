@@ -19,7 +19,7 @@ internal sealed class AppRestarter : IAppRestarter
         string path =
             Environment.ProcessPath
             ?? throw new InvalidOperationException("无法确定当前进程路径。");
-        _logger.LogInformation("重启应用以应用日志设置");
+        _logger.LogInformation("重启应用以应用设置");
         Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
         Application.Current.Exit();
     }

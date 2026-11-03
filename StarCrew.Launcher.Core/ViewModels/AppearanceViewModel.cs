@@ -15,8 +15,10 @@ internal sealed partial class AppearanceViewModel : ObservableObject
     private readonly IFilePickerService _filePicker;
     private readonly INotificationService _notifications;
     private readonly IAppStrings _strings;
+    private readonly IAppRestarter _restarter;
     private readonly FontOption _defaultFont;
     private FontOption _selectedFontOption;
+    private bool _restartNotified;
 
     public AppearanceViewModel(
         IThemeSettings themeSettings,
@@ -25,7 +27,8 @@ internal sealed partial class AppearanceViewModel : ObservableObject
         IBackdropSupport backdropSupport,
         IBackgroundImageStore imageStore,
         IFilePickerService filePicker,
-        INotificationService notifications
+        INotificationService notifications,
+        IAppRestarter restarter
     )
     {
         ArgumentNullException.ThrowIfNull(themeSettings);
@@ -35,6 +38,7 @@ internal sealed partial class AppearanceViewModel : ObservableObject
         ArgumentNullException.ThrowIfNull(imageStore);
         ArgumentNullException.ThrowIfNull(filePicker);
         ArgumentNullException.ThrowIfNull(notifications);
+        ArgumentNullException.ThrowIfNull(restarter);
 
         _themeSettings = themeSettings;
         _backdropSupport = backdropSupport;
@@ -42,6 +46,7 @@ internal sealed partial class AppearanceViewModel : ObservableObject
         _filePicker = filePicker;
         _notifications = notifications;
         _strings = strings;
+        _restarter = restarter;
         _defaultFont = new FontOption(
             strings.GetString("Appearance_FontDefault"),
             string.Empty,
@@ -250,6 +255,7 @@ internal sealed partial class AppearanceViewModel : ObservableObject
 
             _themeSettings.SolidBackgroundColor = normalized;
             _themeSettings.SolidBackgroundFollowsTheme = false;
+            MarkRestartNeeded();
             OnPropertyChanged(nameof(SolidBackgroundColor));
             OnPropertyChanged(nameof(SolidBackgroundColorLabel));
             OnPropertyChanged(nameof(CanResetSolidBackgroundColor));
@@ -339,6 +345,7 @@ internal sealed partial class AppearanceViewModel : ObservableObject
 
         // 保留取色器当前颜色，避免重置时把透明色反写回设置
         _themeSettings.SolidBackgroundFollowsTheme = true;
+        MarkRestartNeeded();
         OnPropertyChanged(nameof(SolidBackgroundColorLabel));
         OnPropertyChanged(nameof(CanResetSolidBackgroundColor));
         OnPropertyChanged(nameof(IsSolidBackgroundColorFollowTheme));
@@ -359,6 +366,7 @@ internal sealed partial class AppearanceViewModel : ObservableObject
             _themeSettings.BackgroundImagePath = stored;
             _themeSettings.UseCustomBackgroundImage = true;
             _themeSettings.Background = BackgroundKind.Image;
+            MarkRestartNeeded();
             OnPropertyChanged(nameof(BackgroundImagePath));
             OnPropertyChanged(nameof(BackgroundImageDisplayName));
             OnPropertyChanged(nameof(HasCustomBackgroundImage));
@@ -382,6 +390,7 @@ internal sealed partial class AppearanceViewModel : ObservableObject
     {
         _themeSettings.UseCustomBackgroundImage = false;
         _themeSettings.Background = BackgroundKind.Image;
+        MarkRestartNeeded();
         RaiseBackgroundImageSelectionChanged();
     }
 
@@ -395,6 +404,7 @@ internal sealed partial class AppearanceViewModel : ObservableObject
 
         _themeSettings.UseCustomBackgroundImage = true;
         _themeSettings.Background = BackgroundKind.Image;
+        MarkRestartNeeded();
         RaiseBackgroundImageSelectionChanged();
     }
 
@@ -410,6 +420,7 @@ internal sealed partial class AppearanceViewModel : ObservableObject
         _themeSettings.UseCustomBackgroundImage = false;
         _themeSettings.BackgroundImagePath = null;
         _imageStore.Delete(path);
+        MarkRestartNeeded();
         OnPropertyChanged(nameof(BackgroundImagePath));
         OnPropertyChanged(nameof(BackgroundImageDisplayName));
         OnPropertyChanged(nameof(HasCustomBackgroundImage));
@@ -439,7 +450,24 @@ internal sealed partial class AppearanceViewModel : ObservableObject
         }
 
         _themeSettings.Background = background;
+        MarkRestartNeeded();
         RaiseBackgroundChanged();
+    }
+
+    private void MarkRestartNeeded()
+    {
+        if (_restartNotified)
+        {
+            return;
+        }
+
+        _restartNotified = true;
+        _notifications.Notify(
+            _strings.GetString("Logging_RestartTitle"),
+            null,
+            NotificationSeverity.Informational,
+            new NotificationAction(_strings.GetString("Logging_RestartNow"), _restarter.Restart)
+        );
     }
 
     private void RaiseBackgroundChanged()

@@ -56,6 +56,7 @@ public sealed partial class MainWindow : Window
     private bool _refreshingAccent;
     private bool _accentRefreshPending;
     private NavigationTarget _currentTarget = NavigationTarget.Home;
+    private BackgroundKind _appliedBackground;
     private int _backgroundApplyVersion;
 
     internal MainWindow(
@@ -121,7 +122,6 @@ public sealed partial class MainWindow : Window
 
         _themeSettings.ThemeChanged += OnThemeChanged;
         _themeSettings.AccentColorsChanged += OnAccentColorsChanged;
-        _themeSettings.BackgroundChanged += OnBackgroundChanged;
         _themeSettings.ScrimOpacityChanged += OnScrimOpacityChanged;
         ApplyTheme(_themeSettings.Theme);
         ApplyBackground();
@@ -255,13 +255,6 @@ public sealed partial class MainWindow : Window
         ApplyAccentColors(refreshThemeResources: true);
     }
 
-    private void OnBackgroundChanged(object? sender, EventArgs e)
-    {
-        _ = sender;
-        _ = e;
-        ApplyBackground();
-    }
-
     private void OnScrimOpacityChanged(object? sender, EventArgs e)
     {
         _ = sender;
@@ -273,6 +266,7 @@ public sealed partial class MainWindow : Window
     {
         int version = ++_backgroundApplyVersion;
         BackgroundKind background = _themeSettings.Background;
+        _appliedBackground = background;
 
         bool solid = background == BackgroundKind.SolidColor;
         SolidBackgroundLayer.Visibility = solid ? Visibility.Visible : Visibility.Collapsed;
@@ -353,6 +347,7 @@ public sealed partial class MainWindow : Window
             if (_backdropSupport.IsMicaSupported)
             {
                 _themeSettings.Background = BackgroundKind.Mica;
+                ApplyBackground();
             }
             else
             {
@@ -366,8 +361,7 @@ public sealed partial class MainWindow : Window
     {
         // 遮罩只为图片背景压住内容页；Mica 与纯色直接显示背景
         double opacity =
-            _themeSettings.Background == BackgroundKind.Image
-            && _currentTarget != NavigationTarget.Home
+            _appliedBackground == BackgroundKind.Image && _currentTarget != NavigationTarget.Home
                 ? _themeSettings.ScrimOpacity
                 : 0;
 
@@ -605,7 +599,7 @@ public sealed partial class MainWindow : Window
         }
 
         ApplyAccentColors(refreshThemeResources: false);
-        if (_themeSettings.Background == BackgroundKind.SolidColor)
+        if (_appliedBackground == BackgroundKind.SolidColor)
         {
             ApplySolidBackgroundColor();
         }

@@ -138,6 +138,9 @@
   <data name="Appearance_BackgroundSectionTitle.Text" xml:space="preserve">
     <value>背景材质</value>
   </data>
+  <data name="Appearance_BackgroundRestartHint.Text" xml:space="preserve">
+    <value>更改后需重启生效</value>
+  </data>
   <data name="Appearance_MicaUnsupportedBar.Title" xml:space="preserve">
     <value>当前系统不支持 Mica 材质。</value>
   </data>

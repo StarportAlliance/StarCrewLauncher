@@ -19,7 +19,8 @@ public sealed class AppearanceViewModelTests
         IBackdropSupport? backdrop = null,
         IBackgroundImageStore? imageStore = null,
         IFilePickerService? filePicker = null,
-        INotificationService? notifications = null
+        INotificationService? notifications = null,
+        IAppRestarter? restarter = null
     )
     {
         ISystemFontCatalog fonts = catalog ?? Substitute.For<ISystemFontCatalog>();
@@ -31,7 +32,8 @@ public sealed class AppearanceViewModelTests
             backdrop ?? Substitute.For<IBackdropSupport>(),
             imageStore ?? Substitute.For<IBackgroundImageStore>(),
             filePicker ?? Substitute.For<IFilePickerService>(),
-            notifications ?? Substitute.For<INotificationService>()
+            notifications ?? Substitute.For<INotificationService>(),
+            restarter ?? Substitute.For<IAppRestarter>()
         );
     }
 
@@ -52,7 +54,8 @@ public sealed class AppearanceViewModelTests
                 Substitute.For<IBackdropSupport>(),
                 Substitute.For<IBackgroundImageStore>(),
                 Substitute.For<IFilePickerService>(),
-                Substitute.For<INotificationService>()
+                Substitute.For<INotificationService>(),
+                Substitute.For<IAppRestarter>()
             )
         );
 
@@ -66,7 +69,8 @@ public sealed class AppearanceViewModelTests
                 Substitute.For<IBackdropSupport>(),
                 Substitute.For<IBackgroundImageStore>(),
                 Substitute.For<IFilePickerService>(),
-                Substitute.For<INotificationService>()
+                Substitute.For<INotificationService>(),
+                Substitute.For<IAppRestarter>()
             )
         );
 
@@ -80,7 +84,8 @@ public sealed class AppearanceViewModelTests
                 Substitute.For<IBackdropSupport>(),
                 Substitute.For<IBackgroundImageStore>(),
                 Substitute.For<IFilePickerService>(),
-                Substitute.For<INotificationService>()
+                Substitute.For<INotificationService>(),
+                Substitute.For<IAppRestarter>()
             )
         );
 
@@ -94,7 +99,8 @@ public sealed class AppearanceViewModelTests
                 null!,
                 Substitute.For<IBackgroundImageStore>(),
                 Substitute.For<IFilePickerService>(),
-                Substitute.For<INotificationService>()
+                Substitute.For<INotificationService>(),
+                Substitute.For<IAppRestarter>()
             )
         );
 
@@ -108,7 +114,8 @@ public sealed class AppearanceViewModelTests
                 Substitute.For<IBackdropSupport>(),
                 null!,
                 Substitute.For<IFilePickerService>(),
-                Substitute.For<INotificationService>()
+                Substitute.For<INotificationService>(),
+                Substitute.For<IAppRestarter>()
             )
         );
 
@@ -122,7 +129,8 @@ public sealed class AppearanceViewModelTests
                 Substitute.For<IBackdropSupport>(),
                 Substitute.For<IBackgroundImageStore>(),
                 null!,
-                Substitute.For<INotificationService>()
+                Substitute.For<INotificationService>(),
+                Substitute.For<IAppRestarter>()
             )
         );
 
@@ -136,6 +144,22 @@ public sealed class AppearanceViewModelTests
                 Substitute.For<IBackdropSupport>(),
                 Substitute.For<IBackgroundImageStore>(),
                 Substitute.For<IFilePickerService>(),
+                null!,
+                Substitute.For<IAppRestarter>()
+            )
+        );
+
+    [Fact]
+    public void Ctor_WithNullRestarter_ThrowsArgumentNullException() =>
+        Assert.Throws<ArgumentNullException>(() =>
+            new AppearanceViewModel(
+                Substitute.For<IThemeSettings>(),
+                Substitute.For<ISystemFontCatalog>(),
+                TestStrings.Instance,
+                Substitute.For<IBackdropSupport>(),
+                Substitute.For<IBackgroundImageStore>(),
+                Substitute.For<IFilePickerService>(),
+                Substitute.For<INotificationService>(),
                 null!
             )
         );
@@ -414,6 +438,39 @@ public sealed class AppearanceViewModelTests
         Assert.Contains(nameof(AppearanceViewModel.IsSolidBackground), changed);
         Assert.Contains(nameof(AppearanceViewModel.IsSolidBackgroundColorLabelDisabled), changed);
         Assert.Contains(nameof(AppearanceViewModel.IsScrimOpacityDisabled), changed);
+    }
+
+    [Fact]
+    public void IsSolidBackground_SetTrue_NotifiesRestartOnlyOnce()
+    {
+        ThemeSettings settings = new(new Dictionary<string, object>());
+        INotificationService notifications = Substitute.For<INotificationService>();
+        IAppRestarter restarter = Substitute.For<IAppRestarter>();
+        AppearanceViewModel vm = Create(
+            theme: settings,
+            notifications: notifications,
+            restarter: restarter
+        );
+
+        vm.IsSolidBackground = true;
+        vm.SolidBackgroundColor = "#123456";
+
+        notifications
+            .Received(1)
+            .Notify(
+                TestStrings.Instance.GetString("Logging_RestartTitle"),
+                null,
+                NotificationSeverity.Informational,
+                Arg.Is<NotificationAction?>(action => action != null)
+            );
+
+        NotificationAction action = notifications
+            .ReceivedCalls()
+            .Select(call => call.GetArguments()[3] as NotificationAction)
+            .First(a => a != null)!;
+        action.Callback();
+
+        restarter.Received(1).Restart();
     }
 
     [Fact]

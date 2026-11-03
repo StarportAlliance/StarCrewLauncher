@@ -151,11 +151,21 @@
                     </StackPanel>
                 </controls:SettingsCard>
 
-                <TextBlock
-                    x:Uid="Appearance_BackgroundSectionTitle"
-                    Margin="1,12,0,6"
-                    Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
-                />
+                <StackPanel Margin="1,12,0,6" Orientation="Horizontal" Spacing="8">
+                    <TextBlock
+                        x:Uid="Appearance_BackgroundSectionTitle"
+                        Margin="0"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                    />
+                    <TextBlock
+                        x:Uid="Appearance_BackgroundRestartHint"
+                        Margin="0"
+                        VerticalAlignment="Bottom"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                    />
+                </StackPanel>
                 <InfoBar
                     x:Uid="Appearance_MicaUnsupportedBar"
                     IsClosable="False"
