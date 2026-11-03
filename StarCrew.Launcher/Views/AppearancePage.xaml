@@ -349,6 +349,13 @@
                                         </StackPanel>
                                     </Button>
                                     <Border
+                                        BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                                        BorderThickness="2"
+                                        CornerRadius="{ThemeResource ControlCornerRadius}"
+                                        IsHitTestVisible="False"
+                                        Visibility="{x:Bind ViewModel.IsBuiltInBackgroundImageSelected, Mode=OneWay}"
+                                    />
+                                    <Border
                                         BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
                                         BorderThickness="2"
                                         CornerRadius="{ThemeResource ControlCornerRadius}"
@@ -405,6 +412,13 @@
                                             </Rectangle>
                                         </StackPanel>
                                     </Button>
+                                    <Border
+                                        BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                                        BorderThickness="2"
+                                        CornerRadius="{ThemeResource ControlCornerRadius}"
+                                        IsHitTestVisible="False"
+                                        Visibility="{x:Bind ViewModel.IsCustomBackgroundImageSelected, Mode=OneWay}"
+                                    />
                                     <Border
                                         BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
                                         BorderThickness="2"
