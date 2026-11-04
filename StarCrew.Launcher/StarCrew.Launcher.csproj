@@ -30,6 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="CommunityToolkit.Mvvm" />
         <PackageReference Include="CommunityToolkit.WinUI.Behaviors" />
         <PackageReference Include="CommunityToolkit.WinUI.Controls.ColorPicker" />
         <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" />
@@ -55,8 +56,8 @@
             <Link>Assets\icon.svg</Link>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-        <Content Include="..\Assets\background.png">
-            <Link>Assets\background.png</Link>
+        <Content Include="..\Assets\BuiltinBackground\*">
+            <Link>Assets\BuiltinBackground\%(Filename)%(Extension)</Link>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
         <Content Include="..\Assets\AmongUs.png">

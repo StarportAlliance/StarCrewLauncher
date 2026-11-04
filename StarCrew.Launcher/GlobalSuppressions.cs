@@ -112,7 +112,7 @@ using System.Diagnostics.CodeAnalysis;
     "CA1031:DoNotCatchGeneralExceptionTypes",
     Justification = "缩略图加载失败时留空，不影响背景本身。",
     Scope = "member",
-    Target = "~M:StarCrew.Launcher.Views.AppearancePage.UpdateCustomBackgroundThumbnailAsync"
+    Target = "~M:StarCrew.Launcher.Views.CustomBackgroundImageCardViewModel.UpdateThumbnailAsync"
 )]
 [assembly: SuppressMessage(
     "Design",

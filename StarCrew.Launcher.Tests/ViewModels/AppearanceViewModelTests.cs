@@ -599,18 +599,16 @@ public sealed class AppearanceViewModelTests
     }
 
     [Fact]
-    public void BackgroundImageDisplayName_WithoutCustomImage_IsBuiltIn()
+    public void BackgroundImageDisplayName_WithoutCustomImage_IsSelectedBuiltIn()
     {
         AppearanceViewModel vm = Create(theme: new ThemeSettings(new Dictionary<string, object>()));
 
+        Assert.Equal(BuiltInBackgroundCatalog.All.Count, vm.BuiltInBackgrounds.Count);
         Assert.Equal(
-            TestStrings.Instance.GetString("Appearance_BackgroundImageBuiltIn"),
+            TestStrings.Instance.GetString(BuiltInBackgroundCatalog.Default.NameKey),
             vm.BackgroundImageDisplayName
         );
-        Assert.Equal(
-            TestStrings.Instance.GetString("Appearance_BackgroundImageBuiltIn"),
-            vm.BuiltInBackgroundImageName
-        );
+        Assert.True(vm.BuiltInBackgrounds[0].IsSelected);
         Assert.False(vm.HasCustomBackgroundImage);
         Assert.True(vm.CanAddBackgroundImage);
         Assert.True(vm.IsBuiltInBackgroundImageSelected);
@@ -659,12 +657,12 @@ public sealed class AppearanceViewModelTests
         };
         AppearanceViewModel vm = Create(theme: new ThemeSettings(store));
 
-        Assert.False(vm.IsBuiltInBackgroundImageHighlighted);
+        Assert.All(vm.BuiltInBackgrounds, option => Assert.False(option.IsHighlighted));
         Assert.True(vm.IsCustomBackgroundImageHighlighted);
 
         vm.IsSolidBackground = true;
 
-        Assert.False(vm.IsBuiltInBackgroundImageHighlighted);
+        Assert.All(vm.BuiltInBackgrounds, option => Assert.False(option.IsHighlighted));
         Assert.False(vm.IsCustomBackgroundImageHighlighted);
     }
 
@@ -754,13 +752,62 @@ public sealed class AppearanceViewModelTests
         ThemeSettings settings = new(store);
         AppearanceViewModel vm = Create(theme: settings);
 
-        vm.SelectBuiltInBackgroundImageCommand.Execute(null);
+        vm.BuiltInBackgrounds[1].SelectCommand.Execute(null);
 
+        Assert.Equal("CrewmateDuo", settings.BuiltInBackgroundId);
         Assert.False(settings.UseCustomBackgroundImage);
         Assert.Equal(@"C:\data\Background\background.png", settings.BackgroundImagePath);
         Assert.Equal(BackgroundKind.Image, settings.Background);
         Assert.True(vm.IsBuiltInBackgroundImageSelected);
         Assert.False(vm.IsCustomBackgroundImageSelected);
+    }
+
+    [Fact]
+    public void SelectBuiltInBackground_PersistsIdAndUpdatesSelection()
+    {
+        ThemeSettings settings = new(new Dictionary<string, object>());
+        AppearanceViewModel vm = Create(theme: settings);
+
+        vm.BuiltInBackgrounds[2].SelectCommand.Execute(null);
+
+        Assert.Equal("ImpostorMonth", settings.BuiltInBackgroundId);
+        Assert.Equal(BackgroundKind.Image, settings.Background);
+        Assert.True(vm.BuiltInBackgrounds[2].IsSelected);
+        Assert.True(vm.BuiltInBackgrounds[2].IsHighlighted);
+        Assert.False(vm.BuiltInBackgrounds[0].IsSelected);
+        Assert.Equal("Impostor Month", vm.BackgroundImageDisplayName);
+    }
+
+    [Fact]
+    public void SelectBuiltInBackground_DefaultId_NormalizesToNull()
+    {
+        Dictionary<string, object> store = new()
+        {
+            [ThemeSettings.BuiltInBackgroundIdKey] = "ImpostorMonth",
+        };
+        ThemeSettings settings = new(store);
+        AppearanceViewModel vm = Create(theme: settings);
+
+        Assert.True(vm.BuiltInBackgrounds[2].IsSelected);
+        vm.BuiltInBackgrounds[0].SelectCommand.Execute(null);
+
+        Assert.Null(settings.BuiltInBackgroundId);
+        Assert.True(vm.BuiltInBackgrounds[0].IsSelected);
+        Assert.False(vm.BuiltInBackgrounds[2].IsSelected);
+    }
+
+    [Fact]
+    public void BuiltInBackgroundHighlight_TracksImageBackground()
+    {
+        ThemeSettings settings = new(new Dictionary<string, object>());
+        AppearanceViewModel vm = Create(theme: settings);
+
+        Assert.True(vm.BuiltInBackgrounds[0].IsHighlighted);
+
+        vm.IsSolidBackground = true;
+
+        Assert.True(vm.BuiltInBackgrounds[0].IsSelected);
+        Assert.False(vm.BuiltInBackgrounds[0].IsHighlighted);
     }
 
     [Fact]
@@ -815,7 +862,7 @@ public sealed class AppearanceViewModelTests
         Assert.True(vm.CanAddBackgroundImage);
         Assert.True(vm.IsBuiltInBackgroundImageSelected);
         Assert.Equal(
-            TestStrings.Instance.GetString("Appearance_BackgroundImageBuiltIn"),
+            TestStrings.Instance.GetString(BuiltInBackgroundCatalog.Default.NameKey),
             vm.BackgroundImageDisplayName
         );
     }

@@ -52,7 +52,6 @@ public sealed partial class MainWindow : Window
     private readonly SubclassProc _subclassProc;
     private readonly nint _hwnd;
     private readonly HighContrastWatcher _highContrast;
-    private readonly BitmapImage _bundledBackgroundSource;
     private bool _refreshingAccent;
     private bool _accentRefreshPending;
     private NavigationTarget _currentTarget = NavigationTarget.Home;
@@ -96,7 +95,6 @@ public sealed partial class MainWindow : Window
 
         _themeSettings = themeSettings;
         _backdropSupport = backdropSupport;
-        _bundledBackgroundSource = new BitmapImage(new Uri("ms-appx:///Assets/background.png"));
 
         // Mica 需要 Win11；不支持时回退图片。自定义图片文件失联时按约定回退 Mica
         if (_themeSettings.Background == BackgroundKind.Mica && !_backdropSupport.IsMicaSupported)
@@ -318,7 +316,7 @@ public sealed partial class MainWindow : Window
             : null;
         if (customPath is null)
         {
-            BackgroundImage.Source = _bundledBackgroundSource;
+            BackgroundImage.Source = CreateBuiltInBackgroundSource();
             return;
         }
 
@@ -352,10 +350,17 @@ public sealed partial class MainWindow : Window
             else
             {
                 _themeSettings.UseCustomBackgroundImage = false;
-                BackgroundImage.Source = _bundledBackgroundSource;
+                BackgroundImage.Source = CreateBuiltInBackgroundSource();
             }
         }
     }
+
+    private BitmapImage CreateBuiltInBackgroundSource() =>
+        new(
+            new Uri(
+                BuiltInBackgroundCatalog.Resolve(_themeSettings.BuiltInBackgroundId).ImageSource
+            )
+        );
 
     private void UpdateScrimLayer(bool animate = true)
     {

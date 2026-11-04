@@ -54,6 +54,16 @@ internal sealed partial class AppearanceViewModel : ObservableObject
         );
         List<FontOption> options = [_defaultFont, .. fontCatalog.GetFonts()];
         FontOptions = options;
+        BuiltInBackgrounds =
+        [
+            .. BuiltInBackgroundCatalog.All.Select(
+                background => new BuiltInBackgroundOptionViewModel(
+                    background,
+                    strings.GetString(background.NameKey),
+                    SelectBuiltInBackground
+                )
+            ),
+        ];
         _selectedFontOption =
             options.Find(option =>
                 option.FamilyName is { } family
@@ -63,6 +73,7 @@ internal sealed partial class AppearanceViewModel : ObservableObject
                     StringComparison.OrdinalIgnoreCase
                 )
             ) ?? _defaultFont;
+        UpdateBuiltInBackgroundSelection();
     }
 
     /// <summary>下拉框下标。</summary>
@@ -135,6 +146,8 @@ internal sealed partial class AppearanceViewModel : ObservableObject
     public bool CanResetDarkAccent => _themeSettings.DarkAccentColor is not null;
 
     public IReadOnlyList<FontOption> FontOptions { get; }
+
+    public IReadOnlyList<BuiltInBackgroundOptionViewModel> BuiltInBackgrounds { get; }
 
     public FontOption SelectedFontOption
     {
@@ -279,12 +292,9 @@ internal sealed partial class AppearanceViewModel : ObservableObject
     public string BackgroundImageDisplayName =>
         _themeSettings.BackgroundImagePath is { } path
             ? Path.GetFileNameWithoutExtension(path)
-            : _strings.GetString("Appearance_BackgroundImageBuiltIn");
+            : SelectedBuiltInBackground.DisplayName;
 
     public string? BackgroundImagePath => _themeSettings.BackgroundImagePath;
-
-    public string BuiltInBackgroundImageName =>
-        _strings.GetString("Appearance_BackgroundImageBuiltIn");
 
     public bool HasCustomBackgroundImage => _themeSettings.BackgroundImagePath is not null;
 
@@ -295,9 +305,6 @@ internal sealed partial class AppearanceViewModel : ObservableObject
 
     public bool IsCustomBackgroundImageSelected =>
         _themeSettings.UseCustomBackgroundImage && _themeSettings.BackgroundImagePath is not null;
-
-    public bool IsBuiltInBackgroundImageHighlighted =>
-        IsImageBackground && IsBuiltInBackgroundImageSelected;
 
     public bool IsCustomBackgroundImageHighlighted =>
         IsImageBackground && IsCustomBackgroundImageSelected;
@@ -385,13 +392,14 @@ internal sealed partial class AppearanceViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private void SelectBuiltInBackgroundImage()
+    private void SelectBuiltInBackground(BuiltInBackgroundOptionViewModel option)
     {
+        _themeSettings.BuiltInBackgroundId = option.Id;
         _themeSettings.UseCustomBackgroundImage = false;
         _themeSettings.Background = BackgroundKind.Image;
         MarkRestartNeeded();
         RaiseBackgroundImageSelectionChanged();
+        OnPropertyChanged(nameof(BackgroundImageDisplayName));
     }
 
     [RelayCommand]
@@ -429,12 +437,26 @@ internal sealed partial class AppearanceViewModel : ObservableObject
         RaiseBackgroundChanged();
     }
 
+    private BuiltInBackgroundOptionViewModel SelectedBuiltInBackground =>
+        BuiltInBackgrounds.FirstOrDefault(option => option.IsSelected) ?? BuiltInBackgrounds[0];
+
+    private void UpdateBuiltInBackgroundSelection()
+    {
+        string selectedId = BuiltInBackgroundCatalog.Resolve(_themeSettings.BuiltInBackgroundId).Id;
+        bool useBuiltIn = IsBuiltInBackgroundImageSelected;
+        foreach (BuiltInBackgroundOptionViewModel option in BuiltInBackgrounds)
+        {
+            option.IsSelected = useBuiltIn && option.Id == selectedId;
+            option.IsHighlighted = IsImageBackground && option.IsSelected;
+        }
+    }
+
     private void RaiseBackgroundImageSelectionChanged()
     {
         OnPropertyChanged(nameof(IsBuiltInBackgroundImageSelected));
         OnPropertyChanged(nameof(IsCustomBackgroundImageSelected));
-        OnPropertyChanged(nameof(IsBuiltInBackgroundImageHighlighted));
         OnPropertyChanged(nameof(IsCustomBackgroundImageHighlighted));
+        UpdateBuiltInBackgroundSelection();
     }
 
     private void SetBackground(BackgroundKind background)
@@ -477,7 +499,7 @@ internal sealed partial class AppearanceViewModel : ObservableObject
         OnPropertyChanged(nameof(IsSolidBackground));
         OnPropertyChanged(nameof(IsSolidBackgroundColorLabelDisabled));
         OnPropertyChanged(nameof(IsScrimOpacityDisabled));
-        OnPropertyChanged(nameof(IsBuiltInBackgroundImageHighlighted));
         OnPropertyChanged(nameof(IsCustomBackgroundImageHighlighted));
+        UpdateBuiltInBackgroundSelection();
     }
 }

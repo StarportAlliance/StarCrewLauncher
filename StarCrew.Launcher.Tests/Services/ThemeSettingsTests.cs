@@ -557,6 +557,88 @@ public sealed class ThemeSettingsTests
     }
 
     [Fact]
+    public void BuiltInBackgroundId_WithEmptyStore_ReturnsNull()
+    {
+        ThemeSettings settings = new(new Dictionary<string, object>());
+
+        Assert.Null(settings.BuiltInBackgroundId);
+    }
+
+    [Fact]
+    public void BuiltInBackgroundId_SetKnownId_PersistsNormalizedAndRaises()
+    {
+        Dictionary<string, object> store = [];
+        ThemeSettings settings = new(store);
+        int raised = 0;
+        settings.BackgroundChanged += (_, _) => raised++;
+
+        settings.BuiltInBackgroundId = "  crewmateduo  ";
+
+        Assert.Equal("CrewmateDuo", store[ThemeSettings.BuiltInBackgroundIdKey]);
+        Assert.Equal("CrewmateDuo", settings.BuiltInBackgroundId);
+        Assert.Equal(1, raised);
+    }
+
+    [Fact]
+    public void BuiltInBackgroundId_SetDefaultId_RemovesKey()
+    {
+        Dictionary<string, object> store = new()
+        {
+            [ThemeSettings.BuiltInBackgroundIdKey] = "CrewmateDuo",
+        };
+        ThemeSettings settings = new(store);
+
+        settings.BuiltInBackgroundId = BuiltInBackgroundCatalog.Default.Id;
+
+        Assert.False(store.ContainsKey(ThemeSettings.BuiltInBackgroundIdKey));
+        Assert.Null(settings.BuiltInBackgroundId);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("Unknown")]
+    public void BuiltInBackgroundId_SetInvalid_ThrowsArgumentException(string value)
+    {
+        ThemeSettings settings = new(new Dictionary<string, object>());
+
+        Assert.Throws<ArgumentException>(() => settings.BuiltInBackgroundId = value);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(42)]
+    [InlineData("Unknown")]
+    public void BuiltInBackgroundId_WithInvalidStoredValue_ReturnsNull(object stored)
+    {
+        Dictionary<string, object> store = new()
+        {
+            [ThemeSettings.BuiltInBackgroundIdKey] = stored,
+        };
+        ThemeSettings settings = new(store);
+
+        Assert.Null(settings.BuiltInBackgroundId);
+    }
+
+    [Fact]
+    public void BuiltInBackgroundId_SetNull_RemovesKeyAndRaises()
+    {
+        Dictionary<string, object> store = new()
+        {
+            [ThemeSettings.BuiltInBackgroundIdKey] = "CrewmateDuo",
+        };
+        ThemeSettings settings = new(store);
+        bool raised = false;
+        settings.BackgroundChanged += (_, _) => raised = true;
+
+        settings.BuiltInBackgroundId = null;
+
+        Assert.False(store.ContainsKey(ThemeSettings.BuiltInBackgroundIdKey));
+        Assert.Null(settings.BuiltInBackgroundId);
+        Assert.True(raised);
+    }
+
+    [Fact]
     public void ScrimOpacity_WithEmptyStore_ReturnsDefault()
     {
         ThemeSettings settings = new(new Dictionary<string, object>());

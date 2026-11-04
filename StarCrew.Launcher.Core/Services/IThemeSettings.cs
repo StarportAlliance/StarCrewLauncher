@@ -50,6 +50,11 @@ internal interface IThemeSettings
     /// <summary>自定义背景图片路径；<see langword="null"/> 表示尚未导入过自定义图片。</summary>
     string? BackgroundImagePath { get; set; }
 
+    /// <summary>
+    /// 当前选中的内置背景图标识；<see langword="null"/> 表示使用默认内置背景图。
+    /// </summary>
+    string? BuiltInBackgroundId { get; set; }
+
     /// <summary>图片背景是否使用自定义图片；<see langword="false"/> 时使用内置背景图。</summary>
     bool UseCustomBackgroundImage { get; set; }
 

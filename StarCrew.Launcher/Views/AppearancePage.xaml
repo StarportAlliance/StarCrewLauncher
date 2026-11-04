@@ -4,12 +4,181 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:models="using:StarCrew.Launcher.Models"
+    xmlns:viewModels="using:StarCrew.Launcher.ViewModels"
     xmlns:views="using:StarCrew.Launcher.Views"
 >
     <Page.Resources>
         <views:HexColorConverter x:Key="HexColorConverter" />
         <views:ScrimOpacityPercentConverter x:Key="ScrimOpacityPercentConverter" />
         <controls:ContrastBrushConverter x:Key="ContrastBrushConverter" />
+        <DataTemplate
+            x:Key="BuiltInBackgroundCardTemplate"
+            x:DataType="viewModels:BuiltInBackgroundOptionViewModel"
+        >
+            <Grid Width="220" Height="154">
+                <Button
+                    Padding="8"
+                    AutomationProperties.Name="{x:Bind DisplayName}"
+                    Command="{x:Bind SelectCommand}"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    VerticalContentAlignment="Center"
+                >
+                    <StackPanel Spacing="8">
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <RadioButton
+                                Margin="8,0,0,0"
+                                MinWidth="0"
+                                Padding="0"
+                                AutomationProperties.Name="{x:Bind DisplayName}"
+                                GroupName="LauncherBackgroundImage"
+                                IsChecked="{x:Bind IsSelected, Mode=OneWay}"
+                                IsHitTestVisible="False"
+                                IsTabStop="False"
+                            />
+                            <TextBlock
+                                Grid.Column="1"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                Text="{x:Bind DisplayName, Mode=OneWay}"
+                                TextAlignment="Left"
+                                TextTrimming="CharacterEllipsis"
+                            />
+                        </Grid>
+                        <Rectangle Height="90" RadiusX="4" RadiusY="4">
+                            <Rectangle.Fill>
+                                <ImageBrush
+                                    ImageSource="{x:Bind ImageSource}"
+                                    Stretch="UniformToFill"
+                                />
+                            </Rectangle.Fill>
+                        </Rectangle>
+                    </StackPanel>
+                </Button>
+                <Border
+                    BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                    BorderThickness="2"
+                    CornerRadius="{ThemeResource ControlCornerRadius}"
+                    IsHitTestVisible="False"
+                    Visibility="{x:Bind IsSelected, Mode=OneWay}"
+                />
+                <Border
+                    BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
+                    BorderThickness="2"
+                    CornerRadius="{ThemeResource ControlCornerRadius}"
+                    IsHitTestVisible="False"
+                    Visibility="{x:Bind IsHighlighted, Mode=OneWay}"
+                />
+            </Grid>
+        </DataTemplate>
+        <DataTemplate
+            x:Key="CustomBackgroundCardTemplate"
+            x:DataType="views:CustomBackgroundImageCardViewModel"
+        >
+            <Grid Width="220" Height="154">
+                <Grid Visibility="{x:Bind HasCustomBackgroundImage, Mode=OneWay}">
+                    <Button
+                        Padding="8"
+                        AutomationProperties.Name="{x:Bind DisplayName, Mode=OneWay}"
+                        Command="{x:Bind SelectCommand}"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        VerticalContentAlignment="Center"
+                    >
+                        <StackPanel Spacing="8">
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <RadioButton
+                                    Margin="8,0,0,0"
+                                    MinWidth="0"
+                                    Padding="0"
+                                    GroupName="LauncherBackgroundImage"
+                                    IsChecked="{x:Bind IsSelected, Mode=OneWay}"
+                                    IsHitTestVisible="False"
+                                    IsTabStop="False"
+                                />
+                                <TextBlock
+                                    Grid.Column="1"
+                                    Margin="0,0,44,0"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Text="{x:Bind DisplayName, Mode=OneWay}"
+                                    TextAlignment="Left"
+                                    TextTrimming="CharacterEllipsis"
+                                />
+                            </Grid>
+                            <Rectangle Height="90" RadiusX="4" RadiusY="4">
+                                <Rectangle.Fill>
+                                    <ImageBrush
+                                        ImageSource="{x:Bind Thumbnail, Mode=OneWay}"
+                                        Stretch="UniformToFill"
+                                    />
+                                </Rectangle.Fill>
+                            </Rectangle>
+                        </StackPanel>
+                    </Button>
+                    <Border
+                        BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                        BorderThickness="2"
+                        CornerRadius="{ThemeResource ControlCornerRadius}"
+                        IsHitTestVisible="False"
+                        Visibility="{x:Bind IsSelected, Mode=OneWay}"
+                    />
+                    <Border
+                        BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
+                        BorderThickness="2"
+                        CornerRadius="{ThemeResource ControlCornerRadius}"
+                        IsHitTestVisible="False"
+                        Visibility="{x:Bind IsHighlighted, Mode=OneWay}"
+                    />
+                    <Button
+                        x:Uid="Appearance_BackgroundImageRemove"
+                        Width="32"
+                        Height="32"
+                        Margin="0,8,8,0"
+                        Padding="0"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        Command="{x:Bind RemoveCommand}"
+                    >
+                        <SymbolIcon Symbol="Delete" />
+                    </Button>
+                </Grid>
+                <Button
+                    x:Uid="Appearance_BackgroundImageAdd"
+                    Width="220"
+                    Height="154"
+                    Padding="8"
+                    Command="{x:Bind AddCommand}"
+                    VerticalContentAlignment="Center"
+                    Visibility="{x:Bind CanAddBackgroundImage, Mode=OneWay}"
+                >
+                    <StackPanel Width="204" HorizontalAlignment="Center" Spacing="8">
+                        <FontIcon FontSize="24" Glyph="&#xE710;" />
+                        <TextBlock
+                            x:Uid="Appearance_BackgroundImageAddText"
+                            HorizontalAlignment="Center"
+                        />
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </DataTemplate>
+        <views:BackgroundImageCardTemplateSelector
+            x:Key="BackgroundImageCardTemplateSelector"
+            BuiltInTemplate="{StaticResource BuiltInBackgroundCardTemplate}"
+            CustomTemplate="{StaticResource CustomBackgroundCardTemplate}"
+        />
     </Page.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Padding="24,0,24,24">
@@ -308,171 +477,19 @@
                             HorizontalContentAlignment="Left"
                             IsEnabled="{x:Bind ViewModel.IsImageBackground, Mode=OneWay}"
                         >
-                            <StackPanel
-                                HorizontalAlignment="Left"
-                                Orientation="Horizontal"
-                                Spacing="12"
+                            <ItemsControl
+                                ItemsSource="{x:Bind BackgroundImageCards}"
+                                ItemTemplateSelector="{StaticResource BackgroundImageCardTemplateSelector}"
                             >
-                                <Grid Width="220" Height="154">
-                                    <Button
-                                        x:Uid="Appearance_BackgroundImageBuiltInCard"
-                                        Padding="8"
-                                        Command="{x:Bind ViewModel.SelectBuiltInBackgroundImageCommand}"
-                                        HorizontalAlignment="Stretch"
-                                        HorizontalContentAlignment="Stretch"
-                                        VerticalAlignment="Stretch"
-                                        VerticalContentAlignment="Center"
-                                    >
-                                        <StackPanel Spacing="8">
-                                            <Grid ColumnSpacing="8">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto" />
-                                                    <ColumnDefinition Width="*" />
-                                                </Grid.ColumnDefinitions>
-                                                <RadioButton
-                                                    x:Uid="Appearance_BackgroundImageBuiltInRadio"
-                                                    Margin="8,0,0,0"
-                                                    MinWidth="0"
-                                                    Padding="0"
-                                                    GroupName="LauncherBackgroundImage"
-                                                    IsChecked="{x:Bind ViewModel.IsBuiltInBackgroundImageSelected, Mode=OneWay}"
-                                                    IsHitTestVisible="False"
-                                                    IsTabStop="False"
-                                                />
-                                                <TextBlock
-                                                    Grid.Column="1"
-                                                    HorizontalAlignment="Left"
-                                                    VerticalAlignment="Center"
-                                                    Text="{x:Bind ViewModel.BuiltInBackgroundImageName, Mode=OneWay}"
-                                                    TextAlignment="Left"
-                                                    TextTrimming="CharacterEllipsis"
-                                                />
-                                            </Grid>
-                                            <Rectangle Height="90" RadiusX="4" RadiusY="4">
-                                                <Rectangle.Fill>
-                                                    <ImageBrush
-                                                        ImageSource="ms-appx:///Assets/background.png"
-                                                        Stretch="UniformToFill"
-                                                    />
-                                                </Rectangle.Fill>
-                                            </Rectangle>
-                                        </StackPanel>
-                                    </Button>
-                                    <Border
-                                        BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
-                                        BorderThickness="2"
-                                        CornerRadius="{ThemeResource ControlCornerRadius}"
-                                        IsHitTestVisible="False"
-                                        Visibility="{x:Bind ViewModel.IsBuiltInBackgroundImageSelected, Mode=OneWay}"
-                                    />
-                                    <Border
-                                        BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
-                                        BorderThickness="2"
-                                        CornerRadius="{ThemeResource ControlCornerRadius}"
-                                        IsHitTestVisible="False"
-                                        Visibility="{x:Bind ViewModel.IsBuiltInBackgroundImageHighlighted, Mode=OneWay}"
-                                    />
-                                </Grid>
-                                <Grid
-                                    Width="220"
-                                    Height="154"
-                                    Visibility="{x:Bind ViewModel.HasCustomBackgroundImage, Mode=OneWay}"
-                                >
-                                    <Button
-                                        Padding="8"
-                                        AutomationProperties.Name="{x:Bind ViewModel.BackgroundImageDisplayName, Mode=OneWay}"
-                                        Command="{x:Bind ViewModel.SelectCustomBackgroundImageCommand}"
-                                        HorizontalAlignment="Stretch"
-                                        HorizontalContentAlignment="Stretch"
-                                        VerticalAlignment="Stretch"
-                                        VerticalContentAlignment="Center"
-                                    >
-                                        <StackPanel Spacing="8">
-                                            <Grid ColumnSpacing="8">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto" />
-                                                    <ColumnDefinition Width="*" />
-                                                </Grid.ColumnDefinitions>
-                                                <RadioButton
-                                                    Margin="8,0,0,0"
-                                                    MinWidth="0"
-                                                    Padding="0"
-                                                    GroupName="LauncherBackgroundImage"
-                                                    IsChecked="{x:Bind ViewModel.IsCustomBackgroundImageSelected, Mode=OneWay}"
-                                                    IsHitTestVisible="False"
-                                                    IsTabStop="False"
-                                                />
-                                                <TextBlock
-                                                    Grid.Column="1"
-                                                    Margin="0,0,44,0"
-                                                    HorizontalAlignment="Left"
-                                                    VerticalAlignment="Center"
-                                                    Text="{x:Bind ViewModel.BackgroundImageDisplayName, Mode=OneWay}"
-                                                    TextAlignment="Left"
-                                                    TextTrimming="CharacterEllipsis"
-                                                />
-                                            </Grid>
-                                            <Rectangle Height="90" RadiusX="4" RadiusY="4">
-                                                <Rectangle.Fill>
-                                                    <ImageBrush
-                                                        x:Name="CustomBackgroundThumbnailBrush"
-                                                        Stretch="UniformToFill"
-                                                    />
-                                                </Rectangle.Fill>
-                                            </Rectangle>
-                                        </StackPanel>
-                                    </Button>
-                                    <Border
-                                        BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
-                                        BorderThickness="2"
-                                        CornerRadius="{ThemeResource ControlCornerRadius}"
-                                        IsHitTestVisible="False"
-                                        Visibility="{x:Bind ViewModel.IsCustomBackgroundImageSelected, Mode=OneWay}"
-                                    />
-                                    <Border
-                                        BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
-                                        BorderThickness="2"
-                                        CornerRadius="{ThemeResource ControlCornerRadius}"
-                                        IsHitTestVisible="False"
-                                        Visibility="{x:Bind ViewModel.IsCustomBackgroundImageHighlighted, Mode=OneWay}"
-                                    />
-                                    <Button
-                                        x:Uid="Appearance_BackgroundImageRemove"
-                                        Width="32"
-                                        Height="32"
-                                        Margin="0,8,8,0"
-                                        Padding="0"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        HorizontalContentAlignment="Center"
-                                        VerticalContentAlignment="Center"
-                                        Command="{x:Bind ViewModel.RemoveBackgroundImageCommand}"
-                                    >
-                                        <SymbolIcon Symbol="Delete" />
-                                    </Button>
-                                </Grid>
-                                <Button
-                                    x:Uid="Appearance_BackgroundImageAdd"
-                                    Width="220"
-                                    Height="154"
-                                    Padding="8"
-                                    Command="{x:Bind ViewModel.ChooseBackgroundImageCommand}"
-                                    VerticalContentAlignment="Center"
-                                    Visibility="{x:Bind ViewModel.CanAddBackgroundImage, Mode=OneWay}"
-                                >
-                                    <StackPanel
-                                        Width="204"
-                                        HorizontalAlignment="Center"
-                                        Spacing="8"
-                                    >
-                                        <FontIcon FontSize="24" Glyph="&#xE710;" />
-                                        <TextBlock
-                                            x:Uid="Appearance_BackgroundImageAddText"
-                                            HorizontalAlignment="Center"
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <controls:WrapPanel
+                                            HorizontalSpacing="12"
+                                            VerticalSpacing="12"
                                         />
-                                    </StackPanel>
-                                </Button>
-                            </StackPanel>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
                         </controls:SettingsCard>
                         <controls:SettingsCard
                             x:Uid="Appearance_ScrimCard"

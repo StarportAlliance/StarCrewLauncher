@@ -12,6 +12,7 @@ internal sealed class ThemeSettings : IThemeSettings
     public const string SolidBackgroundColorKey = "SolidBackgroundColor";
     public const string SolidBackgroundFollowsThemeKey = "SolidBackgroundFollowsTheme";
     public const string BackgroundImagePathKey = "BackgroundImagePath";
+    public const string BuiltInBackgroundIdKey = "BuiltInBackgroundId";
     public const string UseCustomBackgroundImageKey = "UseCustomBackgroundImage";
     public const string ScrimOpacityKey = "ScrimOpacity";
     public const double DefaultScrimOpacity = 0.6;
@@ -89,6 +90,12 @@ internal sealed class ThemeSettings : IThemeSettings
     {
         get => LoadBackgroundImagePath();
         set => SaveBackgroundImagePath(value);
+    }
+
+    public string? BuiltInBackgroundId
+    {
+        get => LoadBuiltInBackgroundId();
+        set => SaveBuiltInBackgroundId(value);
     }
 
     public bool UseCustomBackgroundImage
@@ -318,6 +325,20 @@ internal sealed class ThemeSettings : IThemeSettings
             ? text.Trim()
             : null;
 
+    private string? LoadBuiltInBackgroundId()
+    {
+        if (_store.TryGetValue(BuiltInBackgroundIdKey, out object? raw) && raw is string text)
+        {
+            return BuiltInBackgroundCatalog
+                .All.FirstOrDefault(background =>
+                    string.Equals(background.Id, text, StringComparison.OrdinalIgnoreCase)
+                )
+                ?.Id;
+        }
+
+        return null;
+    }
+
     private double LoadScrimOpacity()
     {
         if (
@@ -373,6 +394,51 @@ internal sealed class ThemeSettings : IThemeSettings
         else
         {
             _store[BackgroundImagePathKey] = normalized;
+        }
+
+        BackgroundChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void SaveBuiltInBackgroundId(string? value)
+    {
+        string? normalized = null;
+        if (value is not null)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException("内置背景图标识不能为空。", nameof(value));
+            }
+
+            normalized =
+                BuiltInBackgroundCatalog
+                    .All.FirstOrDefault(background =>
+                        string.Equals(
+                            background.Id,
+                            value.Trim(),
+                            StringComparison.OrdinalIgnoreCase
+                        )
+                    )
+                    ?.Id
+                ?? throw new ArgumentException("未知的内置背景图标识。", nameof(value));
+
+            if (normalized == BuiltInBackgroundCatalog.Default.Id)
+            {
+                normalized = null;
+            }
+        }
+
+        if (normalized == LoadBuiltInBackgroundId())
+        {
+            return;
+        }
+
+        if (normalized is null)
+        {
+            _store.Remove(BuiltInBackgroundIdKey);
+        }
+        else
+        {
+            _store[BuiltInBackgroundIdKey] = normalized;
         }
 
         BackgroundChanged?.Invoke(this, EventArgs.Empty);

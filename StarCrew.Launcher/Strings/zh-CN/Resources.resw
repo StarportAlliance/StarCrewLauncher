@@ -162,11 +162,17 @@
   <data name="Appearance_ImageRadio.AutomationProperties.Name" xml:space="preserve">
     <value>图片背景</value>
   </data>
-  <data name="Appearance_BackgroundImageBuiltInCard.AutomationProperties.Name" xml:space="preserve">
+  <data name="Appearance_BackgroundImageFungleSunset" xml:space="preserve">
     <value>The Fungle Sunset</value>
   </data>
-  <data name="Appearance_BackgroundImageBuiltInRadio.AutomationProperties.Name" xml:space="preserve">
-    <value>The Fungle Sunset</value>
+  <data name="Appearance_BackgroundImageCrewmateDuo" xml:space="preserve">
+    <value>Crewmate Duo</value>
+  </data>
+  <data name="Appearance_BackgroundImageImpostorMonth" xml:space="preserve">
+    <value>Impostor Month</value>
+  </data>
+  <data name="Appearance_BackgroundImageCrewmateRoam" xml:space="preserve">
+    <value>Crewmate Roam</value>
   </data>
   <data name="Appearance_BackgroundImageRemove.AutomationProperties.Name" xml:space="preserve">
     <value>删除自定义图片</value>
@@ -179,9 +185,6 @@
   </data>
   <data name="Appearance_BackgroundImageAddText.Text" xml:space="preserve">
     <value>选择本地图片</value>
-  </data>
-  <data name="Appearance_BackgroundImageBuiltIn" xml:space="preserve">
-    <value>The Fungle Sunset</value>
   </data>
   <data name="Appearance_BackgroundImageImportFailedTitle" xml:space="preserve">
     <value>无法设置背景图片</value>
