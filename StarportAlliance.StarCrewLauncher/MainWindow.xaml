@@ -1,0 +1,212 @@
+<Window
+    x:Class="StarportAlliance.StarCrewLauncher.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+>
+    <Grid IsTabStop="True">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border
+            x:Name="SolidBackgroundLayer"
+            Grid.RowSpan="2"
+            Background="Transparent"
+            Visibility="Collapsed"
+        />
+        <Border
+            x:Name="CustomSolidBackgroundLayer"
+            Grid.RowSpan="2"
+            Background="Transparent"
+            Visibility="Collapsed"
+        />
+        <Image
+            x:Name="BackgroundImage"
+            Grid.RowSpan="2"
+            Source="ms-appx:///Assets/BuiltinBackground/FungleSunset.png"
+            Stretch="UniformToFill"
+        />
+        <Border
+            x:Name="ScrimLayer"
+            Grid.RowSpan="2"
+            Background="{ThemeResource LauncherScrimBrush}"
+            Opacity="0"
+        />
+
+        <TitleBar
+            x:Name="AppTitleBar"
+            Height="48"
+            IsBackButtonVisible="True"
+            IsBackButtonEnabled="False"
+            IsPaneToggleButtonVisible="True"
+            BackRequested="AppTitleBar_BackRequested"
+            PaneToggleRequested="AppTitleBar_PaneToggleRequested"
+        >
+            <TitleBar.Resources>
+                <SolidColorBrush x:Key="TitleBarBackButtonBackgroundDisabled" Color="Transparent" />
+                <!-- Gallery 的 Title–Subtitle 间距是 8，LeftHeader 与 Subtitle 之间默认多出 14 的内边距 -->
+                <x:Double x:Key="TitleBarLeftHeaderPaddingWidth">8</x:Double>
+            </TitleBar.Resources>
+            <TitleBar.LeftHeader>
+                <StackPanel
+                    Margin="12,0,0,0"
+                    Orientation="Horizontal"
+                    Spacing="8"
+                    VerticalAlignment="Center"
+                >
+                    <Image x:Name="AppIcon" Width="24" Height="24">
+                        <Image.Source>
+                            <SvgImageSource UriSource="ms-appx:///Assets/icon.svg" />
+                        </Image.Source>
+                    </Image>
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                        Text="StarCrew Launcher"
+                    />
+                </StackPanel>
+            </TitleBar.LeftHeader>
+        </TitleBar>
+
+        <NavigationView
+            x:Name="NavView"
+            Grid.Row="1"
+            Background="Transparent"
+            IsBackButtonVisible="Collapsed"
+            IsPaneToggleButtonVisible="False"
+            IsSettingsVisible="True"
+            IsTitleBarAutoPaddingEnabled="False"
+            OpenPaneLength="200"
+            PaneDisplayMode="LeftCompact"
+            Loaded="NavView_Loaded"
+            SelectionChanged="NavView_SelectionChanged"
+        >
+            <NavigationView.Resources>
+                <StaticResource
+                    x:Key="NavigationViewExpandedPaneBackground"
+                    ResourceKey="SolidBackgroundFillColorTransparent"
+                />
+                <Thickness x:Key="NavigationViewContentGridBorderThickness">0</Thickness>
+                <CornerRadius x:Key="NavigationViewContentGridCornerRadius">0</CornerRadius>
+                <Thickness x:Key="NavigationViewBorderThickness">0</Thickness>
+                <StaticResource
+                    x:Key="NavigationViewContentBackground"
+                    ResourceKey="SolidBackgroundFillColorTransparent"
+                />
+            </NavigationView.Resources>
+            <NavigationView.MenuItems>
+                <NavigationViewItem x:Uid="Nav_Home" Tag="Home" Icon="Play" IsSelected="True" />
+                <NavigationViewItem x:Uid="Nav_Instances" Tag="Instances" Icon="Folder" />
+                <NavigationViewItem x:Uid="Nav_Download" Tag="Download" Icon="Download" />
+            </NavigationView.MenuItems>
+
+            <Grid>
+                <Grid.Resources>
+                    <Storyboard x:Name="ToastEnterStoryboard">
+                        <DoubleAnimation
+                            Storyboard.TargetName="ToastBar"
+                            Storyboard.TargetProperty="Opacity"
+                            From="0"
+                            To="1"
+                            Duration="0:0:0.25"
+                        >
+                            <DoubleAnimation.EasingFunction>
+                                <CubicEase EasingMode="EaseOut" />
+                            </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                        <DoubleAnimation
+                            Storyboard.TargetName="ToastTranslate"
+                            Storyboard.TargetProperty="X"
+                            From="32"
+                            To="0"
+                            Duration="0:0:0.25"
+                        >
+                            <DoubleAnimation.EasingFunction>
+                                <CubicEase EasingMode="EaseOut" />
+                            </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                    </Storyboard>
+                    <Storyboard
+                        x:Name="ToastExitStoryboard"
+                        Completed="ToastExitStoryboard_Completed"
+                    >
+                        <DoubleAnimation
+                            Storyboard.TargetName="ToastBar"
+                            Storyboard.TargetProperty="Opacity"
+                            To="0"
+                            Duration="0:0:0.18"
+                        >
+                            <DoubleAnimation.EasingFunction>
+                                <CubicEase EasingMode="EaseIn" />
+                            </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                        <DoubleAnimation
+                            Storyboard.TargetName="ToastTranslate"
+                            Storyboard.TargetProperty="X"
+                            To="32"
+                            Duration="0:0:0.18"
+                        >
+                            <DoubleAnimation.EasingFunction>
+                                <CubicEase EasingMode="EaseIn" />
+                            </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                    </Storyboard>
+                </Grid.Resources>
+                <Frame x:Name="ContentFrame" IsNavigationStackEnabled="True">
+                    <Frame.ContentTransitions>
+                        <TransitionCollection>
+                            <NavigationThemeTransition />
+                        </TransitionCollection>
+                    </Frame.ContentTransitions>
+                </Frame>
+                <InfoBar
+                    x:Name="ToastBar"
+                    Width="360"
+                    Margin="0,12,16,0"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Closing="ToastBar_Closing"
+                    IsClosable="True"
+                    IsOpen="False"
+                >
+                    <!-- 默认 Info 背景在深色下接近透明，悬浮在背景图上会糊，这里换成实色表面色 -->
+                    <InfoBar.Resources>
+                        <ResourceDictionary>
+                            <ResourceDictionary.ThemeDictionaries>
+                                <ResourceDictionary x:Key="Light">
+                                    <StaticResource
+                                        x:Key="InfoBarInformationalSeverityBackgroundBrush"
+                                        ResourceKey="SolidBackgroundFillColorTertiaryBrush"
+                                    />
+                                    <StaticResource
+                                        x:Key="InfoBarInformationalSeverityIconBackground"
+                                        ResourceKey="SystemFillColorAttentionBrush"
+                                    />
+                                </ResourceDictionary>
+                                <ResourceDictionary x:Key="Dark">
+                                    <StaticResource
+                                        x:Key="InfoBarInformationalSeverityBackgroundBrush"
+                                        ResourceKey="SolidBackgroundFillColorTertiaryBrush"
+                                    />
+                                    <StaticResource
+                                        x:Key="InfoBarInformationalSeverityIconBackground"
+                                        ResourceKey="SystemFillColorAttentionBrush"
+                                    />
+                                </ResourceDictionary>
+                            </ResourceDictionary.ThemeDictionaries>
+                        </ResourceDictionary>
+                    </InfoBar.Resources>
+                    <InfoBar.RenderTransform>
+                        <TranslateTransform x:Name="ToastTranslate" />
+                    </InfoBar.RenderTransform>
+                    <interactivity:Interaction.Behaviors>
+                        <behaviors:StackedNotificationsBehavior x:Name="ToastQueue" />
+                    </interactivity:Interaction.Behaviors>
+                </InfoBar>
+            </Grid>
+        </NavigationView>
+    </Grid>
+</Window>

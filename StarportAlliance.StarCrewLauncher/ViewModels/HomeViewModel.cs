@@ -1,0 +1,119 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using StarportAlliance.StarCrewLauncher.Models;
+using StarportAlliance.StarCrewLauncher.Services;
+
+namespace StarportAlliance.StarCrewLauncher.ViewModels;
+
+internal sealed partial class HomeViewModel : ObservableObject
+{
+    private readonly IInstanceStore _store;
+    private readonly IInstanceLauncher _launcher;
+    private readonly INavigationService _navigation;
+    private readonly INotificationService _notifications;
+    private readonly IAppStrings _strings;
+
+    public HomeViewModel(
+        IInstanceStore store,
+        IInstanceLauncher launcher,
+        INavigationService navigation,
+        INotificationService notifications,
+        IAppStrings strings
+    )
+    {
+        ArgumentNullException.ThrowIfNull(store);
+        ArgumentNullException.ThrowIfNull(launcher);
+        ArgumentNullException.ThrowIfNull(navigation);
+        ArgumentNullException.ThrowIfNull(notifications);
+        ArgumentNullException.ThrowIfNull(strings);
+        _store = store;
+        _launcher = launcher;
+        _navigation = navigation;
+        _notifications = notifications;
+        _strings = strings;
+
+        LauncherState state = _store.Load();
+        Instances = state.Instances;
+        GameInstance? lastUsed = null;
+        if (state.Instances.Count > 0)
+        {
+            lastUsed =
+                state.Instances.FirstOrDefault(i => i.Id == state.LastInstanceId)
+                ?? state.Instances[0];
+        }
+
+        SelectedInstance = lastUsed;
+    }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasInstances))]
+    [NotifyPropertyChangedFor(nameof(LaunchButtonText))]
+    [NotifyPropertyChangedFor(nameof(LaunchButtonGlyph))]
+    public partial IReadOnlyList<GameInstance> Instances { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CurrentInstanceName))]
+    public partial GameInstance? SelectedInstance { get; set; }
+
+    public bool HasInstances => Instances.Count > 0;
+
+    public string LaunchButtonText =>
+        HasInstances
+            ? _strings.GetString("Home_LaunchGame")
+            : _strings.GetString("Home_DownloadGame");
+
+    public string LaunchButtonGlyph => HasInstances ? "\uF5B0" : "\uE896";
+
+    public string CurrentInstanceName => SelectedInstance?.Name ?? string.Empty;
+
+    [RelayCommand]
+    private async Task LaunchAsync()
+    {
+        if (!HasInstances)
+        {
+            _navigation.NavigateTo(NavigationTarget.Download);
+            return;
+        }
+
+        GameInstance target = SelectedInstance ?? Instances[0];
+        SelectedInstance = target;
+
+        LaunchOutcome outcome = await _launcher.LaunchAsync(target);
+        if (outcome.IsSuccess)
+        {
+            _notifications.Notify(outcome.Message, null, NotificationSeverity.Success);
+            PersistLaunch(target.Id);
+        }
+        else
+        {
+            _notifications.Notify(outcome.Message, null, NotificationSeverity.Error);
+        }
+    }
+
+    partial void OnSelectedInstanceChanged(GameInstance? value)
+    {
+        if (value is not null)
+        {
+            LauncherState state = _store.Load();
+            if (state.LastInstanceId != value.Id)
+            {
+                _store.Save(state with { LastInstanceId = value.Id });
+            }
+        }
+    }
+
+    private void PersistLaunch(Guid instanceId)
+    {
+        LauncherState state = _store.Load();
+        List<GameInstance> updated =
+        [
+            .. state.Instances.Select(i =>
+                i.Id == instanceId ? i with { LastLaunchedAt = DateTimeOffset.UtcNow } : i
+            ),
+        ];
+        _store.Save(state with { LastInstanceId = instanceId, Instances = updated });
+
+        Instances = updated;
+        SelectedInstance = updated.FirstOrDefault(i => i.Id == instanceId);
+    }
+}

@@ -43,20 +43,20 @@ dotnet_diagnostic.CA2011.severity = warning
 dotnet_diagnostic.CA1848.severity = none
 dotnet_diagnostic.CA1873.severity = none
 
-[StarCrew.Launcher/MainWindow.xaml.cs]
+[StarportAlliance.StarCrewLauncher/MainWindow.xaml.cs]
 dotnet_diagnostic.IDE0060.severity = suggestion
 
-[StarCrew.Launcher/Views/SettingsPage.xaml.cs]
+[StarportAlliance.StarCrewLauncher/Views/SettingsPage.xaml.cs]
 dotnet_diagnostic.IDE0060.severity = suggestion
 
-[StarCrew.Launcher/Views/AppearancePage.xaml.cs]
+[StarportAlliance.StarCrewLauncher/Views/AppearancePage.xaml.cs]
 dotnet_diagnostic.IDE0060.severity = suggestion
 
-[StarCrew.Launcher/Views/AdvancedPage.xaml.cs]
+[StarportAlliance.StarCrewLauncher/Views/AdvancedPage.xaml.cs]
 dotnet_diagnostic.IDE0060.severity = suggestion
 
-[StarCrew.Launcher/Views/AboutPage.xaml.cs]
+[StarportAlliance.StarCrewLauncher/Views/AboutPage.xaml.cs]
 dotnet_diagnostic.IDE0060.severity = suggestion
 
-[StarCrew.Launcher/Views/HomePage.xaml.cs]
+[StarportAlliance.StarCrewLauncher/Views/HomePage.xaml.cs]
 dotnet_diagnostic.IDE0060.severity = suggestion

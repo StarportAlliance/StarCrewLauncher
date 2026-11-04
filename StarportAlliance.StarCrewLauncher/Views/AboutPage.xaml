@@ -1,0 +1,130 @@
+<Page
+    x:Class="StarportAlliance.StarCrewLauncher.Views.AboutPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Padding="24,0,24,24">
+            <StackPanel
+                x:Name="AboutPanel"
+                MaxWidth="1000"
+                HorizontalAlignment="Stretch"
+                Spacing="{StaticResource SettingsCardSpacing}"
+            >
+                <TextBlock
+                    x:Uid="About_SectionTitle"
+                    Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                />
+                <controls:SettingsCard
+                    x:Name="AboutVersionCard"
+                    Header="StarCrewLauncher"
+                    Description="{x:Bind ViewModel.VersionDescription}"
+                >
+                    <controls:SettingsCard.HeaderIcon>
+                        <ImageIcon x:Name="AppIcon">
+                            <ImageIcon.Source>
+                                <SvgImageSource UriSource="ms-appx:///Assets/icon.svg" />
+                            </ImageIcon.Source>
+                        </ImageIcon>
+                    </controls:SettingsCard.HeaderIcon>
+                    <Button
+                        x:Name="CheckUpdateButton"
+                        x:Uid="About_CheckUpdateButton"
+                        Command="{x:Bind ViewModel.CheckUpdateCommand}"
+                        Style="{StaticResource AccentButtonStyle}"
+                    />
+                </controls:SettingsCard>
+                <controls:SettingsCard
+                    x:Uid="About_WebsiteCard"
+                    IsClickEnabled="True"
+                    Click="WebsiteCard_Click"
+                >
+                    <controls:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE774;" />
+                    </controls:SettingsCard.HeaderIcon>
+                    <controls:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </controls:SettingsCard.ActionIcon>
+                </controls:SettingsCard>
+                <controls:SettingsCard
+                    x:Uid="About_FeedbackCard"
+                    IsClickEnabled="True"
+                    Click="FeedbackCard_Click"
+                >
+                    <controls:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xEBE8;" />
+                    </controls:SettingsCard.HeaderIcon>
+                    <controls:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </controls:SettingsCard.ActionIcon>
+                </controls:SettingsCard>
+                <TextBlock
+                    x:Uid="About_LegalSection"
+                    Margin="1,12,0,6"
+                    Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                />
+                <controls:SettingsCard
+                    x:Uid="About_LicenseCard"
+                    IsClickEnabled="True"
+                    Click="LicenseCard_Click"
+                >
+                    <controls:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </controls:SettingsCard.ActionIcon>
+                </controls:SettingsCard>
+                <controls:SettingsCard x:Uid="About_NoticeCard"></controls:SettingsCard>
+                <TextBlock
+                    x:Uid="About_LicenseSection"
+                    Margin="1,12,0,6"
+                    Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                />
+                <controls:SettingsCard
+                    x:Uid="About_WasdkCard"
+                    IsClickEnabled="True"
+                    Click="WindowsAppSdkLicenseCard_Click"
+                >
+                    <controls:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </controls:SettingsCard.ActionIcon>
+                </controls:SettingsCard>
+                <controls:SettingsCard
+                    x:Uid="About_ToolkitCard"
+                    IsClickEnabled="True"
+                    Click="CommunityToolkitLicenseCard_Click"
+                >
+                    <controls:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </controls:SettingsCard.ActionIcon>
+                </controls:SettingsCard>
+                <controls:SettingsCard
+                    x:Uid="About_VelopackCard"
+                    IsClickEnabled="True"
+                    Click="VelopackLicenseCard_Click"
+                >
+                    <controls:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </controls:SettingsCard.ActionIcon>
+                </controls:SettingsCard>
+                <controls:SettingsCard
+                    x:Uid="About_DdCard"
+                    IsClickEnabled="True"
+                    Click="DepotDownloaderLicenseCard_Click"
+                >
+                    <controls:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </controls:SettingsCard.ActionIcon>
+                </controls:SettingsCard>
+                <controls:SettingsCard
+                    x:Uid="About_FluentlauncherCard"
+                    IsClickEnabled="True"
+                    Click="FluentlauncherLicenseCard_Click"
+                >
+                    <controls:SettingsCard.ActionIcon>
+                        <FontIcon Glyph="&#xE8A7;" />
+                    </controls:SettingsCard.ActionIcon>
+                </controls:SettingsCard>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Page>

@@ -12,10 +12,10 @@ set VERSION=%~1
 set RID=%~2
 if "%RID%"=="" set RID=win-x64
 echo [1/3] Restoring NuGet packages...
-dotnet restore StarCrew.Launcher.slnx || exit /b 1
+dotnet restore StarportAlliance.StarCrewLauncher.slnx || exit /b 1
 echo.
 echo [2/3] Publishing %RID%...
-dotnet publish StarCrew.Launcher\StarCrew.Launcher.csproj -c Release --nologo --no-restore -r %RID% --self-contained -o publish\%RID% || exit /b 1
+dotnet publish StarportAlliance.StarCrewLauncher\StarportAlliance.StarCrewLauncher.csproj -c Release --nologo --no-restore -r %RID% --self-contained -o publish\%RID% || exit /b 1
 echo.
 echo [3/3] Packing Velopack release %VERSION%...
 where vpk >nul 2>nul
@@ -23,6 +23,6 @@ if errorlevel 1 (
   echo [ERROR] vpk not found. Install it first: dotnet tool install -g vpk
   exit /b 1
 )
-vpk pack --packId StarCrew.Launcher --packVersion %VERSION% --packDir publish\%RID% --mainExe StarCrew.Launcher.exe --runtime %RID% || exit /b 1
+vpk pack --packId StarportAlliance.StarCrewLauncher --packVersion %VERSION% --packDir publish\%RID% --mainExe StarportAlliance.StarCrewLauncher.exe --runtime %RID% || exit /b 1
 echo.
 echo [OK] Release ready under Releases\. Copy it to the update feed.

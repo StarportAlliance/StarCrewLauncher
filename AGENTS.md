@@ -47,7 +47,7 @@ dotnet husky install
 
 - 组合根在 `App`（MEDI）：`App.Services` 注册全部服务与视图模型；业务依赖一律构造注入，
   页面代码隐藏只经 `App.Services` 取界面层基础件（导航服务等）。
-- 视图模型放 `StarCrew.Launcher/ViewModels`；用 CommunityToolkit.Mvvm：
+- 视图模型放 `StarportAlliance.StarCrewLauncher/ViewModels`；用 CommunityToolkit.Mvvm：
   `[ObservableProperty]` 一律用 partial 属性写法，命令用 `[RelayCommand]`。
 - 页面导航一律走 `INavigationService`（`NavigationTarget` 枚举），页面间不得互相 new；
   重复导航到当前目标由导航服务按帧去重。

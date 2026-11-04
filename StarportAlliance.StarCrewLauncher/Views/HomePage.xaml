@@ -1,0 +1,45 @@
+<Page
+    x:Class="StarportAlliance.StarCrewLauncher.Views.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+>
+    <Grid>
+        <StackPanel
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Margin="0,0,32,32"
+            Spacing="12"
+        >
+            <ComboBox
+                x:Name="InstanceCombo"
+                Width="240"
+                Height="40"
+                DisplayMemberPath="Name"
+                ItemsSource="{x:Bind ViewModel.Instances, Mode=OneWay}"
+                SelectedItem="{x:Bind ViewModel.SelectedInstance, Mode=TwoWay}"
+            />
+            <Button
+                x:Name="LaunchButton"
+                Width="240"
+                Height="48"
+                Command="{x:Bind ViewModel.LaunchCommand}"
+                FontSize="18"
+                Style="{StaticResource AccentButtonStyle}"
+            >
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="{x:Bind ViewModel.LaunchButtonGlyph, Mode=OneWay}" />
+                    <TextBlock Text="{x:Bind ViewModel.LaunchButtonText, Mode=OneWay}" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
+
+        <TextBlock
+            x:Name="CurrentInstanceNameBlock"
+            Style="{StaticResource TitleTextBlockStyle}"
+            Margin="32,0,0,32"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom"
+            Text="{x:Bind ViewModel.CurrentInstanceName, Mode=OneWay}"
+        />
+    </Grid>
+</Page>
