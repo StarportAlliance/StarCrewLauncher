@@ -36,16 +36,12 @@ csharp_using_directive_placement = outside_namespace:warning
 dotnet_remove_unnecessary_imports = true:warning
 dotnet_fix_test_code_style_severity = true
 
+# DI 容器实例化，静态分析看不到调用点。
+dotnet_diagnostic.CA1812.severity = none
 dotnet_diagnostic.CA2007.severity = none
 dotnet_diagnostic.CA2011.severity = warning
 dotnet_diagnostic.CA1848.severity = none
 dotnet_diagnostic.CA1873.severity = none
-
-[StarCrew.Launcher.Tests/{*.cs,**/*.cs}]
-dotnet_diagnostic.CA1707.severity = none
-
-[StarCrew.Launcher.UITests/{*.cs,**/*.cs}]
-dotnet_diagnostic.CA1707.severity = none
 
 [StarCrew.Launcher/MainWindow.xaml.cs]
 dotnet_diagnostic.IDE0060.severity = suggestion

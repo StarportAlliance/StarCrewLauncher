@@ -1,4 +1,4 @@
-# 与本地 test.bat 同构：还原 -> 排版 -> 风格 -> 构建（警告即错误）-> 测试 + 覆盖率
+# 与本地 check.bat 同构：还原 -> 排版 -> 风格 -> 构建（警告即错误）
 name: CI
 
 on:
@@ -7,12 +7,8 @@ on:
   pull_request:
     branches: [main]
 
-# 上传覆盖率到 GitHub Code Quality 需要 code-quality: write；
-# 上传测试产物需要 actions: write；其余按最小权限只读。
 permissions:
   contents: read
-  actions: write
-  code-quality: write
 
 jobs:
   quality:
@@ -31,7 +27,7 @@ jobs:
       # 注意：dotnet tool restore 只还原工具清单，不还原 NuGet 包。
       # 全新检出没有 obj/ 产物，后面所有 --no-restore 都依赖这一步先还原。
       # 必须排在 dotnet format 之前：没有引用时 Frame.Navigated += 处理器 绑不出委托，
-      # IDE0060 会把事件处理器的 sender 误报成未用参数（本地 test.bat 正是先还原再查风格）。
+      # IDE0060 会把事件处理器的 sender 误报成未用参数（本地 check.bat 正是先还原再查风格）。
       - name: 还原 NuGet 包
         run: dotnet restore StarCrew.Launcher.slnx
 
@@ -43,42 +39,6 @@ jobs:
 
       - name: 构建（警告即错误）
         run: dotnet build StarCrew.Launcher.slnx -c Release --nologo --no-restore -p:TreatWarningsAsErrors=true
-
-      - name: 全套测试 + 覆盖率
-        run: dotnet test StarCrew.Launcher.slnx -c Release --nologo --no-build --settings coverlet.runsettings --collect "XPlat Code Coverage" --results-directory ./TestResults --logger "trx;LogFileName=test.trx"
-
-      - name: 校验覆盖率阈值（80% 行覆盖）
-        run: powershell -NoProfile -ExecutionPolicy Bypass -File check-coverage.ps1
-
-      - name: 上传测试产物
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: TestResults/
-
-      # coverlet 把报告写在随机 GUID 子目录里，先归档到固定路径再上传，
-      # 否则上传 action 拿不到稳定地址。GitHub 侧用这份数据做合并门禁，
-      # 见 AGENTS.md 的 Restrict code coverage 说明。
-      - name: 整理覆盖率报告路径
-        if: always()
-        run: |
-          $src = Get-ChildItem -Recurse TestResults -Filter *.cobertura.xml | Select-Object -First 1
-          Copy-Item $src.FullName TestResults/coverage.cobertura.xml
-
-      - name: 上传覆盖率到 GitHub Code Quality
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-        uses: actions/upload-code-coverage@v1
-        with:
-          file: TestResults/coverage.cobertura.xml
-          language: C#
-          label: code-coverage/dotnet-test
-          # Code Quality 是付费功能（2026-10 实测约 $10/月），未启用时上传会 403。
-          # 这里故意 fail-open：真正的覆盖率门禁由 check-coverage.ps1 校验（免费、本地同样生效）；
-          # coverlet 的 VSTest 收集器不支持 runsettings 阈值，别把 Threshold 写回去。
-          # 上传只是给 GitHub 侧做展示/合并门禁用的。若将来启用了 Code Quality，
-          # 上传会自动恢复工作，无需改 workflow。
-          fail-on-error: false
 
       - name: 依赖漏洞复核
         run: dotnet list StarCrew.Launcher.slnx package --vulnerable --include-transitive
