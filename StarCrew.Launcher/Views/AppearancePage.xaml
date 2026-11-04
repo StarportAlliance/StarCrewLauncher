@@ -15,7 +15,7 @@
             x:Key="BuiltInBackgroundCardTemplate"
             x:DataType="viewModels:BuiltInBackgroundOptionViewModel"
         >
-            <Grid Width="220" Height="154">
+            <Grid Height="190" MaxWidth="240">
                 <Button
                     Padding="8"
                     AutomationProperties.Name="{x:Bind DisplayName}"
@@ -50,7 +50,7 @@
                                 TextTrimming="CharacterEllipsis"
                             />
                         </Grid>
-                        <Rectangle Height="90" RadiusX="4" RadiusY="4">
+                        <Rectangle Height="126" RadiusX="4" RadiusY="4">
                             <Rectangle.Fill>
                                 <ImageBrush
                                     ImageSource="{x:Bind ImageSource}"
@@ -80,7 +80,7 @@
             x:Key="CustomBackgroundCardTemplate"
             x:DataType="views:CustomBackgroundImageCardViewModel"
         >
-            <Grid Width="220" Height="154">
+            <Grid Height="190" MaxWidth="240">
                 <Grid Visibility="{x:Bind HasCustomBackgroundImage, Mode=OneWay}">
                     <Button
                         Padding="8"
@@ -116,7 +116,7 @@
                                     TextTrimming="CharacterEllipsis"
                                 />
                             </Grid>
-                            <Rectangle Height="90" RadiusX="4" RadiusY="4">
+                            <Rectangle Height="126" RadiusX="4" RadiusY="4">
                                 <Rectangle.Fill>
                                     <ImageBrush
                                         ImageSource="{x:Bind Thumbnail, Mode=OneWay}"
@@ -157,8 +157,8 @@
                 </Grid>
                 <Button
                     x:Uid="Appearance_BackgroundImageAdd"
-                    Width="220"
-                    Height="154"
+                    Height="190"
+                    MaxWidth="240"
                     Padding="8"
                     Command="{x:Bind AddCommand}"
                     VerticalContentAlignment="Center"
@@ -477,19 +477,19 @@
                             HorizontalContentAlignment="Left"
                             IsEnabled="{x:Bind ViewModel.IsImageBackground, Mode=OneWay}"
                         >
-                            <ItemsControl
+                            <ItemsRepeater
                                 ItemsSource="{x:Bind BackgroundImageCards}"
-                                ItemTemplateSelector="{StaticResource BackgroundImageCardTemplateSelector}"
+                                ItemTemplate="{StaticResource BackgroundImageCardTemplateSelector}"
                             >
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <controls:WrapPanel
-                                            HorizontalSpacing="12"
-                                            VerticalSpacing="12"
-                                        />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
+                                <ItemsRepeater.Layout>
+                                    <UniformGridLayout
+                                        ItemsStretch="Fill"
+                                        MinColumnSpacing="12"
+                                        MinItemWidth="200"
+                                        MinRowSpacing="12"
+                                    />
+                                </ItemsRepeater.Layout>
+                            </ItemsRepeater>
                         </controls:SettingsCard>
                         <controls:SettingsCard
                             x:Uid="Appearance_ScrimCard"
