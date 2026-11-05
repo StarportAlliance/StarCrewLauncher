@@ -19,18 +19,6 @@ internal sealed class WindowsSteamEnvironment : ISteamEnvironment
 
     public bool FileExists(string path) => File.Exists(path);
 
-    public string? ReadAllTextOrNull(string path)
-    {
-        try
-        {
-            return File.ReadAllText(path);
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
     public string GetProgramFilesX86() =>
         Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
 

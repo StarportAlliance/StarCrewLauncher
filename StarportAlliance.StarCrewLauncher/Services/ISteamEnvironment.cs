@@ -13,12 +13,6 @@ internal interface ISteamEnvironment
     /// <summary>路径是否是已存在的文件。</summary>
     bool FileExists(string path);
 
-    /// <summary>
-    /// 读取文本文件。
-    /// </summary>
-    /// <returns>文件内容，读取失败时返回 null。</returns>
-    string? ReadAllTextOrNull(string path);
-
     /// <summary>Program Files (x86) 目录。</summary>
     string GetProgramFilesX86();
 

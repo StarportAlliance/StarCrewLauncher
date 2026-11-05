@@ -10,7 +10,11 @@ internal sealed class SystemFontCatalog : ISystemFontCatalog
     // 目前只有 zh-CN 资源，按“包含中文字形”过滤即可覆盖当前界面语言
     private const uint ChineseGlyph = 0x4E2D;
 
-    public IReadOnlyList<FontOption> GetFonts()
+    private IReadOnlyList<FontOption>? _cache;
+
+    public IReadOnlyList<FontOption> GetFonts() => _cache ??= Enumerate();
+
+    private static List<FontOption> Enumerate()
     {
         List<FontOption> fonts = [];
         try
@@ -25,35 +29,19 @@ internal sealed class SystemFontCatalog : ISystemFontCatalog
             uint count = collection.GetFontFamilyCount();
             for (uint index = 0; index < count; index++)
             {
-                collection.GetFontFamily(index, out IDWriteFontFamily family);
-                family.GetFamilyNames(out IDWriteLocalizedStrings names);
-                string? localized = ReadName(names, "zh-cn") ?? ReadName(names, "en-us");
-                string? original = ReadName(names, "en-us") ?? localized;
-                if (string.IsNullOrWhiteSpace(localized) || string.IsNullOrWhiteSpace(original))
+                // 单个字体族读取失败时跳过，不中断整轮枚举
+                try
                 {
-                    continue;
+                    FontOption? option = ReadFontOption(collection, index);
+                    if (option is not null)
+                    {
+                        fonts.Add(option);
+                    }
                 }
-
-                family.GetFirstMatchingFont(
-                    DWRITE_FONT_WEIGHT.DWRITE_FONT_WEIGHT_NORMAL,
-                    DWRITE_FONT_STRETCH.DWRITE_FONT_STRETCH_NORMAL,
-                    DWRITE_FONT_STYLE.DWRITE_FONT_STYLE_NORMAL,
-                    out IDWriteFont font
-                );
-                font.HasCharacter(ChineseGlyph, out BOOL exists);
-                if (!exists)
+                catch (Exception)
                 {
-                    continue;
+                    // 该族字体信息异常，继续下一个
                 }
-
-                string secondary = string.Equals(
-                    localized,
-                    original,
-                    StringComparison.OrdinalIgnoreCase
-                )
-                    ? string.Empty
-                    : original;
-                fonts.Add(new FontOption(localized, secondary, original));
             }
         }
         catch (Exception)
@@ -66,6 +54,35 @@ internal sealed class SystemFontCatalog : ISystemFontCatalog
                 StringComparer.CurrentCulture.Compare(left.DisplayName, right.DisplayName)
         );
         return fonts;
+    }
+
+    private static FontOption? ReadFontOption(IDWriteFontCollection collection, uint index)
+    {
+        collection.GetFontFamily(index, out IDWriteFontFamily family);
+        family.GetFamilyNames(out IDWriteLocalizedStrings names);
+        string? localized = ReadName(names, "zh-cn") ?? ReadName(names, "en-us");
+        string? original = ReadName(names, "en-us") ?? localized;
+        if (string.IsNullOrWhiteSpace(localized) || string.IsNullOrWhiteSpace(original))
+        {
+            return null;
+        }
+
+        family.GetFirstMatchingFont(
+            DWRITE_FONT_WEIGHT.DWRITE_FONT_WEIGHT_NORMAL,
+            DWRITE_FONT_STRETCH.DWRITE_FONT_STRETCH_NORMAL,
+            DWRITE_FONT_STYLE.DWRITE_FONT_STYLE_NORMAL,
+            out IDWriteFont font
+        );
+        font.HasCharacter(ChineseGlyph, out BOOL exists);
+        if (!exists)
+        {
+            return null;
+        }
+
+        string secondary = string.Equals(localized, original, StringComparison.OrdinalIgnoreCase)
+            ? string.Empty
+            : original;
+        return new FontOption(localized, secondary, original);
     }
 
     private static string? ReadName(IDWriteLocalizedStrings names, string locale)

@@ -23,7 +23,21 @@ internal sealed class WindowsSteamClient : ISteamClient
         _strings = strings;
     }
 
-    public bool IsSteamRunning() => Process.GetProcessesByName("steam").Length > 0;
+    public bool IsSteamRunning()
+    {
+        Process[] processes = Process.GetProcessesByName("steam");
+        try
+        {
+            return processes.Length > 0;
+        }
+        finally
+        {
+            foreach (Process process in processes)
+            {
+                process.Dispose();
+            }
+        }
+    }
 
     public bool TryStartSteam(out string? error)
     {

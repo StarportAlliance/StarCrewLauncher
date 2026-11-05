@@ -14,9 +14,6 @@ internal interface IThemeSettings
     /// <summary>显示字体发生实际变更事件。</summary>
     event EventHandler? DisplayFontChanged;
 
-    /// <summary>背景设置发生实际变更事件。</summary>
-    event EventHandler? BackgroundChanged;
-
     /// <summary>背景遮罩不透明度发生实际变更事件。</summary>
     event EventHandler? ScrimOpacityChanged;
 

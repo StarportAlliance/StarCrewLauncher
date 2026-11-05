@@ -31,8 +31,6 @@ internal sealed class ThemeSettings : IThemeSettings
 
     public event EventHandler? DisplayFontChanged;
 
-    public event EventHandler? BackgroundChanged;
-
     public event EventHandler? ScrimOpacityChanged;
 
     public AppTheme Theme
@@ -236,7 +234,6 @@ internal sealed class ThemeSettings : IThemeSettings
         }
 
         _store[BackgroundKey] = background.ToString();
-        BackgroundChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private string? LoadSolidBackgroundColor() =>
@@ -264,8 +261,6 @@ internal sealed class ThemeSettings : IThemeSettings
         {
             _store[SolidBackgroundColorKey] = normalized;
         }
-
-        BackgroundChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private bool LoadUseCustomBackgroundImage()
@@ -290,7 +285,6 @@ internal sealed class ThemeSettings : IThemeSettings
         }
 
         _store[UseCustomBackgroundImageKey] = useCustom;
-        BackgroundChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private bool LoadSolidBackgroundFollowsTheme()
@@ -315,7 +309,6 @@ internal sealed class ThemeSettings : IThemeSettings
         }
 
         _store[SolidBackgroundFollowsThemeKey] = follows;
-        BackgroundChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private string? LoadBackgroundImagePath() =>
@@ -395,8 +388,6 @@ internal sealed class ThemeSettings : IThemeSettings
         {
             _store[BackgroundImagePathKey] = normalized;
         }
-
-        BackgroundChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private void SaveBuiltInBackgroundId(string? value)
@@ -440,7 +431,5 @@ internal sealed class ThemeSettings : IThemeSettings
         {
             _store[BuiltInBackgroundIdKey] = normalized;
         }
-
-        BackgroundChanged?.Invoke(this, EventArgs.Empty);
     }
 }

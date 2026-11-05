@@ -10,8 +10,6 @@ internal sealed class FilePickerService : IFilePickerService
 
     public void AttachHostWindow(nint windowHandle) => _windowHandle = windowHandle;
 
-    public Task<string?> PickGameExeAsync() => PickSingleFileAsync(".exe");
-
     public Task<string?> PickBackgroundImageAsync() =>
         PickSingleFileAsync(".png", ".jpg", ".jpeg", ".bmp");
 

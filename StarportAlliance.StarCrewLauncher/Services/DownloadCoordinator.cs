@@ -89,7 +89,6 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
         Guid instanceGuid = Guid.NewGuid();
         string instanceId = instanceGuid.ToString("N");
         string instanceDirectory = Path.Combine(_instancesRoot, instanceId);
-        Directory.CreateDirectory(instanceDirectory);
 
         long? totalBytes = null;
         List<string> arguments =
@@ -129,6 +128,8 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
 
         try
         {
+            Directory.CreateDirectory(instanceDirectory);
+
             totalBytes = await ReadTotalBytesAsync(
                 depotDownloaderPath,
                 accountName,
@@ -205,7 +206,7 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
                 version.VersionLabel,
                 LogRedaction.Scrub(message)
             );
-            TryDeleteDirectory(instanceDirectory);
+            await Task.Run(() => TryDeleteDirectory(instanceDirectory), CancellationToken.None);
             progress?.Report(new DownloadProgressInfo(DownloadStage.Failed, 0, message));
             return new GameInstallResult(false, message);
         }

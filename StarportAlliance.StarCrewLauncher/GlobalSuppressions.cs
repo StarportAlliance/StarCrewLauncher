@@ -161,7 +161,7 @@ using System.Diagnostics.CodeAnalysis;
     "CA1031:DoNotCatchGeneralExceptionTypes",
     Justification = "字体枚举失败等同于没有可选的系统字体，退回默认字体，不影响启动。",
     Scope = "member",
-    Target = "~M:StarportAlliance.StarCrewLauncher.Services.SystemFontCatalog.GetFonts~System.Collections.Generic.IReadOnlyList{StarportAlliance.StarCrewLauncher.Models.FontOption}"
+    Target = "~M:StarportAlliance.StarCrewLauncher.Services.SystemFontCatalog.Enumerate~System.Collections.Generic.List{StarportAlliance.StarCrewLauncher.Models.FontOption}"
 )]
 [assembly: SuppressMessage(
     "Design",
@@ -176,20 +176,6 @@ using System.Diagnostics.CodeAnalysis;
     Justification = "注册表失败视为未安装，不影响主流程。",
     Scope = "member",
     Target = "~M:StarportAlliance.StarCrewLauncher.Services.WindowsSteamEnvironment.ReadRegistrySteamPath(Microsoft.Win32.RegistryHive,System.String)~System.String"
-)]
-[assembly: SuppressMessage(
-    "Design",
-    "CA1031:DoNotCatchGeneralExceptionTypes",
-    Justification = "VDF 读取失败视为无额外库，调用方按 null 处理。",
-    Scope = "member",
-    Target = "~M:StarportAlliance.StarCrewLauncher.Services.WindowsSteamEnvironment.ReadAllTextOrNull(System.String)~System.String"
-)]
-[assembly: SuppressMessage(
-    "Design",
-    "CA1031:DoNotCatchGeneralExceptionTypes",
-    Justification = "接缝异常同样视为无额外库，只回退不崩。",
-    Scope = "member",
-    Target = "~M:StarportAlliance.StarCrewLauncher.Services.WindowsSteamEnvironment.ReadAllTextOrNull(System.String)~System.String"
 )]
 [assembly: SuppressMessage(
     "Design",
