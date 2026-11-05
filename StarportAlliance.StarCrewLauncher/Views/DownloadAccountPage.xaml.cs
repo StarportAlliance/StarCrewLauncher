@@ -191,20 +191,27 @@ public sealed partial class DownloadAccountPage : Page
         using CancellationTokenSource cts = new();
         dialog.Closing += (_, _) => cts.Cancel();
         Task<ContentDialogResult> showing = dialog.ShowAsync().AsTask();
-        SteamLoginOutcome outcome = await ViewModel.LoginWithQrAsync(reporter, cts.Token);
-
-        if (outcome.IsSuccess)
+        try
         {
-            status.Text = _strings.Format("Account_LoginSuccessFormat", outcome.AccountName);
-            await Task.Delay(800);
+            SteamLoginOutcome outcome = await ViewModel.LoginWithQrAsync(reporter, cts.Token);
+
+            if (outcome.IsSuccess)
+            {
+                status.Text = _strings.Format("Account_LoginSuccessFormat", outcome.AccountName);
+                await Task.Delay(800);
+            }
+            else
+            {
+                status.Text =
+                    outcome.ErrorMessage ?? _strings.GetString("Account_LoginFailedRetry");
+                await Task.Delay(1200);
+            }
         }
-        else
+        finally
         {
-            status.Text = outcome.ErrorMessage ?? _strings.GetString("Account_LoginFailedRetry");
-            await Task.Delay(1200);
+            dialog.Hide();
         }
 
-        dialog.Hide();
         await showing;
     }
 

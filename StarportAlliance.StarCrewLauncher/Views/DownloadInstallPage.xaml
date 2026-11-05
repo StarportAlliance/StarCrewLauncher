@@ -42,12 +42,22 @@
                         <controls:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xE8EC;" />
                         </controls:SettingsCard.HeaderIcon>
-                        <TextBox
-                            x:Uid="Install_InstanceNameBox"
-                            Width="360"
-                            HorizontalAlignment="Left"
-                            Text="{x:Bind ViewModel.InstanceName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        />
+                        <StackPanel Spacing="4">
+                            <TextBox
+                                x:Uid="Install_InstanceNameBox"
+                                Width="360"
+                                HorizontalAlignment="Left"
+                                Text="{x:Bind ViewModel.InstanceName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            />
+                            <TextBlock
+                                MaxWidth="360"
+                                HorizontalAlignment="Left"
+                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                Text="{x:Bind ViewModel.InstanceNameError, Mode=OneWay}"
+                                TextWrapping="Wrap"
+                                Visibility="{x:Bind ViewModel.HasInstanceNameError, Mode=OneWay}"
+                            />
+                        </StackPanel>
                     </controls:SettingsCard>
                 </StackPanel>
             </Grid>

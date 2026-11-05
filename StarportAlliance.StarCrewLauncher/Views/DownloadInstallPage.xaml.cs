@@ -86,13 +86,21 @@ public sealed partial class DownloadInstallPage : Page
         });
 
         Task<ContentDialogResult> showing = progressDialog.ShowAsync().AsTask();
-        GameInstallResult result = await viewModel.InstallAsync(
-            entry,
-            viewModel.InstanceName,
-            reporter,
-            cts.Token
-        );
-        progressDialog.Hide();
+        GameInstallResult result;
+        try
+        {
+            result = await viewModel.InstallAsync(
+                entry,
+                viewModel.InstanceName,
+                reporter,
+                cts.Token
+            );
+        }
+        finally
+        {
+            progressDialog.Hide();
+        }
+
         await showing;
 
         if (result.IsSuccess)

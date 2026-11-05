@@ -1,12 +1,8 @@
-using System.ComponentModel;
-using System.Numerics;
-using CommunityToolkit.WinUI.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
-using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using StarportAlliance.StarCrewLauncher.Models;
 using StarportAlliance.StarCrewLauncher.Services;
@@ -17,6 +13,8 @@ namespace StarportAlliance.StarCrewLauncher.Views;
 public sealed partial class DownloadBasePage : Page
 {
     private readonly IAppStrings _strings = App.Services.GetRequiredService<IAppStrings>();
+    private readonly FrameNavigationService _navigation =
+        App.Services.GetRequiredService<FrameNavigationService>();
 
     public DownloadBasePage()
     {
@@ -31,144 +29,31 @@ public sealed partial class DownloadBasePage : Page
         ViewModel = e.Parameter as DownloadPageViewModel;
         Bindings.Update();
 
-        if (ViewModel is not null)
+        if (ViewModel is not null && string.IsNullOrWhiteSpace(ViewModel.AccountName))
         {
-            ViewModel.PropertyChanged += OnViewModelPropertyChanged;
-            RebuildVersionCards();
-            if (string.IsNullOrWhiteSpace(ViewModel.AccountName))
-            {
-                Loaded += OnLoadedShowLoginHint;
-            }
+            Loaded += OnLoadedShowLoginHint;
         }
     }
 
-    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    private async void VersionCard_Click(object sender, RoutedEventArgs e)
     {
-        ArgumentNullException.ThrowIfNull(e);
-        ViewModel?.PropertyChanged -= OnViewModelPropertyChanged;
-    }
-
-    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        _ = sender;
-        if (e.PropertyName == nameof(DownloadPageViewModel.FilteredItems))
-        {
-            RebuildVersionCards();
-        }
-    }
-
-    private void RebuildVersionCards()
-    {
-        VersionListStack.Children.Clear();
-        if (ViewModel is null)
+        _ = e;
+        if (ViewModel is null || sender is not FrameworkElement { Tag: VersionItemViewModel item })
         {
             return;
         }
 
-        foreach (GameVersionEntry entry in ViewModel.FilteredItems)
+        if (!ViewModel.SelectVersion(item))
         {
-            VersionListStack.Children.Add(BuildVersionCard(entry));
+            await ShowLoginHintAsync();
+            return;
         }
-    }
 
-    private SettingsCard BuildVersionCard(GameVersionEntry entry)
-    {
-        DownloadPageViewModel viewModel = ViewModel!;
-        string dateText = entry.PublishedAt.ToString(
-            "yyyy-MM-dd HH:mm",
-            System.Globalization.CultureInfo.InvariantCulture
+        _navigation.NavigateTo(
+            NavigationTarget.Install,
+            ViewModel,
+            new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight }
         );
-
-        StackPanel titleRow = new() { Orientation = Orientation.Horizontal, Spacing = 8 };
-        titleRow.Children.Add(
-            new TextBlock
-            {
-                Text = entry.VersionLabel,
-                VerticalAlignment = VerticalAlignment.Center,
-            }
-        );
-        foreach (string tag in entry.Tags)
-        {
-            titleRow.Children.Add(
-                new InfoBadge { Style = (Style)Resources["TagInfoBadgeStyle"], Tag = tag }
-            );
-        }
-
-        TextBlock description = new()
-        {
-            Text = _strings.Format("DownloadBase_PublishedAtFormat", dateText),
-            Style = (Style)Application.Current.Resources["CaptionTextBlockStyle"],
-            TextWrapping = TextWrapping.Wrap,
-        };
-        try
-        {
-            description.Foreground = (Brush)
-                Application.Current.Resources["TextFillColorSecondaryBrush"];
-        }
-        catch (Exception)
-        {
-            // 可选主题资源缺失时退回继承前景色
-        }
-
-        ThemeShadow iconShadow = new();
-        Border icon = new()
-        {
-            Width = 40,
-            Height = 40,
-            CornerRadius = (CornerRadius)Application.Current.Resources["ControlCornerRadius"],
-            Background = new ImageBrush
-            {
-                ImageSource = new BitmapImage(new Uri("ms-appx:///Assets/AmongUs.png")),
-            },
-            Shadow = iconShadow,
-            Translation = new Vector3(0, 0, 8),
-        };
-
-        SettingsCard card = new()
-        {
-            Header = new StackPanel
-            {
-                Orientation = Orientation.Horizontal,
-                Spacing = 12,
-                Children =
-                {
-                    icon,
-                    new StackPanel
-                    {
-                        Spacing = 2,
-                        VerticalAlignment = VerticalAlignment.Center,
-                        Children = { titleRow, description },
-                    },
-                },
-            },
-            Padding = new Thickness(12),
-            IsClickEnabled = true,
-            ActionIcon = new FontIcon { Glyph = "\uE76C" },
-            ActionIconToolTip = _strings.GetString("Common_Install"),
-        };
-        iconShadow.Receivers.Add(card);
-        card.Click += async (_, _) =>
-        {
-            if (viewModel.NeedsLogin)
-            {
-                await ShowLoginHintAsync();
-                return;
-            }
-
-            viewModel.SelectedVersion = entry;
-            viewModel.InstanceName = $"Among Us {entry.VersionLabel}";
-            App.Services.GetRequiredService<FrameNavigationService>()
-                .NavigateTo(
-                    NavigationTarget.Install,
-                    ViewModel,
-                    new SlideNavigationTransitionInfo
-                    {
-                        Effect = SlideNavigationTransitionEffect.FromRight,
-                    }
-                );
-        };
-
-        return card;
     }
 
     private void OnLoadedShowLoginHint(object sender, RoutedEventArgs e)

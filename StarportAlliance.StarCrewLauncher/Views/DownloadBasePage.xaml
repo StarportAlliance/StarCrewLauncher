@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:vm="using:StarportAlliance.StarCrewLauncher.ViewModels"
 >
     <Page.Resources>
         <!-- InfoBadge 的 Value 只接受 Int32，文本标签改走 FrameworkElement.Tag 承载
@@ -96,7 +97,68 @@
                     </StackPanel>
                 </Grid>
 
-                <StackPanel x:Name="VersionListStack" Spacing="4" />
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.FilteredItems, Mode=OneWay}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="4" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="vm:VersionItemViewModel">
+                            <controls:SettingsCard
+                                ActionIconToolTip="{x:Bind InstallToolTip}"
+                                Click="VersionCard_Click"
+                                IsClickEnabled="True"
+                                Tag="{x:Bind}"
+                            >
+                                <controls:SettingsCard.Header>
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <Border
+                                            Width="40"
+                                            Height="40"
+                                            CornerRadius="{StaticResource ControlCornerRadius}"
+                                        >
+                                            <Border.Background>
+                                                <ImageBrush ImageSource="ms-appx:///Assets/AmongUs.png" />
+                                            </Border.Background>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center" Spacing="2">
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <TextBlock
+                                                    Text="{x:Bind VersionLabel}"
+                                                    VerticalAlignment="Center"
+                                                />
+                                                <ItemsControl ItemsSource="{x:Bind Tags}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel Orientation="Horizontal" />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="x:String">
+                                                            <InfoBadge
+                                                                Margin="0,0,8,0"
+                                                                Style="{StaticResource TagInfoBadgeStyle}"
+                                                                Tag="{x:Bind}"
+                                                            />
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                            <TextBlock
+                                                Text="{x:Bind PublishedText}"
+                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                TextWrapping="Wrap"
+                                            />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </controls:SettingsCard.Header>
+                                <controls:SettingsCard.ActionIcon>
+                                    <FontIcon Glyph="&#xE76C;" />
+                                </controls:SettingsCard.ActionIcon>
+                            </controls:SettingsCard>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
             </StackPanel>
         </Grid>
     </ScrollViewer>

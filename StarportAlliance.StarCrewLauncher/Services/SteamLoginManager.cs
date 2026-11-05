@@ -35,79 +35,6 @@ internal sealed class SteamLoginManager : ISteamLoginManager
         _logger = logger;
     }
 
-    public async Task<SteamLoginOutcome> LoginAsync(
-        string username,
-        string password,
-        string? steamGuardCode,
-        CancellationToken cancellationToken = default
-    )
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(username);
-        ArgumentNullException.ThrowIfNull(password);
-
-        _logger.LogInformation("开始账号登录 {Account}", LogRedaction.MaskAccountName(username));
-
-        string? depotDownloaderPath = _locator.Find();
-        if (depotDownloaderPath is null)
-        {
-            _logger.LogWarning("账号登录失败：未找到 DepotDownloader");
-            return new SteamLoginOutcome(false, null, _strings.GetString("Dd_Missing"));
-        }
-
-        string tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(tempDir);
-
-        try
-        {
-            List<string> arguments =
-            [
-                "-app",
-                AmongUsAppId.ToString(CultureInfo.InvariantCulture),
-                "-depot",
-                AmongUsDepotId.ToString(CultureInfo.InvariantCulture),
-                "-manifest-only",
-                "-dir",
-                tempDir,
-                "-username",
-                username,
-                "-password",
-                password,
-                "-remember-password",
-                "-no-mobile",
-            ];
-
-            string? stdin = steamGuardCode is null ? null : $"{steamGuardCode.Trim()}\n";
-            ExecutableOutcome outcome = await _runner.RunAsync(
-                new ExecutableCommand(depotDownloaderPath, arguments, stdin),
-                null,
-                cancellationToken
-            );
-
-            if (outcome.ExitCode == 0)
-            {
-                LauncherState state = _store.Load();
-                _store.Save(state with { SteamAccountName = username });
-                _logger.LogInformation(
-                    "账号登录成功 {Account}",
-                    LogRedaction.MaskAccountName(username)
-                );
-                return new SteamLoginOutcome(true, username, null);
-            }
-
-            _logger.LogWarning("账号登录失败，退出码 {ExitCode}", outcome.ExitCode);
-            string? last = outcome.OutputLines.LastOrDefault(l => !string.IsNullOrWhiteSpace(l));
-            return new SteamLoginOutcome(
-                false,
-                null,
-                last ?? _strings.Format("Login_FailedExitCodeFormat", outcome.ExitCode)
-            );
-        }
-        finally
-        {
-            TryDeleteTempDirectory(tempDir);
-        }
-    }
-
     public async Task<SteamLoginOutcome> LoginWithQrAsync(
         IProgress<string>? output = null,
         CancellationToken cancellationToken = default
@@ -123,9 +50,10 @@ internal sealed class SteamLoginManager : ISteamLoginManager
         }
 
         string tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(tempDir);
         try
         {
+            Directory.CreateDirectory(tempDir);
+
             List<string> arguments =
             [
                 "-app",

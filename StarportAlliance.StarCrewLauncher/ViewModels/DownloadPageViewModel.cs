@@ -51,12 +51,23 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(FilteredItems))]
     public partial string? SearchText { get; set; }
 
-    public IEnumerable<GameVersionEntry> FilteredItems =>
-        string.IsNullOrWhiteSpace(SearchText)
-            ? Items
-            : Items.Where(v =>
-                v.VersionLabel.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
-            );
+    public IReadOnlyList<VersionItemViewModel> FilteredItems =>
+        [
+            .. Items
+                .Where(v =>
+                    string.IsNullOrWhiteSpace(SearchText)
+                    || v.VersionLabel.Contains(SearchText, StringComparison.OrdinalIgnoreCase)
+                )
+                .Select(v => new VersionItemViewModel(
+                    v,
+                    _strings.Format(
+                        "DownloadBase_PublishedAtFormat",
+                        v.PublishedAt.ToLocalTime()
+                            .ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture)
+                    ),
+                    _strings.GetString("Common_Install")
+                )),
+        ];
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(AccountLabel))]
@@ -89,9 +100,52 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(CanStartInstall))]
     public partial string InstanceName { get; set; } = string.Empty;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasInstanceNameError))]
+    [NotifyPropertyChangedFor(nameof(CanStartInstall))]
+    public partial string? InstanceNameError { get; set; }
+
+    public bool HasInstanceNameError => InstanceNameError is not null;
+
     public bool NeedsLogin => string.IsNullOrWhiteSpace(AccountName);
 
-    public bool CanStartInstall => !NeedsLogin && !string.IsNullOrWhiteSpace(InstanceName);
+    public bool CanStartInstall =>
+        !NeedsLogin && !string.IsNullOrWhiteSpace(InstanceName) && !HasInstanceNameError;
+
+    /// <summary>选中版本并准备安装参数。</summary>
+    /// <returns>未登录时不准备参数并返回 false，调用方应引导登录。</returns>
+    public bool SelectVersion(VersionItemViewModel item)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+
+        if (NeedsLogin)
+        {
+            return false;
+        }
+
+        SelectedVersion = item.Entry;
+        InstanceName = _strings.Format("Install_DefaultInstanceNameFormat", item.VersionLabel);
+        return true;
+    }
+
+    partial void OnInstanceNameChanged(string value) =>
+        InstanceNameError = ValidateInstanceName(value);
+
+    private string? ValidateInstanceName(string value)
+    {
+        string candidate = value.Trim();
+        if (candidate.Length == 0)
+        {
+            return _strings.GetString("Download_InstanceNameEmpty");
+        }
+
+        bool duplicate = _store
+            .Load()
+            .Instances.Any(i =>
+                string.Equals(i.Name, candidate, StringComparison.OrdinalIgnoreCase)
+            );
+        return duplicate ? _strings.GetString("Install_InstanceNameDuplicate") : null;
+    }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsNotRefreshing))]
@@ -129,61 +183,6 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         finally
         {
             IsRefreshing = false;
-        }
-    }
-
-    public async Task<SteamLoginOutcome> LoginAsync(
-        string username,
-        string password,
-        string? steamGuardCode
-    )
-    {
-        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
-        {
-            return new SteamLoginOutcome(
-                false,
-                null,
-                _strings.GetString("Download_CredentialsRequired")
-            );
-        }
-
-        IsBusy = true;
-        StatusMessage = _strings.GetString("Download_LoggingIn");
-        try
-        {
-            SteamLoginOutcome outcome = await _loginManager.LoginAsync(
-                username,
-                password,
-                steamGuardCode
-            );
-            if (outcome.IsSuccess)
-            {
-                AccountName = outcome.AccountName;
-                _notifications.Notify(
-                    _strings.Format("Download_LoggedInFormat", outcome.AccountName),
-                    null,
-                    NotificationSeverity.Success
-                );
-                StatusMessage = _strings.Format("Download_LoggedInFormat", outcome.AccountName);
-            }
-            else
-            {
-                _notifications.Notify(
-                    _strings.Format(
-                        "Download_LoginFailedFormat",
-                        outcome.ErrorMessage ?? _strings.GetString("Download_UnknownError")
-                    ),
-                    null,
-                    NotificationSeverity.Error
-                );
-                StatusMessage = outcome.ErrorMessage ?? _strings.GetString("Download_LoginFailed");
-            }
-
-            return outcome;
-        }
-        finally
-        {
-            IsBusy = false;
         }
     }
 
@@ -268,6 +267,12 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         if (string.IsNullOrEmpty(normalizedName))
         {
             return new GameInstallResult(false, _strings.GetString("Download_InstanceNameEmpty"));
+        }
+
+        string? nameError = ValidateInstanceName(normalizedName);
+        if (nameError is not null)
+        {
+            return new GameInstallResult(false, nameError);
         }
 
         IsBusy = true;
