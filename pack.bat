@@ -23,6 +23,6 @@ if errorlevel 1 (
   echo [ERROR] vpk not found. Install it first: dotnet tool install -g vpk
   exit /b 1
 )
-vpk pack --packId StarportAlliance.StarCrewLauncher --packVersion %VERSION% --packDir publish\%RID% --mainExe StarportAlliance.StarCrewLauncher.exe --runtime %RID% || exit /b 1
+vpk pack --packId StarCrewLauncher --packVersion %VERSION% --packDir publish\%RID% --mainExe StarCrewLauncher.exe --runtime %RID% || exit /b 1
 echo.
 echo [OK] Release ready under Releases\. Copy it to the update feed.

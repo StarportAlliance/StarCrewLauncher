@@ -3,6 +3,7 @@
         <OutputType>WinExe</OutputType>
         <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
         <RootNamespace>StarportAlliance.StarCrewLauncher</RootNamespace>
+        <AssemblyName>StarCrewLauncher</AssemblyName>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <ApplicationIcon>..\Assets\icon.ico</ApplicationIcon>
         <Platforms>x64;ARM64</Platforms>
