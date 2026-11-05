@@ -34,14 +34,12 @@ dotnet husky install
 
 - 业务类型默认 `internal`（CA1515 门禁）；XAML 代码隐藏类保持 `public`。
 - 压制分析器一律登记到 `GlobalSuppressions.cs` 并写清理由，禁止散落 `#pragma`。
-- `Services`/`ViewModels` 不许依赖 `Microsoft.UI.Xaml`；`Models` 不许依赖 `Services`/`ViewModels`；
-  `Services` 不许依赖 `ViewModels`（无测试兜底，改动时自查）。
+- `Services`/`ViewModels` 不得依赖 `Microsoft.UI.Xaml`；`Models` 不得依赖 `Services`/`ViewModels`；
+  `Services` 不得依赖 `ViewModels`。
 - `*.xaml.cs` 只留 MVVM 空壳：UI 逻辑不要往里面加。
 - `*.bat` 必须 CRLF + 纯 ASCII（英文输出）：cmd 不认 LF，中文在非 UTF-8 环境必乱码。
 - restore 只做一次：`dotnet restore slnx` 跑一次（CI/check/hook 各自第一步），之后一律 `--no-restore`；
   `dotnet tool restore` 只还原工具清单、不还原 NuGet 包。全新检出无 `obj/`，缺这步构建必挂。
-- XAML 里 `Icon="..."` 只能用 WinUI `Symbol` 枚举真实存在的值（如 `Help`，没有 `Info`）；
-   写错编译不报错，运行时在 `Microsoft.UI.Xaml.dll` 里直接崩（0xC000027B），且无托管堆栈，只能二分排查。
 
 ## 架构与实现约定（MVVM + DI）
 
