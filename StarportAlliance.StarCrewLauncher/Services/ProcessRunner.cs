@@ -56,9 +56,13 @@ internal sealed class ProcessRunner : IDepotDownloaderRunner
                 return;
             }
 
-            lines.Add(e.Data);
+            // stdout/stderr 回调在不同线程，统一加锁避免丢行
+            lock (lines)
+            {
+                lines.Add(e.Data);
+            }
             output?.Report(e.Data);
-            // 命令行含明文密码，输出含账号名与二维码，故记录输出时统一过脱敏后再落盘
+            // 输出含账号名与二维码，故记录输出时统一过脱敏后再落盘
             if (command.LogOutput && _logger.IsEnabled(LogLevel.Trace))
             {
                 _logger.LogTrace("{Output}", LogRedaction.Scrub(e.Data));
@@ -125,6 +129,13 @@ internal sealed class ProcessRunner : IDepotDownloaderRunner
             program,
             process.ExitCode
         );
+        // 异步读取回调可能仍在派发，快照后再用
+        string[] captured;
+        lock (lines)
+        {
+            captured = [.. lines];
+        }
+
         if (process.ExitCode != 0 && command.LogOutput)
         {
             _logger.LogError(
@@ -132,11 +143,11 @@ internal sealed class ProcessRunner : IDepotDownloaderRunner
                 program,
                 string.Join(
                     Environment.NewLine,
-                    lines.TakeLast(FailureTailLines).Select(LogRedaction.Scrub)
+                    captured.TakeLast(FailureTailLines).Select(LogRedaction.Scrub)
                 )
             );
         }
 
-        return new ExecutableOutcome(process.ExitCode, lines);
+        return new ExecutableOutcome(process.ExitCode, captured);
     }
 }
