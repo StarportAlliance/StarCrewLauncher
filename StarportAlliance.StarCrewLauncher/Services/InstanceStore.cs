@@ -44,7 +44,7 @@ internal sealed class InstanceStore : IInstanceStore
         }
     }
 
-    public void Save(LauncherState state)
+    public bool Save(LauncherState state)
     {
         ArgumentNullException.ThrowIfNull(state);
 
@@ -60,10 +60,12 @@ internal sealed class InstanceStore : IInstanceStore
             File.WriteAllText(tempPath, JsonSerializer.Serialize(state, Options));
             File.Move(tempPath, _filePath, overwrite: true);
             _logger.LogDebug("实例状态已保存：{Count} 个实例", state.Instances.Count);
+            return true;
         }
-        catch (IOException ex)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             _logger.LogWarning(ex, "写入实例状态文件 {Path} 失败", _filePath);
+            return false;
         }
     }
 

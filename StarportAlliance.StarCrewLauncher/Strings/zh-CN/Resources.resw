@@ -422,22 +422,22 @@
   <data name="Instances_GoDownloadButton.Content" xml:space="preserve">
     <value>前往下载</value>
   </data>
-  <data name="Instances_CardLaunch" xml:space="preserve">
+  <data name="Instances_CardLaunch.Content" xml:space="preserve">
     <value>启动</value>
   </data>
-  <data name="Instances_CardOpenFolder" xml:space="preserve">
+  <data name="Instances_CardOpenFolder.Content" xml:space="preserve">
     <value>打开目录</value>
   </data>
-  <data name="Instances_CardMore" xml:space="preserve">
+  <data name="Instances_CardMore.Content" xml:space="preserve">
     <value>更多</value>
   </data>
-  <data name="Instances_CardRename" xml:space="preserve">
+  <data name="Instances_CardRename.Text" xml:space="preserve">
     <value>重命名</value>
   </data>
-  <data name="Instances_CardDetails" xml:space="preserve">
+  <data name="Instances_CardDetails.Text" xml:space="preserve">
     <value>详情</value>
   </data>
-  <data name="Instances_CardDelete" xml:space="preserve">
+  <data name="Instances_CardDelete.Text" xml:space="preserve">
     <value>删除</value>
   </data>
   <data name="Instances_RenameTitle" xml:space="preserve">
@@ -463,6 +463,9 @@
   </data>
   <data name="Instances_DeleteFailedFormat" xml:space="preserve">
     <value>删除失败：{0}</value>
+  </data>
+  <data name="Instances_StateSaveFailed" xml:space="preserve">
+    <value>保存实例状态失败，实例未删除。</value>
   </data>
   <data name="Instances_RemovedFormat" xml:space="preserve">
     <value>实例「{0}」已从列表移除。</value>
@@ -588,12 +591,6 @@
   <data name="Login_AccountNameParseFailed" xml:space="preserve">
     <value>解析账号名失败，请稍后再试，如果问题持续存在，请向我们报告问题。</value>
   </data>
-  <data name="Download_CredentialsRequired" xml:space="preserve">
-    <value>请输入用户名和密码。</value>
-  </data>
-  <data name="Download_LoggingIn" xml:space="preserve">
-    <value>正在登录 Steam 账号...</value>
-  </data>
   <data name="Download_LoggedInFormat" xml:space="preserve">
     <value>已登录：{0}</value>
   </data>
@@ -637,6 +634,12 @@
   </data>
   <data name="Install_InstanceNameBox.PlaceholderText" xml:space="preserve">
     <value>实例名称</value>
+  </data>
+  <data name="Install_DefaultInstanceNameFormat" xml:space="preserve">
+    <value>Among Us {0}</value>
+  </data>
+  <data name="Install_InstanceNameDuplicate" xml:space="preserve">
+    <value>该实例名称已存在，请换一个名称。</value>
   </data>
   <data name="Install_StartButton.Text" xml:space="preserve">
     <value>开始安装</value>

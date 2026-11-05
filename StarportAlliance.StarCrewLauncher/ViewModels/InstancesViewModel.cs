@@ -45,7 +45,10 @@ internal sealed partial class InstancesViewModel : ObservableObject
     public partial IReadOnlyList<InstanceItemViewModel> Items { get; set; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasNoInstances))]
     public partial bool HasInstances { get; set; }
+
+    public bool HasNoInstances => !HasInstances;
 
     public event EventHandler<GameInstance>? RenameRequested;
 
@@ -79,17 +82,36 @@ internal sealed partial class InstancesViewModel : ObservableObject
     [RelayCommand]
     private void GoDownload() => _navigation.NavigateTo(NavigationTarget.Download);
 
-    public void ConfirmDelete(GameInstance instance, bool deleteFiles)
+    public async Task ConfirmDeleteAsync(GameInstance instance, bool deleteFiles)
     {
         ArgumentNullException.ThrowIfNull(instance);
+
+        LauncherState state = _store.Load();
+        LauncherState updated = state with
+        {
+            Instances = state.Instances.Where(i => i.Id != instance.Id).ToList(),
+            LastInstanceId = state.LastInstanceId == instance.Id ? null : state.LastInstanceId,
+        };
+        // 先落盘再删文件：保存失败时中止，避免记录指向已删目录
+        if (!_store.Save(updated))
+        {
+            _notifications.Notify(
+                _strings.GetString("Instances_StateSaveFailed"),
+                null,
+                NotificationSeverity.Error
+            );
+            return;
+        }
+
+        Reload();
 
         if (deleteFiles && Directory.Exists(instance.InstallDirectory))
         {
             try
             {
-                Directory.Delete(instance.InstallDirectory, recursive: true);
+                await Task.Run(() => Directory.Delete(instance.InstallDirectory, recursive: true));
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
                 _notifications.Notify(
                     _strings.Format("Instances_DeleteFailedFormat", ex.Message),
@@ -100,15 +122,6 @@ internal sealed partial class InstancesViewModel : ObservableObject
             }
         }
 
-        LauncherState state = _store.Load();
-        _store.Save(
-            state with
-            {
-                Instances = state.Instances.Where(i => i.Id != instance.Id).ToList(),
-                LastInstanceId = state.LastInstanceId == instance.Id ? null : state.LastInstanceId,
-            }
-        );
-        Reload();
         _notifications.Notify(
             _strings.Format("Instances_RemovedFormat", instance.Name),
             null,

@@ -9,5 +9,6 @@ internal interface IInstanceStore
     LauncherState Load();
 
     /// <summary>写入实例当前状态。</summary>
-    void Save(LauncherState state);
+    /// <returns>保存成功返回 true；IO 失败时返回 false 并保留原文件。</returns>
+    bool Save(LauncherState state);
 }
