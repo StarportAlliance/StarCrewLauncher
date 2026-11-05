@@ -521,7 +521,7 @@
     <value>未登录 Steam 账号</value>
   </data>
   <data name="DownloadBase_LoginHintContent" xml:space="preserve">
-    <value>下载原版 Among Us 需要通过含有该游戏的 Steam 账号获取。请先前往「账号」页扫码登录（首次使用还需在「组件」中安装 DepotDownloader）。</value>
+    <value>原版 Among Us 需要通过已购买该游戏的 Steam 账号获取。</value>
   </data>
   <data name="DownloadBase_GoLogin" xml:space="preserve">
     <value>前往登录</value>

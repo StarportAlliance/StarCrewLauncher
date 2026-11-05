@@ -147,8 +147,14 @@ public sealed partial class DownloadBasePage : Page
             ActionIconToolTip = _strings.GetString("Common_Install"),
         };
         iconShadow.Receivers.Add(card);
-        card.Click += (_, _) =>
+        card.Click += async (_, _) =>
         {
+            if (viewModel.NeedsLogin)
+            {
+                await ShowLoginHintAsync();
+                return;
+            }
+
             viewModel.SelectedVersion = entry;
             viewModel.InstanceName = $"Among Us {entry.VersionLabel}";
             App.Services.GetRequiredService<FrameNavigationService>()
