@@ -21,37 +21,26 @@ dotnet husky install
 但仅当本批待推送提交涉及代码/构建文件时才触发；
 纯文档、图片等杂项推送直接跳过以保速度，推送后由 CI 兜底。
 
-## 工具链
-
-- 排版：CSharpier。
-- 风格/语法：Roslyn 全量分析，规则见 `.editorconfig`。
-- 质量兜底：无自动化测试，靠构建门禁（警告即错误）与不定期全量 CodeReview。
-- MVVM/DI：CommunityToolkit.Mvvm + Microsoft.Extensions.DependencyInjection（组合根在 `App`）。
-- 依赖审计：`NuGetAudit=all`（restore 即审计）+ Dependabot 按需。
-- 云端门禁：CodeQL 扫描（`.github/workflows/codeql.yml`）。
-
 ## 新增代码铁律
 
-- 业务类型默认 `internal`（CA1515 门禁）；XAML 代码隐藏类保持 `public`。
+- 业务类型默认 `internal`（CA1515）；XAML 代码隐藏类保持 `public`。
 - 压制分析器一律登记到 `GlobalSuppressions.cs` 并写清理由，禁止散落 `#pragma`。
 - `Services`/`ViewModels` 不得依赖 `Microsoft.UI.Xaml`；`Models` 不得依赖 `Services`/`ViewModels`；
   `Services` 不得依赖 `ViewModels`。
 - `*.xaml.cs` 只留 MVVM 空壳：UI 逻辑不要往里面加。
-- `*.bat` 必须 CRLF + 纯 ASCII（英文输出）：cmd 不认 LF，中文在非 UTF-8 环境必乱码。
-- restore 只做一次：`dotnet restore slnx` 跑一次（CI/check/hook 各自第一步），之后一律 `--no-restore`；
-  `dotnet tool restore` 只还原工具清单、不还原 NuGet 包。全新检出无 `obj/`，缺这步构建必挂。
 
 ## 架构与实现约定（MVVM + DI）
 
 - 组合根在 `App`（MEDI）：`App.Services` 注册全部服务与视图模型；业务依赖一律构造注入，
-  页面代码隐藏只经 `App.Services` 取界面层基础件（导航服务等）。
-- 视图模型放 `StarportAlliance.StarCrewLauncher/ViewModels`；用 CommunityToolkit.Mvvm：
+  页面代码隐藏只经 `App.Services` 取界面层基础件。
+- 视图模型放 `StarCrew.Launcher/ViewModels`；用 CommunityToolkit.Mvvm：
   `[ObservableProperty]` 一律用 partial 属性写法，命令用 `[RelayCommand]`。
 - 页面导航一律走 `INavigationService`（`NavigationTarget` 枚举），页面间不得互相 new；
   重复导航到当前目标由导航服务按帧去重。
 - 用户提示一律经 `INotificationService` 发应用内通知，视图模型不直接接触 UI。
 - XAML 绑定只用 `x:Bind`：页面在 `OnNavigatedTo` 里把导航参数赋给 `ViewModel` 属性，随后调用 `Bindings.Update()`。
 - 对话框等离不开 UI 的交互留在代码隐藏；决策逻辑必须回视图模型（代码隐藏保持空壳）。
+- 除日志外的全部文本文案均放在 resw 文件内。
 
 ## 注释与文档风格
 
