@@ -42,22 +42,39 @@
                         <controls:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xE8EC;" />
                         </controls:SettingsCard.HeaderIcon>
-                        <StackPanel Spacing="4">
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="240" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel
+                                Grid.Column="0"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal"
+                                Spacing="6"
+                                ToolTipService.ToolTip="{x:Bind ViewModel.InstanceNameError, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.HasInstanceNameError, Mode=OneWay}"
+                            >
+                                <FontIcon
+                                    FontSize="14"
+                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                    Glyph="&#xE783;"
+                                />
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                    Text="{x:Bind ViewModel.InstanceNameError, Mode=OneWay}"
+                                    TextTrimming="CharacterEllipsis"
+                                />
+                            </StackPanel>
                             <TextBox
                                 x:Uid="Install_InstanceNameBox"
+                                Grid.Column="1"
                                 Width="360"
-                                HorizontalAlignment="Left"
                                 Text="{x:Bind ViewModel.InstanceName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             />
-                            <TextBlock
-                                MaxWidth="360"
-                                HorizontalAlignment="Left"
-                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                Text="{x:Bind ViewModel.InstanceNameError, Mode=OneWay}"
-                                TextWrapping="Wrap"
-                                Visibility="{x:Bind ViewModel.HasInstanceNameError, Mode=OneWay}"
-                            />
-                        </StackPanel>
+                        </Grid>
                     </controls:SettingsCard>
                 </StackPanel>
             </Grid>
