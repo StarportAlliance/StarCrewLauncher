@@ -532,17 +532,8 @@
   <data name="DownloadBase_Later" xml:space="preserve">
     <value>稍后再说</value>
   </data>
-  <data name="Download_VersionsCountFormat" xml:space="preserve">
-    <value>共 {0} 个可安装版本。</value>
-  </data>
-  <data name="Download_VersionListFailedFormat" xml:space="preserve">
-    <value>版本列表加载失败：{0}</value>
-  </data>
   <data name="Download_NotLoggedIn" xml:space="preserve">
     <value>未登录</value>
-  </data>
-  <data name="Download_Ready" xml:space="preserve">
-    <value>准备就绪。</value>
   </data>
 
   <!-- 游戏下载账号页 -->
@@ -600,20 +591,8 @@
   <data name="Download_UnknownError" xml:space="preserve">
     <value>未知错误</value>
   </data>
-  <data name="Download_LoginFailed" xml:space="preserve">
-    <value>登录失败</value>
-  </data>
-  <data name="Download_WaitingQrLogin" xml:space="preserve">
-    <value>等待扫码登录...</value>
-  </data>
-  <data name="Download_LoginCancelled" xml:space="preserve">
-    <value>登录已取消。</value>
-  </data>
   <data name="Download_Cancelled" xml:space="preserve">
     <value>已取消。</value>
-  </data>
-  <data name="Download_LoggedOutStatus" xml:space="preserve">
-    <value>已退出登录。下次登录时会复用 DD 的本地会话令牌。</value>
   </data>
   <data name="Download_LoggedOutToast" xml:space="preserve">
     <value>已退出登录，账号已清除。</value>
@@ -652,9 +631,6 @@
   </data>
   <data name="Download_InstanceNameEmpty" xml:space="preserve">
     <value>实例名称不能为空。</value>
-  </data>
-  <data name="Download_InstallStartFormat" xml:space="preserve">
-    <value>开始安装「{0}」...</value>
   </data>
 
   <!-- 游戏安装流程 -->
@@ -718,28 +694,16 @@
   <data name="Update_UpToDateFormat" xml:space="preserve">
     <value>当前已是最新版本。</value>
   </data>
-  <data name="Update_AvailableFormat" xml:space="preserve">
-    <value>发现新版本 {0}！</value>
-  </data>
   <data name="Update_CheckFailedFormat" xml:space="preserve">
     <value>检查更新失败：{0}</value>
-  </data>
-  <data name="Update_DownloadedFormat" xml:space="preserve">
-    <value>版本更新完成，重启后生效。</value>
   </data>
   <data name="Update_DownloadFailedFormat" xml:space="preserve">
     <value>下载更新失败：{0}</value>
   </data>
 
   <!-- 版本目录 / 进程执行 / Steam / 打开文件夹 -->
-  <data name="Catalog_FetchFailed" xml:space="preserve">
-    <value>版本目录获取失败，请检查网络连接后重试。</value>
-  </data>
   <data name="Runner_StartFailed" xml:space="preserve">
     <value>进程启动失败。</value>
-  </data>
-  <data name="Steam_NotFound" xml:space="preserve">
-    <value>未找到 Steam 主程序，请确认已安装 Steam。</value>
   </data>
   <data name="OpenFolder_NotFoundFormat" xml:space="preserve">
     <value>文件夹不存在：{0}</value>

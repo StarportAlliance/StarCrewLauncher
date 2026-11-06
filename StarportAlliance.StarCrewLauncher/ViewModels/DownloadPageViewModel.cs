@@ -39,7 +39,6 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
 
         AccountName = _store.Load().SteamAccountName;
         Items = [];
-        StatusMessage = _strings.GetString("Download_Ready");
         _ = LoadVersionsAsync(forceRefresh: false);
     }
 
@@ -81,17 +80,10 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     public partial bool IsBusy { get; set; }
 
     [ObservableProperty]
-    public partial string StatusMessage { get; set; }
-
-    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasCatalogUpdatedAt))]
     public partial string? CatalogUpdatedAtText { get; set; }
 
     public bool HasCatalogUpdatedAt => CatalogUpdatedAtText is not null;
-
-    /// <summary>进度百分比。</summary>
-    [ObservableProperty]
-    public partial double Progress { get; set; }
 
     [ObservableProperty]
     public partial GameVersionEntry? SelectedVersion { get; set; }
@@ -163,10 +155,6 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         {
             VersionCatalogLoadResult result = await _catalog.LoadAsync(forceRefresh: forceRefresh);
             Items = result.Catalog.Versions;
-            StatusMessage = _strings.Format(
-                "Download_VersionsCountFormat",
-                result.Catalog.Versions.Count
-            );
             CatalogUpdatedAtText = _strings.Format(
                 "DownloadBase_UpdatedAtFormat",
                 result
@@ -174,11 +162,10 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
                     .ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)
             );
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             Items = [];
             CatalogUpdatedAtText = null;
-            StatusMessage = _strings.Format("Download_VersionListFailedFormat", ex.Message);
         }
         finally
         {
@@ -192,7 +179,6 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     )
     {
         IsBusy = true;
-        StatusMessage = _strings.GetString("Download_WaitingQrLogin");
         try
         {
             SteamLoginOutcome outcome = await _loginManager.LoginWithQrAsync(
@@ -207,7 +193,6 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
                     null,
                     NotificationSeverity.Success
                 );
-                StatusMessage = _strings.Format("Download_LoggedInFormat", outcome.AccountName);
             }
             else
             {
@@ -219,14 +204,12 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
                     null,
                     NotificationSeverity.Error
                 );
-                StatusMessage = outcome.ErrorMessage ?? _strings.GetString("Download_LoginFailed");
             }
 
             return outcome;
         }
         catch (OperationCanceledException)
         {
-            StatusMessage = _strings.GetString("Download_LoginCancelled");
             return new SteamLoginOutcome(false, null, _strings.GetString("Download_Cancelled"));
         }
         finally
@@ -240,7 +223,6 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         LauncherState state = _store.Load();
         _store.Save(state with { SteamAccountName = null });
         AccountName = null;
-        StatusMessage = _strings.GetString("Download_LoggedOutStatus");
         _notifications.Notify(
             _strings.GetString("Download_LoggedOutToast"),
             null,
@@ -276,34 +258,22 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         }
 
         IsBusy = true;
-        Progress = 0;
-        StatusMessage = _strings.Format("Download_InstallStartFormat", normalizedName);
 
         try
         {
-            IProgress<DownloadProgressInfo> relay = new Progress<DownloadProgressInfo>(info =>
-            {
-                Progress = info.Percent;
-                StatusMessage = info.Message;
-                externalProgress?.Report(info);
-            });
-
             GameInstallResult result = await _coordinator.InstallAsync(
                 normalizedName,
                 version,
-                relay,
+                externalProgress,
                 cancellationToken
             );
 
             if (result.IsSuccess)
             {
-                Progress = 100;
-                StatusMessage = result.Message;
                 _notifications.Notify(result.Message, null, NotificationSeverity.Success);
             }
             else
             {
-                StatusMessage = result.Message;
                 _notifications.Notify(result.Message, null, NotificationSeverity.Error);
             }
 

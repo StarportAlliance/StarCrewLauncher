@@ -81,7 +81,7 @@ internal sealed class InstanceLauncher : IInstanceLauncher
         }
 
         _logger.LogDebug("Steam 未运行，尝试拉起");
-        if (!_steam.TryStartSteam(out _))
+        if (!_steam.TryStartSteam())
         {
             _logger.LogDebug("Steam 拉起失败");
             return;

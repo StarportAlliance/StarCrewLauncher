@@ -58,11 +58,7 @@ internal sealed class AppUpdater
             }
 
             _logger.LogInformation("更新检查完成：发现新版本 {Version}", version);
-            return new UpdateCheckResult(
-                UpdateState.Available,
-                version,
-                _strings.Format("Update_AvailableFormat", version)
-            );
+            return new UpdateCheckResult(UpdateState.Available, version, string.Empty);
         }
         catch (OperationCanceledException)
         {
@@ -115,11 +111,7 @@ internal sealed class AppUpdater
                 .ConfigureAwait(false);
             _client.PrepareUpdateForRestart(version);
             _logger.LogInformation("更新 {Version} 已就绪，等待重启安装", version);
-            return new UpdateCheckResult(
-                UpdateState.ReadyToRestart,
-                version,
-                _strings.Format("Update_DownloadedFormat", version)
-            );
+            return new UpdateCheckResult(UpdateState.ReadyToRestart, version, string.Empty);
         }
         catch (OperationCanceledException)
         {

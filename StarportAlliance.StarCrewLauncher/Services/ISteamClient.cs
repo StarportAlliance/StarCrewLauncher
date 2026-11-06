@@ -8,6 +8,5 @@ internal interface ISteamClient
 
     /// <summary>拉起 Steam 客户端。</summary>
     /// <returns>是否成功拉起。</returns>
-    /// <param name="error">失败时输出的错误原因。</param>
-    bool TryStartSteam(out string? error);
+    bool TryStartSteam();
 }

@@ -19,22 +19,18 @@ internal sealed class GameVersionCatalog : IGameVersionCatalog
 
     private readonly HttpClient _http;
     private readonly string _cacheDirectory;
-    private readonly IAppStrings _strings;
     private readonly IVersionCacheSettings _settings;
 
-    public GameVersionCatalog(IAppStrings strings, IVersionCacheSettings settings)
-        : this(new HttpClient(), AppPaths.CacheDirectory, strings, settings) { }
+    public GameVersionCatalog(IVersionCacheSettings settings)
+        : this(new HttpClient(), AppPaths.CacheDirectory, settings) { }
 
     internal GameVersionCatalog(
         HttpClient httpClient,
         string cacheDirectory,
-        IAppStrings strings,
         IVersionCacheSettings settings
     )
     {
-        ArgumentNullException.ThrowIfNull(strings);
         ArgumentNullException.ThrowIfNull(settings);
-        _strings = strings;
         _http = httpClient;
         _cacheDirectory = cacheDirectory;
         _settings = settings;
@@ -65,7 +61,7 @@ internal sealed class GameVersionCatalog : IGameVersionCatalog
             return cached;
         }
 
-        throw new InvalidOperationException(_strings.GetString("Catalog_FetchFailed"));
+        throw new InvalidOperationException();
     }
 
     public void ClearCache()

@@ -7,20 +7,13 @@ internal sealed class WindowsSteamClient : ISteamClient
 {
     private readonly ISteamEnvironment _environment;
     private readonly IProcessStarter _starter;
-    private readonly IAppStrings _strings;
 
-    public WindowsSteamClient(
-        ISteamEnvironment environment,
-        IProcessStarter starter,
-        IAppStrings strings
-    )
+    public WindowsSteamClient(ISteamEnvironment environment, IProcessStarter starter)
     {
         ArgumentNullException.ThrowIfNull(environment);
         ArgumentNullException.ThrowIfNull(starter);
-        ArgumentNullException.ThrowIfNull(strings);
         _environment = environment;
         _starter = starter;
-        _strings = strings;
     }
 
     public bool IsSteamRunning()
@@ -39,20 +32,15 @@ internal sealed class WindowsSteamClient : ISteamClient
         }
     }
 
-    public bool TryStartSteam(out string? error)
+    public bool TryStartSteam()
     {
         string? exePath = FindSteamExe();
         if (string.IsNullOrEmpty(exePath))
         {
-            error = _strings.GetString("Steam_NotFound");
             return false;
         }
 
-        return _starter.TryStart(
-            exePath,
-            Path.GetDirectoryName(exePath) ?? string.Empty,
-            out error
-        );
+        return _starter.TryStart(exePath, Path.GetDirectoryName(exePath) ?? string.Empty, out _);
     }
 
     private string? FindSteamExe()
