@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace StarportAlliance.StarCrewLauncher.Services;
 
-/// <summary>DepotDownloader ASCII 二维码解析器。</summary>
+/// <summary>StarDepotDownloader ASCII 二维码解析器。</summary>
 internal static class QrAsciiParser
 {
     private const char Dark = '█';

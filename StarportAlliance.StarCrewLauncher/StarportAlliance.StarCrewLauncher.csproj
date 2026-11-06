@@ -61,64 +61,65 @@
     </ItemGroup>
 
     <PropertyGroup>
-        <DepotDownloaderVersion>3.4.0</DepotDownloaderVersion>
-        <DepotDownloaderDownloadBaseUrl Condition="'$(DepotDownloaderDownloadBaseUrl)' == ''"
-            >https://github.com/SteamRE/DepotDownloader/releases/download</DepotDownloaderDownloadBaseUrl>
-        <DepotDownloaderAssetName Condition="'$(RuntimeIdentifier)' == 'win-arm64'"
-            >DepotDownloader-windows-arm64.zip</DepotDownloaderAssetName>
-        <DepotDownloaderAssetName Condition="'$(DepotDownloaderAssetName)' == ''"
-            >DepotDownloader-windows-x64.zip</DepotDownloaderAssetName>
-        <DepotDownloaderAssetSha256 Condition="'$(RuntimeIdentifier)' == 'win-arm64'"
-            >1449BA47775E9974036E615BEDF00D72BEF747CC5B93A78048ED4E0B2C63B2B3</DepotDownloaderAssetSha256>
-        <DepotDownloaderAssetSha256 Condition="'$(DepotDownloaderAssetSha256)' == ''"
-            >41C9E9F0DF54B3AD02E67A11726756E5C73283BD7C2E1B04ACFA5AE4C2ED3767</DepotDownloaderAssetSha256>
+        <StarDepotDownloaderVersion>1.0.0</StarDepotDownloaderVersion>
+        <StarDepotDownloaderDownloadBaseUrl
+            Condition="'$(StarDepotDownloaderDownloadBaseUrl)' == ''"
+            >https://github.com/StarportAlliance/StarDepotDownloader/releases/download</StarDepotDownloaderDownloadBaseUrl>
+        <StarDepotDownloaderAssetName Condition="'$(RuntimeIdentifier)' == 'win-arm64'"
+            >StarDepotDownloader_Win_Arm64.zip</StarDepotDownloaderAssetName>
+        <StarDepotDownloaderAssetName Condition="'$(StarDepotDownloaderAssetName)' == ''"
+            >StarDepotDownloader_Win_x64.zip</StarDepotDownloaderAssetName>
+        <StarDepotDownloaderAssetSha256 Condition="'$(RuntimeIdentifier)' == 'win-arm64'"
+            >B93988EB8FE3E4940BE139FE4B3D889DA29173C4A009B5430032913632EDF1E3</StarDepotDownloaderAssetSha256>
+        <StarDepotDownloaderAssetSha256 Condition="'$(StarDepotDownloaderAssetSha256)' == ''"
+            >AD4C317243425831726BE8AB01917414DEFDD1B5B40F633C036321725D2FCA01</StarDepotDownloaderAssetSha256>
     </PropertyGroup>
 
     <Target
-        Name="FetchDepotDownloader"
+        Name="FetchStarDepotDownloader"
         BeforeTargets="AssignTargetPaths"
         Condition="'$(DesignTimeBuild)' != 'true'"
     >
         <PropertyGroup>
-            <_DepotDownloaderDir>$([MSBuild]::NormalizeDirectory('$(BaseIntermediateOutputPath)', 'depotdownloader'))</_DepotDownloaderDir>
-            <_DepotDownloaderZip>$(_DepotDownloaderDir)$(DepotDownloaderAssetName)</_DepotDownloaderZip>
-            <_DepotDownloaderExtractDir>$([MSBuild]::NormalizeDirectory('$(_DepotDownloaderDir)', 'extracted', '$(DepotDownloaderVersion)', '$(DepotDownloaderAssetName)'))</_DepotDownloaderExtractDir>
+            <_StarDepotDownloaderDir>$([MSBuild]::NormalizeDirectory('$(BaseIntermediateOutputPath)', 'stardepotdownloader'))</_StarDepotDownloaderDir>
+            <_StarDepotDownloaderZip>$(_StarDepotDownloaderDir)$(StarDepotDownloaderAssetName)</_StarDepotDownloaderZip>
+            <_StarDepotDownloaderExtractDir>$([MSBuild]::NormalizeDirectory('$(_StarDepotDownloaderDir)', 'extracted', '$(StarDepotDownloaderVersion)', '$(StarDepotDownloaderAssetName)'))</_StarDepotDownloaderExtractDir>
         </PropertyGroup>
         <DownloadFile
-            Condition="!Exists('$(_DepotDownloaderZip)')"
-            SourceUrl="$(DepotDownloaderDownloadBaseUrl)/DepotDownloader_$(DepotDownloaderVersion)/$(DepotDownloaderAssetName)"
-            DestinationFolder="$(_DepotDownloaderDir)"
+            Condition="!Exists('$(_StarDepotDownloaderZip)')"
+            SourceUrl="$(StarDepotDownloaderDownloadBaseUrl)/$(StarDepotDownloaderVersion)/$(StarDepotDownloaderAssetName)"
+            DestinationFolder="$(_StarDepotDownloaderDir)"
         />
         <GetFileHash
-            Condition="!Exists('$(_DepotDownloaderExtractDir)DepotDownloader.exe')"
-            Files="$(_DepotDownloaderZip)"
+            Condition="!Exists('$(_StarDepotDownloaderExtractDir)StarDepotDownloader.exe')"
+            Files="$(_StarDepotDownloaderZip)"
             Algorithm="SHA256"
             HashEncoding="hex"
         >
-            <Output TaskParameter="Items" ItemName="_DepotDownloaderHashes" />
+            <Output TaskParameter="Items" ItemName="_StarDepotDownloaderHashes" />
         </GetFileHash>
         <PropertyGroup>
-            <_DepotDownloaderZipHash>@(_DepotDownloaderHashes->'%(FileHash)')</_DepotDownloaderZipHash>
+            <_StarDepotDownloaderZipHash>@(_StarDepotDownloaderHashes->'%(FileHash)')</_StarDepotDownloaderZipHash>
         </PropertyGroup>
         <Error
-            Condition="'$(_DepotDownloaderZipHash)' != '' and '$(_DepotDownloaderZipHash)' != '$(DepotDownloaderAssetSha256)'"
-            Text="DepotDownloader 校验失败：期望 $(DepotDownloaderAssetSha256)，实际 $(_DepotDownloaderZipHash)。删除 $(_DepotDownloaderZip) 后重试。"
+            Condition="'$(_StarDepotDownloaderZipHash)' != '' and '$(_StarDepotDownloaderZipHash)' != '$(StarDepotDownloaderAssetSha256)'"
+            Text="StarDepotDownloader 校验失败：期望 $(StarDepotDownloaderAssetSha256)，实际 $(_StarDepotDownloaderZipHash)。删除 $(_StarDepotDownloaderZip) 后重试。"
         />
         <Unzip
-            Condition="!Exists('$(_DepotDownloaderExtractDir)DepotDownloader.exe')"
-            SourceFiles="$(_DepotDownloaderZip)"
-            DestinationFolder="$(_DepotDownloaderExtractDir)"
+            Condition="!Exists('$(_StarDepotDownloaderExtractDir)StarDepotDownloader.exe')"
+            SourceFiles="$(_StarDepotDownloaderZip)"
+            DestinationFolder="$(_StarDepotDownloaderExtractDir)"
         />
         <ItemGroup>
             <Content
-                Include="$(_DepotDownloaderExtractDir)DepotDownloader.exe"
-                Link="Tools\DepotDownloader\DepotDownloader.exe"
+                Include="$(_StarDepotDownloaderExtractDir)StarDepotDownloader.exe"
+                Link="Tools\StarDepotDownloader\StarDepotDownloader.exe"
                 CopyToOutputDirectory="PreserveNewest"
             />
             <Content
-                Include="$(_DepotDownloaderExtractDir)LICENSE"
-                Condition="Exists('$(_DepotDownloaderExtractDir)LICENSE')"
-                Link="Tools\DepotDownloader\LICENSE"
+                Include="$(_StarDepotDownloaderExtractDir)LICENSE"
+                Condition="Exists('$(_StarDepotDownloaderExtractDir)LICENSE')"
+                Link="Tools\StarDepotDownloader\LICENSE"
                 CopyToOutputDirectory="PreserveNewest"
             />
         </ItemGroup>

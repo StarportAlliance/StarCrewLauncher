@@ -372,13 +372,13 @@
   <data name="About_VelopackCard.ActionIconToolTip" xml:space="preserve">
     <value>在浏览器中打开</value>
   </data>
-  <data name="About_DdCard.Header" xml:space="preserve">
-    <value>DepotDownloader</value>
+  <data name="About_SddCard.Header" xml:space="preserve">
+    <value>StarDepotDownloader</value>
   </data>
-  <data name="About_DdCard.Description" xml:space="preserve">
-    <value>© DepotDownloader Contributors, License under GPL-2.0.</value>
+  <data name="About_SddCard.Description" xml:space="preserve">
+    <value>© SteamRE Team &amp; StarportAlliance, License under GPL-2.0.</value>
   </data>
-  <data name="About_DdCard.ActionIconToolTip" xml:space="preserve">
+  <data name="About_SddCard.ActionIconToolTip" xml:space="preserve">
     <value>在浏览器中打开</value>
   </data>
   <data name="About_FluentlauncherCard.Header" xml:space="preserve">
@@ -665,9 +665,9 @@
     <value>下载失败：{0}</value>
   </data>
 
-  <!-- DepotDownloader 随包分发 -->
-  <data name="Dd_Missing" xml:space="preserve">
-    <value>内置组件 DepotDownloader 缺失，请重新安装或更新启动器。</value>
+  <!-- StarDepotDownloader 随包分发 -->
+  <data name="Sdd_Missing" xml:space="preserve">
+    <value>内置组件 StarDepotDownloader 缺失，请重新安装或更新启动器。</value>
   </data>
 
   <!-- 实例启动 -->

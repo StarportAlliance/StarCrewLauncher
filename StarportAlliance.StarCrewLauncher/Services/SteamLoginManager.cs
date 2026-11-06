@@ -9,14 +9,14 @@ internal sealed class SteamLoginManager : ISteamLoginManager
     private const int AmongUsAppId = 945360;
     private const int AmongUsDepotId = 945361;
 
-    private readonly DepotDownloaderLocator _locator;
+    private readonly StarDepotDownloaderLocator _locator;
     private readonly IDepotDownloaderRunner _runner;
     private readonly IInstanceStore _store;
     private readonly IAppStrings _strings;
     private readonly ILogger<SteamLoginManager> _logger;
 
     public SteamLoginManager(
-        DepotDownloaderLocator locator,
+        StarDepotDownloaderLocator locator,
         IDepotDownloaderRunner runner,
         IInstanceStore store,
         IAppStrings strings,
@@ -42,11 +42,11 @@ internal sealed class SteamLoginManager : ISteamLoginManager
     {
         _logger.LogInformation("开始二维码登录");
 
-        string? depotDownloaderPath = _locator.Find();
-        if (depotDownloaderPath is null)
+        string? toolPath = _locator.Find();
+        if (toolPath is null)
         {
-            _logger.LogWarning("二维码登录失败：未找到 DepotDownloader");
-            return new SteamLoginOutcome(false, null, _strings.GetString("Dd_Missing"));
+            _logger.LogWarning("二维码登录失败：未找到 StarDepotDownloader");
+            return new SteamLoginOutcome(false, null, _strings.GetString("Sdd_Missing"));
         }
 
         string tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -68,7 +68,7 @@ internal sealed class SteamLoginManager : ISteamLoginManager
             ];
 
             ExecutableOutcome outcome = await _runner.RunAsync(
-                new ExecutableCommand(depotDownloaderPath, arguments, null, LogOutput: false),
+                new ExecutableCommand(toolPath, arguments, null, LogOutput: false),
                 output,
                 cancellationToken
             );

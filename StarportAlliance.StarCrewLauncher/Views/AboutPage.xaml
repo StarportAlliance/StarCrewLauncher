@@ -107,9 +107,9 @@
                     </controls:SettingsCard.ActionIcon>
                 </controls:SettingsCard>
                 <controls:SettingsCard
-                    x:Uid="About_DdCard"
+                    x:Uid="About_SddCard"
                     IsClickEnabled="True"
-                    Click="DepotDownloaderLicenseCard_Click"
+                    Click="StarDepotDownloaderLicenseCard_Click"
                 >
                     <controls:SettingsCard.ActionIcon>
                         <FontIcon Glyph="&#xE8A7;" />

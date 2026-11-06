@@ -54,8 +54,10 @@ public sealed partial class AboutPage : Page
     private async void VelopackLicenseCard_Click(object sender, RoutedEventArgs e) =>
         await OpenUriAsync("https://github.com/velopack/velopack/blob/develop/LICENSE");
 
-    private async void DepotDownloaderLicenseCard_Click(object sender, RoutedEventArgs e) =>
-        await OpenUriAsync("https://github.com/SteamRE/DepotDownloader/blob/master/LICENSE");
+    private async void StarDepotDownloaderLicenseCard_Click(object sender, RoutedEventArgs e) =>
+        await OpenUriAsync(
+            "https://github.com/StarportAlliance/StarDepotDownloader/blob/master/LICENSE"
+        );
 
     private async void FluentlauncherLicenseCard_Click(object sender, RoutedEventArgs e) =>
         await OpenUriAsync(

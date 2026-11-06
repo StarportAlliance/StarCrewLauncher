@@ -10,7 +10,7 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
     private const int AmongUsDepotId = 945361;
 
     private readonly IInstanceStore _store;
-    private readonly DepotDownloaderLocator _locator;
+    private readonly StarDepotDownloaderLocator _locator;
     private readonly IDepotDownloaderRunner _runner;
     private readonly string _instancesRoot;
     private readonly IAppStrings _strings;
@@ -18,7 +18,7 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
 
     public DownloadCoordinator(
         IInstanceStore store,
-        DepotDownloaderLocator locator,
+        StarDepotDownloaderLocator locator,
         IDepotDownloaderRunner runner,
         IAppStrings strings,
         ILogger<DownloadCoordinator> logger
@@ -27,7 +27,7 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
 
     internal DownloadCoordinator(
         IInstanceStore store,
-        DepotDownloaderLocator locator,
+        StarDepotDownloaderLocator locator,
         IDepotDownloaderRunner runner,
         string instancesRoot,
         IAppStrings strings,
@@ -80,10 +80,10 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
                 _strings.GetString("Install_CheckingSize")
             )
         );
-        string? depotDownloaderPath = _locator.Find();
-        if (depotDownloaderPath is null)
+        string? toolPath = _locator.Find();
+        if (toolPath is null)
         {
-            return new GameInstallResult(false, _strings.GetString("Dd_Missing"));
+            return new GameInstallResult(false, _strings.GetString("Sdd_Missing"));
         }
 
         Guid instanceGuid = Guid.NewGuid();
@@ -131,7 +131,7 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
             Directory.CreateDirectory(instanceDirectory);
 
             totalBytes = await ReadTotalBytesAsync(
-                depotDownloaderPath,
+                toolPath,
                 accountName,
                 version,
                 instanceDirectory,
@@ -139,7 +139,7 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
             );
 
             ExecutableOutcome outcome = await _runner.RunAsync(
-                new ExecutableCommand(depotDownloaderPath, arguments, null),
+                new ExecutableCommand(toolPath, arguments, null),
                 lineProgress,
                 cancellationToken
             );
@@ -320,7 +320,7 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
     }
 
     /// <summary>尝试从字符串中解析百分比。</summary>
-    /// <remarks>DepotDownloader 的输出中大部分行是 "  12.34% 文件名"，这里摘出百分比。</remarks>
+    /// <remarks>StarDepotDownloader 的输出中大部分行是 "  12.34% 文件名"，这里摘出百分比。</remarks>
     private static double? TryParsePercent(string? line)
     {
         if (string.IsNullOrWhiteSpace(line))
