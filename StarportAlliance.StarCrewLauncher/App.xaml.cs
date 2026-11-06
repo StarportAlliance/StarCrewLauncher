@@ -2,7 +2,9 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using Microsoft.Windows.AppLifecycle;
 using Microsoft.Windows.Storage;
 using Serilog;
 using StarportAlliance.StarCrewLauncher.Services;
@@ -13,7 +15,9 @@ namespace StarportAlliance.StarCrewLauncher;
 
 public sealed partial class App : Application
 {
-    private Window? _window;
+    private const string MainInstanceKey = "StarCrewLauncher.Main";
+
+    private MainWindow? _window;
 
     internal static IServiceProvider Services { get; private set; } = null!;
 
@@ -39,8 +43,22 @@ public sealed partial class App : Application
         }
     }
 
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
+    protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
+        AppInstance mainInstance = AppInstance.FindOrRegisterForKey(MainInstanceKey);
+        if (!mainInstance.IsCurrent)
+        {
+            await mainInstance.RedirectActivationToAsync(
+                AppInstance.GetCurrent().GetActivatedEventArgs()
+            );
+            Exit();
+            return;
+        }
+
+        DispatcherQueue dispatcher = DispatcherQueue.GetForCurrentThread();
+        mainInstance.Activated += (_, _) =>
+            dispatcher.TryEnqueue(() => _window?.BringToForeground());
+
         _window = Services.GetRequiredService<MainWindow>();
         _window.Activate();
     }

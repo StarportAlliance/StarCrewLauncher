@@ -730,6 +730,24 @@ public sealed partial class MainWindow : Window
         );
     }
 
+    internal void BringToForeground()
+    {
+        // 最小化时先还原，Activate 自身不会从最小化状态恢复
+        if (
+            AppWindow.Presenter is OverlappedPresenter
+            {
+                State: OverlappedPresenterState.Minimized
+            } presenter
+        )
+        {
+            presenter.Restore();
+        }
+
+        Activate();
+        // Activate 只做 ShowWindow/SetActiveWindow，不置前，需显式申请前台
+        SetForegroundWindow(_hwnd);
+    }
+
     private void ShowToast(
         string title,
         string? message,
@@ -809,6 +827,11 @@ public sealed partial class MainWindow : Window
     [LibraryImport("user32.dll")]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     private static partial uint GetDpiForWindow(nint hWnd);
+
+    [LibraryImport("user32.dll")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool SetForegroundWindow(nint hWnd);
 
     [StructLayout(LayoutKind.Sequential)]
     private struct NativePoint
