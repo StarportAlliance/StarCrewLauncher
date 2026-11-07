@@ -43,7 +43,7 @@ internal sealed class SddClient : ISddClient
         if (toolPath is null)
         {
             _logger.LogWarning("无法查询登录状态：未找到 StarDepotDownloader");
-            return new SddAuthStatus(false, null);
+            return new SddAuthStatus(false, false, null);
         }
 
         List<string> arguments =
@@ -68,7 +68,7 @@ internal sealed class SddClient : ISddClient
         if (outcome.ExitCode != 0)
         {
             _logger.LogWarning("查询登录状态失败，退出码 {ExitCode}", outcome.ExitCode);
-            return new SddAuthStatus(false, null);
+            return new SddAuthStatus(false, false, null);
         }
 
         foreach (SddEvent item in ParseEvents(outcome.OutputLines))
@@ -79,12 +79,13 @@ internal sealed class SddClient : ISddClient
             }
 
             return new SddAuthStatus(
+                true,
                 ReadBoolean(item.Payload, "hasCredentials"),
                 ReadString(item.Payload, "account")
             );
         }
 
-        return new SddAuthStatus(false, null);
+        return new SddAuthStatus(false, false, null);
     }
 
     public async Task<SddLoginResult> LoginWithQrAsync(

@@ -222,12 +222,20 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     public async Task<bool> HasValidSessionAsync(CancellationToken cancellationToken = default)
     {
         SddAuthStatus status = await _sdd.GetAuthStatusAsync(AccountName, cancellationToken);
+        if (!status.Checked)
+        {
+            return true;
+        }
+
         if (status is { HasCredentials: true, AccountName: not null })
         {
             AccountName = status.AccountName;
+            return true;
         }
 
-        return status.HasCredentials;
+        AccountName = null;
+        _store.Save(_store.Load() with { SteamAccountName = null });
+        return false;
     }
 
     public async Task LogoutAsync()

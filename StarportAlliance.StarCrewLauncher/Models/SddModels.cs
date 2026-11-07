@@ -13,7 +13,8 @@ internal sealed record SddProgress(long Downloaded, long Total, double Percent);
 internal sealed record SddQrCode(int Size, IReadOnlyList<string> Rows);
 
 /// <summary>本地缓存的登录凭据状态。</summary>
-internal sealed record SddAuthStatus(bool HasCredentials, string? AccountName);
+/// <param name="Checked">是否成功查询到状态；工具缺失或调用失败时为 false。</param>
+internal sealed record SddAuthStatus(bool Checked, bool HasCredentials, string? AccountName);
 
 /// <summary>一次下载调用所需的全部参数。</summary>
 internal sealed record SddDownloadRequest(
