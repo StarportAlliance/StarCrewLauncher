@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using StarportAlliance.StarCrewLauncher.Models;
 
@@ -41,6 +42,8 @@ internal sealed class ProcessRunner : IDepotDownloaderRunner
 
         process.StartInfo.RedirectStandardOutput = true;
         process.StartInfo.RedirectStandardError = true;
+        process.StartInfo.StandardOutputEncoding = Encoding.UTF8;
+        process.StartInfo.StandardErrorEncoding = Encoding.UTF8;
         process.StartInfo.CreateNoWindow = true;
         process.StartInfo.UseShellExecute = false;
         if (command.StandardInput is not null)
@@ -48,40 +51,57 @@ internal sealed class ProcessRunner : IDepotDownloaderRunner
             process.StartInfo.RedirectStandardInput = true;
         }
 
-        List<string> lines = [];
-        void CaptureLine(object? sender, DataReceivedEventArgs e)
-        {
-            if (e.Data is null)
-            {
-                return;
-            }
+        List<string> outputLines = [];
+        List<string> errorLines = [];
+        object syncRoot = new();
 
-            // stdout/stderr 回调在不同线程，统一加锁避免丢行
-            lock (lines)
+        async Task PumpAsync(StreamReader reader, bool isOutput)
+        {
+            try
             {
-                lines.Add(e.Data);
+                while (await reader.ReadLineAsync(cancellationToken) is { } line)
+                {
+                    lock (syncRoot)
+                    {
+                        (isOutput ? outputLines : errorLines).Add(line);
+                    }
+
+                    if (isOutput)
+                    {
+                        output?.Report(line);
+                    }
+
+                    // 输出含账号名与二维码，故记录输出时统一过脱敏后再落盘
+                    if (command.LogOutput && _logger.IsEnabled(LogLevel.Trace))
+                    {
+                        _logger.LogTrace("{Output}", LogRedaction.Scrub(line));
+                    }
+                }
             }
-            output?.Report(e.Data);
-            // 输出含账号名与二维码，故记录输出时统一过脱敏后再落盘
-            if (command.LogOutput && _logger.IsEnabled(LogLevel.Trace))
+            catch (OperationCanceledException)
             {
-                _logger.LogTrace("{Output}", LogRedaction.Scrub(e.Data));
+                // 进程被取消，读取随之中断
+            }
+            catch (ObjectDisposedException)
+            {
+                // 进程已退出并释放流
+            }
+            catch (IOException)
+            {
+                // 同上
             }
         }
-
-        process.OutputDataReceived += CaptureLine;
-        process.ErrorDataReceived += CaptureLine;
 
         try
         {
             if (!process.Start())
             {
                 _logger.LogError("外部程序 {Program} 启动失败", program);
-                return new ExecutableOutcome(-1, [_strings.GetString("Runner_StartFailed")]);
+                return new ExecutableOutcome(-1, [], [_strings.GetString("Runner_StartFailed")]);
             }
 
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
+            Task outputPump = PumpAsync(process.StandardOutput, isOutput: true);
+            Task errorPump = PumpAsync(process.StandardError, isOutput: false);
 
             if (command.StandardInput is not null)
             {
@@ -100,6 +120,9 @@ internal sealed class ProcessRunner : IDepotDownloaderRunner
             }
 
             await process.WaitForExitAsync(cancellationToken);
+
+            // 进程退出后读取任务会读到 EOF，等它读完才能保证输出不丢行
+            await Task.WhenAll(outputPump, errorPump);
         }
         catch (OperationCanceledException)
         {
@@ -110,10 +133,12 @@ internal sealed class ProcessRunner : IDepotDownloaderRunner
                     process.Kill(entireProcessTree: true);
                 }
             }
-            catch (Exception)
+            catch (InvalidOperationException)
             {
-                // 这还杀不掉就不管了
+                // 进程已退出
             }
+
+            await WaitForExitIgnoringFailureAsync(process);
 
             _logger.LogWarning("外部程序 {Program} 已取消", program);
             throw;
@@ -121,7 +146,7 @@ internal sealed class ProcessRunner : IDepotDownloaderRunner
         catch (Exception ex)
         {
             _logger.LogError(ex, "外部程序 {Program} 执行异常", program);
-            return new ExecutableOutcome(-1, [ex.Message]);
+            return new ExecutableOutcome(-1, [], [ex.Message]);
         }
 
         _logger.LogInformation(
@@ -129,25 +154,43 @@ internal sealed class ProcessRunner : IDepotDownloaderRunner
             program,
             process.ExitCode
         );
-        // 异步读取回调可能仍在派发，快照后再用
-        string[] captured;
-        lock (lines)
+
+        string[] capturedOutput;
+        string[] capturedErrors;
+        lock (syncRoot)
         {
-            captured = [.. lines];
+            capturedOutput = [.. outputLines];
+            capturedErrors = [.. errorLines];
         }
 
         if (process.ExitCode != 0 && command.LogOutput)
         {
-            _logger.LogError(
-                "外部程序 {Program} 失败，末尾输出：{Tail}",
-                program,
-                string.Join(
-                    Environment.NewLine,
-                    captured.TakeLast(FailureTailLines).Select(LogRedaction.Scrub)
-                )
+            string tail = string.Join(
+                Environment.NewLine,
+                (capturedErrors.Length > 0 ? capturedErrors : capturedOutput)
+                    .TakeLast(FailureTailLines)
+                    .Select(LogRedaction.Scrub)
             );
+            _logger.LogError("外部程序 {Program} 失败，末尾输出：{Tail}", program, tail);
         }
 
-        return new ExecutableOutcome(process.ExitCode, captured);
+        return new ExecutableOutcome(process.ExitCode, capturedOutput, capturedErrors);
+    }
+
+    private static async Task WaitForExitIgnoringFailureAsync(Process process)
+    {
+        try
+        {
+            using CancellationTokenSource grace = new(TimeSpan.FromSeconds(5));
+            await process.WaitForExitAsync(grace.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            // 宽限期结束仍未退出
+        }
+        catch (InvalidOperationException)
+        {
+            // 进程没有启动或已释放
+        }
     }
 }
