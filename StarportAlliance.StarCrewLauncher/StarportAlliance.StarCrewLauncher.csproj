@@ -84,14 +84,26 @@
             <_StarDepotDownloaderDir>$([MSBuild]::NormalizeDirectory('$(BaseIntermediateOutputPath)', 'stardepotdownloader'))</_StarDepotDownloaderDir>
             <_StarDepotDownloaderZip>$(_StarDepotDownloaderDir)$(StarDepotDownloaderAssetName)</_StarDepotDownloaderZip>
             <_StarDepotDownloaderExtractDir>$([MSBuild]::NormalizeDirectory('$(_StarDepotDownloaderDir)', 'extracted', '$(StarDepotDownloaderVersion)', '$(StarDepotDownloaderAssetName)'))</_StarDepotDownloaderExtractDir>
+            <_StarDepotDownloaderLocalDir Condition="'$(StarDepotDownloaderLocalDir)' != ''"
+                >$([MSBuild]::NormalizeDirectory('$(StarDepotDownloaderLocalDir)'))</_StarDepotDownloaderLocalDir>
+            <_StarDepotDownloaderUseLocal Condition="'$(_StarDepotDownloaderLocalDir)' != ''"
+                >true</_StarDepotDownloaderUseLocal>
+            <_StarDepotDownloaderSourceDir Condition="'$(_StarDepotDownloaderUseLocal)' == 'true'"
+                >$(_StarDepotDownloaderLocalDir)</_StarDepotDownloaderSourceDir>
+            <_StarDepotDownloaderSourceDir Condition="'$(_StarDepotDownloaderUseLocal)' != 'true'"
+                >$(_StarDepotDownloaderExtractDir)</_StarDepotDownloaderSourceDir>
         </PropertyGroup>
+        <Error
+            Condition="'$(_StarDepotDownloaderUseLocal)' == 'true' and !Exists('$(_StarDepotDownloaderSourceDir)StarDepotDownloader.exe')"
+            Text="StarDepotDownloaderLocalDir 未包含 StarDepotDownloader.exe：$(_StarDepotDownloaderSourceDir)"
+        />
         <DownloadFile
-            Condition="!Exists('$(_StarDepotDownloaderZip)')"
+            Condition="'$(_StarDepotDownloaderUseLocal)' != 'true' and !Exists('$(_StarDepotDownloaderZip)')"
             SourceUrl="$(StarDepotDownloaderDownloadBaseUrl)/$(StarDepotDownloaderVersion)/$(StarDepotDownloaderAssetName)"
             DestinationFolder="$(_StarDepotDownloaderDir)"
         />
         <GetFileHash
-            Condition="!Exists('$(_StarDepotDownloaderExtractDir)StarDepotDownloader.exe')"
+            Condition="'$(_StarDepotDownloaderUseLocal)' != 'true' and !Exists('$(_StarDepotDownloaderExtractDir)StarDepotDownloader.exe')"
             Files="$(_StarDepotDownloaderZip)"
             Algorithm="SHA256"
             HashEncoding="hex"
@@ -102,24 +114,24 @@
             <_StarDepotDownloaderZipHash>@(_StarDepotDownloaderHashes->'%(FileHash)')</_StarDepotDownloaderZipHash>
         </PropertyGroup>
         <Error
-            Condition="'$(_StarDepotDownloaderZipHash)' != '' and '$(_StarDepotDownloaderZipHash)' != '$(StarDepotDownloaderAssetSha256)'"
+            Condition="'$(_StarDepotDownloaderUseLocal)' != 'true' and '$(_StarDepotDownloaderZipHash)' != '' and '$(_StarDepotDownloaderZipHash)' != '$(StarDepotDownloaderAssetSha256)'"
             Text="StarDepotDownloader 校验失败：期望 $(StarDepotDownloaderAssetSha256)，实际 $(_StarDepotDownloaderZipHash)。删除 $(_StarDepotDownloaderZip) 后重试。"
         />
         <Unzip
-            Condition="!Exists('$(_StarDepotDownloaderExtractDir)StarDepotDownloader.exe')"
+            Condition="'$(_StarDepotDownloaderUseLocal)' != 'true' and !Exists('$(_StarDepotDownloaderExtractDir)StarDepotDownloader.exe')"
             SourceFiles="$(_StarDepotDownloaderZip)"
             DestinationFolder="$(_StarDepotDownloaderExtractDir)"
         />
         <ItemGroup>
-            <Content
-                Include="$(_StarDepotDownloaderExtractDir)StarDepotDownloader.exe"
-                Link="Tools\StarDepotDownloader\StarDepotDownloader.exe"
-                CopyToOutputDirectory="PreserveNewest"
+            <_StarDepotDownloaderFiles
+                Include="$(_StarDepotDownloaderSourceDir)**\*"
+                Exclude="$(_StarDepotDownloaderSourceDir)**\*.pdb"
             />
+        </ItemGroup>
+        <ItemGroup>
             <Content
-                Include="$(_StarDepotDownloaderExtractDir)LICENSE"
-                Condition="Exists('$(_StarDepotDownloaderExtractDir)LICENSE')"
-                Link="Tools\StarDepotDownloader\LICENSE"
+                Include="@(_StarDepotDownloaderFiles)"
+                Link="Tools\StarDepotDownloader\%(RecursiveDir)%(Filename)%(Extension)"
                 CopyToOutputDirectory="PreserveNewest"
             />
         </ItemGroup>
