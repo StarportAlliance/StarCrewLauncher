@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using StarportAlliance.StarCrewLauncher.Models;
 using StarportAlliance.StarCrewLauncher.Services;
@@ -63,6 +64,12 @@ public sealed partial class DownloadInstallPage : Page
             return;
         }
 
+        if (!await viewModel.HasValidSessionAsync())
+        {
+            await ShowLoginRequiredAsync();
+            return;
+        }
+
         ProgressBar bar = new() { Minimum = 0, Maximum = 100 };
         TextBlock status = new() { Text = _strings.GetString("Account_PreparingDownload") };
         DownloadProgressFooter footer = new(_strings);
@@ -107,5 +114,38 @@ public sealed partial class DownloadInstallPage : Page
         {
             _navigation.GoBack();
         }
+    }
+
+    private async Task ShowLoginRequiredAsync()
+    {
+        ContentDialog dialog = ContentDialogFactory.Create(
+            XamlRoot,
+            d =>
+            {
+                d.Title = _strings.GetString("DownloadBase_LoginHintTitle");
+                d.Content = _strings.GetString("Download_LoginRequiredForInstall");
+                d.PrimaryButtonText = _strings.GetString("DownloadBase_GoLogin");
+                d.CloseButtonText = _strings.GetString("DownloadBase_Later");
+                d.DefaultButton = ContentDialogButton.Primary;
+            }
+        );
+
+        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+        {
+            return;
+        }
+
+        DependencyObject? walker = this;
+        while (walker is not null)
+        {
+            walker = VisualTreeHelper.GetParent(walker);
+            if (walker is DownloadPage host)
+            {
+                host.ShowAccountSection();
+                break;
+            }
+        }
+
+        _navigation.GoBack();
     }
 }

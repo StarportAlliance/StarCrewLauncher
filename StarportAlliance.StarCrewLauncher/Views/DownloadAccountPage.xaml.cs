@@ -93,12 +93,15 @@ public sealed partial class DownloadAccountPage : Page
         UpdateAccountToggle();
     }
 
-    private void LogoutConfirm_Click(object sender, RoutedEventArgs e)
+    private async void LogoutConfirm_Click(object sender, RoutedEventArgs e)
     {
         _ = sender;
         _ = e;
         LogoutFlyout.Hide();
-        ViewModel?.Logout();
+        if (ViewModel is not null)
+        {
+            await ViewModel.LogoutAsync();
+        }
         UpdateAccountToggle();
     }
 
@@ -160,32 +163,20 @@ public sealed partial class DownloadAccountPage : Page
             }
         );
 
-        // 流式收集方块行，凑成正方形就重绘图片
-        List<string> qrBuffer = [];
-        IProgress<string> reporter = new Progress<string>(line =>
+        IProgress<SddQrCode> reporter = new Progress<SddQrCode>(code =>
         {
-            if (IsQrRow(line))
-            {
-                qrBuffer.Add(line);
-                if (QrAsciiParser.TryParse(qrBuffer, out bool[][]? matrix))
-                {
-                    double raster = Math.Max(1.0, XamlRoot.RasterizationScale);
-                    int scale = Math.Max(2, (int)Math.Round(8 * raster));
-                    (WriteableBitmap bitmap, int pixelSize) = RenderMatrix(matrix, scale);
-                    qrImage.Source = bitmap;
-                    qrImage.Width = pixelSize / raster;
-                    qrImage.Height = pixelSize / raster;
-                    qrImage.Visibility = Visibility.Visible;
-                    qrRing.IsActive = false;
-                    qrRing.Visibility = Visibility.Collapsed;
-                    qrContainer.Background = new SolidColorBrush(Colors.White);
-                    status.Text = _strings.GetString("Account_ScanQrHint");
-                }
-            }
-            else
-            {
-                qrBuffer.Clear();
-            }
+            bool[][] matrix = ConvertMatrix(code);
+            double raster = Math.Max(1.0, XamlRoot.RasterizationScale);
+            int scale = Math.Max(2, (int)Math.Round(8 * raster));
+            (WriteableBitmap bitmap, int pixelSize) = RenderMatrix(matrix, scale);
+            qrImage.Source = bitmap;
+            qrImage.Width = pixelSize / raster;
+            qrImage.Height = pixelSize / raster;
+            qrImage.Visibility = Visibility.Visible;
+            qrRing.IsActive = false;
+            qrRing.Visibility = Visibility.Collapsed;
+            qrContainer.Background = new SolidColorBrush(Colors.White);
+            status.Text = _strings.GetString("Account_ScanQrHint");
         });
 
         using CancellationTokenSource cts = new();
@@ -215,27 +206,41 @@ public sealed partial class DownloadAccountPage : Page
         await showing;
     }
 
-    private static bool IsQrRow(string line) =>
-        line.Length > 0 && line.AsSpan().IndexOfAnyExcept('█', ' ') < 0;
+    private static bool[][] ConvertMatrix(SddQrCode code)
+    {
+        bool[][] matrix = new bool[code.Rows.Count][];
+        for (int y = 0; y < matrix.Length; y++)
+        {
+            string row = code.Rows[y];
+            bool[] line = new bool[row.Length];
+            for (int x = 0; x < row.Length; x++)
+            {
+                line[x] = row[x] == '1';
+            }
+
+            matrix[y] = line;
+        }
+
+        return matrix;
+    }
 
     /// <summary>将模块矩阵渲染成位图。</summary>
     private static (WriteableBitmap Bitmap, int PixelSize) RenderMatrix(bool[][] matrix, int scale)
     {
         const int quietZone = 4;
-        int fullSide = matrix.Length;
-        int coreSide = Math.Max(1, fullSide - quietZone * 2);
-        int size = coreSide * scale;
+        int coreSide = Math.Max(1, matrix.Length);
+        int size = (coreSide + quietZone * 2) * scale;
         WriteableBitmap bitmap = new(size, size);
         using Stream pixels = bitmap.PixelBuffer.AsStream();
         byte[] rowBytes = new byte[size * 4];
-        for (int y = quietZone; y < fullSide - quietZone; y++)
+        for (int y = 0; y < coreSide; y++)
         {
-            for (int x = quietZone; x < fullSide - quietZone; x++)
+            for (int x = 0; x < coreSide; x++)
             {
                 byte channel = matrix[y][x] ? (byte)0 : byte.MaxValue;
                 for (int s = 0; s < scale; s++)
                 {
-                    int offset = ((x - quietZone) * scale + s) * 4;
+                    int offset = ((x + quietZone) * scale + s) * 4;
                     rowBytes[offset] = channel;
                     rowBytes[offset + 1] = channel;
                     rowBytes[offset + 2] = channel;

@@ -137,6 +137,7 @@ public sealed partial class App : Application
         services.AddSingleton<IGameVersionCatalog, GameVersionCatalog>();
         services.AddSingleton<IDepotDownloaderRunner, ProcessRunner>();
         services.AddSingleton<StarDepotDownloaderLocator>();
+        services.AddSingleton<ISddClient, SddClient>();
         services.AddSingleton<ISteamLoginManager, SteamLoginManager>();
         services.AddSingleton<IDownloadCoordinator, DownloadCoordinator>();
         services.AddTransient<HomeViewModel>();

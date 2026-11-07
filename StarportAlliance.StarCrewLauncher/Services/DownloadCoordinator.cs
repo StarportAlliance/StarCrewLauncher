@@ -1,4 +1,3 @@
-using System.Globalization;
 using Microsoft.Extensions.Logging;
 using StarportAlliance.StarCrewLauncher.Models;
 
@@ -8,41 +7,37 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
 {
     private const int AmongUsAppId = 945360;
     private const int AmongUsDepotId = 945361;
+    private const string SddWorkDirectoryName = ".StarDepotDownloader";
 
     private readonly IInstanceStore _store;
-    private readonly StarDepotDownloaderLocator _locator;
-    private readonly IDepotDownloaderRunner _runner;
+    private readonly ISddClient _sdd;
     private readonly string _instancesRoot;
     private readonly IAppStrings _strings;
     private readonly ILogger<DownloadCoordinator> _logger;
 
     public DownloadCoordinator(
         IInstanceStore store,
-        StarDepotDownloaderLocator locator,
-        IDepotDownloaderRunner runner,
+        ISddClient sdd,
         IAppStrings strings,
         ILogger<DownloadCoordinator> logger
     )
-        : this(store, locator, runner, AppPaths.InstancesDirectory, strings, logger) { }
+        : this(store, sdd, AppPaths.InstancesDirectory, strings, logger) { }
 
     internal DownloadCoordinator(
         IInstanceStore store,
-        StarDepotDownloaderLocator locator,
-        IDepotDownloaderRunner runner,
+        ISddClient sdd,
         string instancesRoot,
         IAppStrings strings,
         ILogger<DownloadCoordinator> logger
     )
     {
         ArgumentNullException.ThrowIfNull(store);
-        ArgumentNullException.ThrowIfNull(locator);
-        ArgumentNullException.ThrowIfNull(runner);
+        ArgumentNullException.ThrowIfNull(sdd);
         ArgumentNullException.ThrowIfNull(strings);
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentException.ThrowIfNullOrWhiteSpace(instancesRoot);
         _store = store;
-        _locator = locator;
-        _runner = runner;
+        _sdd = sdd;
         _strings = strings;
         _logger = logger;
         _instancesRoot = instancesRoot;
@@ -80,73 +75,45 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
                 _strings.GetString("Install_CheckingSize")
             )
         );
-        string? toolPath = _locator.Find();
-        if (toolPath is null)
-        {
-            return new GameInstallResult(false, _strings.GetString("Sdd_Missing"));
-        }
 
         Guid instanceGuid = Guid.NewGuid();
         string instanceId = instanceGuid.ToString("N");
         string instanceDirectory = Path.Combine(_instancesRoot, instanceId);
+        string metadataDirectory = Path.Combine(AppPaths.SddDirectory, instanceId);
 
-        long? totalBytes = null;
-        List<string> arguments =
-        [
-            "-app",
-            AmongUsAppId.ToString(CultureInfo.InvariantCulture),
-            "-depot",
-            AmongUsDepotId.ToString(CultureInfo.InvariantCulture),
-            "-manifest",
-            version.ManifestId.ToString(CultureInfo.InvariantCulture),
-            "-dir",
-            instanceDirectory,
-            "-username",
-            accountName,
-            "-remember-password",
-        ];
-
-        IProgress<string> lineProgress = new Progress<string>(line =>
-        {
-            double? percent = TryParsePercent(line);
-            if (percent is not null)
-            {
-                progress?.Report(
-                    new DownloadProgressInfo(
-                        DownloadStage.DownloadingGame,
-                        percent.Value,
-                        _strings.Format(
-                            "Install_DownloadingFormat",
-                            version.VersionLabel,
-                            percent.Value
-                        ),
-                        totalBytes
-                    )
-                );
-            }
-        });
+        IProgress<SddProgress> lineProgress = new Progress<SddProgress>(value =>
+            progress?.Report(
+                new DownloadProgressInfo(
+                    DownloadStage.DownloadingGame,
+                    Math.Clamp(value.Percent, 0, 100),
+                    _strings.Format(
+                        "Install_DownloadingFormat",
+                        version.VersionLabel,
+                        value.Percent
+                    ),
+                    value.Total > 0 ? value.Total : null
+                )
+            )
+        );
 
         try
         {
             Directory.CreateDirectory(instanceDirectory);
 
-            totalBytes = await ReadTotalBytesAsync(
-                toolPath,
-                accountName,
-                version,
-                instanceDirectory,
-                cancellationToken
-            );
-
-            ExecutableOutcome outcome = await _runner.RunAsync(
-                new ExecutableCommand(toolPath, arguments, null),
+            SddDownloadResult result = await _sdd.DownloadAsync(
+                new SddDownloadRequest(
+                    accountName,
+                    version.ManifestId,
+                    instanceDirectory,
+                    metadataDirectory
+                ),
                 lineProgress,
                 cancellationToken
             );
 
-            if (outcome.ExitCode != 0)
+            if (!result.IsSuccess)
             {
-                return await FailAsync(ComposeFailureText(outcome));
+                return await FailAsync(ComposeFailureText(result));
             }
 
             string exePath = Path.Combine(instanceDirectory, "Among Us.exe");
@@ -183,6 +150,11 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
                 version.VersionLabel,
                 instanceDirectory
             );
+
+            await Task.Run(
+                () => CleanupWorkDirectories(instanceDirectory, metadataDirectory),
+                CancellationToken.None
+            );
             return new GameInstallResult(
                 true,
                 _strings.Format("Install_DownloadedFormat", version.VersionLabel),
@@ -206,10 +178,45 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
                 version.VersionLabel,
                 LogRedaction.Scrub(message)
             );
-            await Task.Run(() => TryDeleteDirectory(instanceDirectory), CancellationToken.None);
+            await Task.Run(
+                () =>
+                {
+                    TryDeleteDirectory(instanceDirectory);
+                    TryDeleteDirectory(metadataDirectory);
+                },
+                CancellationToken.None
+            );
             progress?.Report(new DownloadProgressInfo(DownloadStage.Failed, 0, message));
             return new GameInstallResult(false, message);
         }
+    }
+
+    private string ComposeFailureText(SddDownloadResult result)
+    {
+        if (result.ErrorCode is SddErrorCode.AuthRequired or SddErrorCode.AuthFailed)
+        {
+            return _strings.GetString("Download_LoginRequiredForInstall");
+        }
+
+        if (result.ErrorCode == SddErrorCode.ToolMissing)
+        {
+            return _strings.GetString("Sdd_Missing");
+        }
+
+        if (result.ErrorCode == SddErrorCode.DepotUnavailable)
+        {
+            return _strings.GetString("Install_DepotUnavailable");
+        }
+
+        return string.IsNullOrWhiteSpace(result.ErrorMessage)
+            ? _strings.Format("Install_FailedExitCodeFormat", result.ExitCode)
+            : _strings.Format("Install_FailedWithReasonFormat", result.ErrorMessage);
+    }
+
+    private static void CleanupWorkDirectories(string instanceDirectory, string metadataDirectory)
+    {
+        TryDeleteDirectory(Path.Combine(instanceDirectory, SddWorkDirectoryName));
+        TryDeleteDirectory(metadataDirectory);
     }
 
     private static void TryDeleteDirectory(string directory)
@@ -229,124 +236,5 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
         {
             // 同上
         }
-    }
-
-    private string ComposeFailureText(ExecutableOutcome outcome)
-    {
-        string? tail = outcome.OutputLines.LastOrDefault(l => !string.IsNullOrWhiteSpace(l));
-        return tail is null
-            ? _strings.Format("Install_FailedExitCodeFormat", outcome.ExitCode)
-            : _strings.Format("Install_FailedWithReasonFormat", tail);
-    }
-
-    private async Task<long?> ReadTotalBytesAsync(
-        string executablePath,
-        string accountName,
-        GameVersionEntry version,
-        string instanceDirectory,
-        CancellationToken cancellationToken
-    )
-    {
-        List<string> arguments =
-        [
-            "-app",
-            AmongUsAppId.ToString(CultureInfo.InvariantCulture),
-            "-depot",
-            AmongUsDepotId.ToString(CultureInfo.InvariantCulture),
-            "-manifest",
-            version.ManifestId.ToString(CultureInfo.InvariantCulture),
-            "-manifest-only",
-            "-dir",
-            instanceDirectory,
-            "-username",
-            accountName,
-            "-remember-password",
-            "-no-mobile",
-        ];
-
-        ExecutableOutcome outcome = await _runner.RunAsync(
-            new ExecutableCommand(executablePath, arguments, null),
-            null,
-            cancellationToken
-        );
-
-        return outcome.ExitCode == 0 ? ExtractTotalBytes(instanceDirectory) : null;
-    }
-
-    private static long? ExtractTotalBytes(string instanceDirectory)
-    {
-        const string Prefix = "Total bytes on disk";
-
-        try
-        {
-            foreach (
-                string manifestFile in Directory.EnumerateFiles(instanceDirectory, "manifest_*.txt")
-            )
-            {
-                foreach (string line in File.ReadLines(manifestFile))
-                {
-                    if (!line.StartsWith(Prefix, StringComparison.Ordinal))
-                    {
-                        continue;
-                    }
-
-                    string text = line[(line.IndexOf(':', StringComparison.Ordinal) + 1)..].Trim();
-                    if (
-                        text.Length > 0
-                        && long.TryParse(
-                            text,
-                            NumberStyles.AllowThousands,
-                            CultureInfo.InvariantCulture,
-                            out long total
-                        )
-                        && total > 0
-                    )
-                    {
-                        return total;
-                    }
-                }
-            }
-        }
-        catch (IOException)
-        {
-            // 摘要缺失或占用中时放弃大小展示，不影响下载本身
-        }
-        catch (UnauthorizedAccessException)
-        {
-            // 同上
-        }
-
-        return null;
-    }
-
-    /// <summary>尝试从字符串中解析百分比。</summary>
-    /// <remarks>StarDepotDownloader 的输出中大部分行是 "  12.34% 文件名"，这里摘出百分比。</remarks>
-    private static double? TryParsePercent(string? line)
-    {
-        if (string.IsNullOrWhiteSpace(line))
-        {
-            return null;
-        }
-
-        int marker = line.IndexOf('%', StringComparison.Ordinal);
-        if (marker <= 0)
-        {
-            return null;
-        }
-
-        string text = line[..marker].Trim();
-        if (
-            double.TryParse(
-                text,
-                NumberStyles.Any,
-                CultureInfo.InvariantCulture,
-                out double percent
-            )
-        )
-        {
-            return Math.Clamp(percent, 0, 100);
-        }
-
-        return null;
     }
 }

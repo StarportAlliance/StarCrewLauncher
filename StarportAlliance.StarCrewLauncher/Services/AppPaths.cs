@@ -25,4 +25,10 @@ internal static class AppPaths
 
     /// <summary>日志文件目录。</summary>
     public static string LogDirectory { get; } = Path.Combine(DataDirectory, "Logs");
+
+    /// <summary>StarDepotDownloader 的凭证与元数据目录。</summary>
+    public static string SddDirectory { get; } = Path.Combine(DataDirectory, "Sdd");
+
+    /// <summary>由启动器统一管理的 SDD 凭证文件。</summary>
+    public static string SddAccountFile { get; } = Path.Combine(SddDirectory, "account.config");
 }

@@ -12,6 +12,7 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     private readonly IGameVersionCatalog _catalog;
     private readonly ISteamLoginManager _loginManager;
     private readonly IDownloadCoordinator _coordinator;
+    private readonly ISddClient _sdd;
     private readonly INotificationService _notifications;
     private readonly IAppStrings _strings;
 
@@ -20,6 +21,7 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         IGameVersionCatalog catalog,
         ISteamLoginManager loginManager,
         IDownloadCoordinator coordinator,
+        ISddClient sdd,
         INotificationService notifications,
         IAppStrings strings
     )
@@ -28,12 +30,14 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         ArgumentNullException.ThrowIfNull(catalog);
         ArgumentNullException.ThrowIfNull(loginManager);
         ArgumentNullException.ThrowIfNull(coordinator);
+        ArgumentNullException.ThrowIfNull(sdd);
         ArgumentNullException.ThrowIfNull(notifications);
         ArgumentNullException.ThrowIfNull(strings);
         _store = store;
         _catalog = catalog;
         _loginManager = loginManager;
         _coordinator = coordinator;
+        _sdd = sdd;
         _notifications = notifications;
         _strings = strings;
 
@@ -174,17 +178,14 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     }
 
     public async Task<SteamLoginOutcome> LoginWithQrAsync(
-        IProgress<string>? outputProgress = null,
+        IProgress<SddQrCode>? qr = null,
         CancellationToken cancellationToken = default
     )
     {
         IsBusy = true;
         try
         {
-            SteamLoginOutcome outcome = await _loginManager.LoginWithQrAsync(
-                outputProgress,
-                cancellationToken
-            );
+            SteamLoginOutcome outcome = await _loginManager.LoginWithQrAsync(qr, cancellationToken);
             if (outcome.IsSuccess)
             {
                 AccountName = outcome.AccountName;
@@ -218,8 +219,20 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         }
     }
 
-    public void Logout()
+    public async Task<bool> HasValidSessionAsync(CancellationToken cancellationToken = default)
     {
+        SddAuthStatus status = await _sdd.GetAuthStatusAsync(AccountName, cancellationToken);
+        if (status is { HasCredentials: true, AccountName: not null })
+        {
+            AccountName = status.AccountName;
+        }
+
+        return status.HasCredentials;
+    }
+
+    public async Task LogoutAsync()
+    {
+        await _sdd.LogoutAsync();
         LauncherState state = _store.Load();
         _store.Save(state with { SteamAccountName = null });
         AccountName = null;

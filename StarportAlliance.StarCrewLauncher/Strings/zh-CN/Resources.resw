@@ -637,6 +637,9 @@
   <data name="Install_LoginRequired" xml:space="preserve">
     <value>请先在「游戏下载」页登录 Steam 账号。</value>
   </data>
+  <data name="Install_DepotUnavailable" xml:space="preserve">
+    <value>当前账号无权下载该版本，请确认已购买 Among Us 并使用正确账号登录。</value>
+  </data>
   <data name="Install_CheckingSize" xml:space="preserve">
     <value>正在核对资源大小...</value>
   </data>
