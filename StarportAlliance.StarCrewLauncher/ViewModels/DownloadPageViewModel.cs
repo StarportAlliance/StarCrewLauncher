@@ -17,7 +17,6 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     private readonly IAppStrings _strings;
     private CancellationTokenSource? _sessionCheckCts;
     private Task<bool>? _sessionCheck;
-    private bool _loginPromptShown;
     private bool _loginExpired;
 
     public DownloadPageViewModel(
@@ -224,17 +223,43 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         }
     }
 
-    /// <summary>进入下载页时发起的在线登录校验；返回 true 表示应提示未登录。</summary>
-    public Task<bool> ValidateSessionOnlineAsync()
+    /// <summary>进入「原版游戏」时发起的账号校验；返回 true 表示应提示用户登录。</summary>
+    /// <remarks>已有校验在飞时复用其结果，不并发发起；完成后清空缓存，下次进入重新校验。</remarks>
+    public Task<bool> ValidateSessionAsync()
     {
-        return _sessionCheck ??= ValidateSessionOnlineCoreAsync();
+        if (_sessionCheck is { } inFlight)
+        {
+            return inFlight;
+        }
+
+        Task<bool> task = ValidateSessionCoreAsync();
+        if (task.IsCompleted)
+        {
+            return task;
+        }
+
+        _sessionCheck = task;
+        _ = task.ContinueWith(
+            _ =>
+            {
+                if (ReferenceEquals(_sessionCheck, task))
+                {
+                    _sessionCheck = null;
+                }
+            },
+            CancellationToken.None,
+            TaskContinuationOptions.ExecuteSynchronously,
+            TaskScheduler.Default
+        );
+        return task;
     }
 
-    /// <summary>标记本次会话已提示未登录，之后不再发起在线校验。</summary>
-    public void MarkLoginPromptShown()
+    /// <summary>取消进行中的账号校验，避免结果在提示弹出后回写账号。</summary>
+    public void CancelSessionCheck()
     {
-        _loginPromptShown = true;
         _sessionCheckCts?.Cancel();
+        _sessionCheckCts = null;
+        _sessionCheck = null;
     }
 
     /// <summary>取走“登录已过期”标记，使过期文案只用于过期后的首次提示。</summary>
@@ -248,30 +273,49 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
 
     private void ResetSessionCheck()
     {
-        _sessionCheckCts?.Cancel();
-        _sessionCheckCts = null;
-        _sessionCheck = null;
-        _loginPromptShown = false;
+        CancelSessionCheck();
         _loginExpired = false;
     }
 
-    private async Task<bool> ValidateSessionOnlineCoreAsync()
+    private async Task<bool> ValidateSessionCoreAsync()
     {
-        if (_loginPromptShown || NeedsLogin)
-        {
-            return false;
-        }
-
         using CancellationTokenSource cts = new();
         _sessionCheckCts = cts;
         try
         {
+            string? accountName = AccountName;
+            if (string.IsNullOrWhiteSpace(accountName))
+            {
+                SddAuthStatus local = await _sdd.GetAuthStatusAsync(
+                    null,
+                    online: false,
+                    cancellationToken: cts.Token
+                );
+                if (!local.Checked)
+                {
+                    return false;
+                }
+
+                if (!local.HasCredentials)
+                {
+                    _loginExpired = false;
+                    return true;
+                }
+
+                ApplyAccountName(local.AccountName);
+                accountName = local.AccountName;
+            }
+
+            if (string.IsNullOrWhiteSpace(accountName))
+            {
+                return false;
+            }
+
             SddAuthStatus status = await _sdd.GetAuthStatusAsync(
-                AccountName,
+                accountName,
                 online: true,
                 cancellationToken: cts.Token
             );
-
             if (!status.Checked)
             {
                 return false;
@@ -279,14 +323,14 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
 
             if (status is { HasCredentials: true, AccountName: not null })
             {
-                AccountName = status.AccountName;
+                ApplyAccountName(status.AccountName);
                 return false;
             }
 
-            AccountName = null;
-            _store.Save(_store.Load() with { SteamAccountName = null });
+            ClearAccount();
+            _sdd.InvalidateAuthCache();
             _loginExpired = true;
-            return !_loginPromptShown;
+            return true;
         }
         catch (OperationCanceledException)
         {
@@ -301,39 +345,29 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         }
     }
 
-    public async Task<bool> HasValidSessionAsync(CancellationToken cancellationToken = default)
+    private void ApplyAccountName(string? accountName)
     {
-        if (_sessionCheck is not null)
+        if (string.IsNullOrWhiteSpace(accountName))
         {
-            await _sessionCheck;
-
-            if (NeedsLogin)
-            {
-                return false;
-            }
+            return;
         }
 
-        bool online = !string.IsNullOrWhiteSpace(AccountName);
-        SddAuthStatus status = await _sdd.GetAuthStatusAsync(
-            AccountName,
-            online,
-            cancellationToken
-        );
-        if (!status.Checked)
+        bool changed = !string.Equals(AccountName, accountName, StringComparison.Ordinal);
+        AccountName = accountName;
+        if (changed)
         {
-            return true;
+            _store.Save(_store.Load() with { SteamAccountName = accountName });
         }
+    }
 
-        if (status is { HasCredentials: true, AccountName: not null })
-        {
-            AccountName = status.AccountName;
-            return true;
-        }
-
+    private void ClearAccount()
+    {
         AccountName = null;
         _store.Save(_store.Load() with { SteamAccountName = null });
-        return false;
     }
+
+    /// <summary>安装前确认登录态；返回 true 表示可以继续下载。</summary>
+    public async Task<bool> HasValidSessionAsync() => !await ValidateSessionAsync();
 
     public async Task LogoutAsync()
     {

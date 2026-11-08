@@ -23,6 +23,10 @@ public sealed partial class DownloadBasePage : Page
 
     internal DownloadPageViewModel? ViewModel { get; private set; }
 
+    private static readonly TimeSpan PromptDelay = TimeSpan.FromMilliseconds(400);
+
+    private DateTimeOffset _promptReadyAt;
+
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         ArgumentNullException.ThrowIfNull(e);
@@ -34,14 +38,7 @@ public sealed partial class DownloadBasePage : Page
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(ViewModel.AccountName))
-        {
-            Loaded += OnLoadedShowLoginHint;
-        }
-        else
-        {
-            Loaded += OnLoadedValidateSession;
-        }
+        Loaded += OnLoadedValidateSession;
     }
 
     private async void VersionCard_Click(object sender, RoutedEventArgs e)
@@ -65,40 +62,36 @@ public sealed partial class DownloadBasePage : Page
         );
     }
 
-    private void OnLoadedShowLoginHint(object sender, RoutedEventArgs e)
-    {
-        _ = sender;
-        _ = e;
-        Loaded -= OnLoadedShowLoginHint;
-        _ = ShowLoginHintAfterTransitionAsync();
-    }
-
-    private async Task ShowLoginHintAfterTransitionAsync()
-    {
-        await Task.Delay(400);
-        if (ViewModel is not null && string.IsNullOrWhiteSpace(ViewModel.AccountName))
-        {
-            await ShowLoginHintAsync();
-        }
-    }
-
     private void OnLoadedValidateSession(object sender, RoutedEventArgs e)
     {
         _ = sender;
         _ = e;
         Loaded -= OnLoadedValidateSession;
-        _ = ShowOnlineValidationAsync();
+        _promptReadyAt = DateTimeOffset.UtcNow + PromptDelay;
+        _ = ShowSessionValidationAsync();
     }
 
-    private async Task ShowOnlineValidationAsync()
+    private async Task ShowSessionValidationAsync()
     {
         if (ViewModel is null)
         {
             return;
         }
 
-        bool needsPrompt = await ViewModel.ValidateSessionOnlineAsync();
-        if (!needsPrompt || !IsLoaded || XamlRoot is null || ContentDialogFactory.IsOpen)
+        bool needsPrompt = await ViewModel.ValidateSessionAsync();
+        if (!needsPrompt)
+        {
+            return;
+        }
+
+        TimeSpan remaining = _promptReadyAt - DateTimeOffset.UtcNow;
+        if (remaining > TimeSpan.Zero)
+        {
+            // 切换动画未结束就弹窗会显得和转场同时发生
+            await Task.Delay(remaining);
+        }
+
+        if (!IsLoaded || XamlRoot is null || ContentDialogFactory.IsOpen)
         {
             return;
         }
@@ -109,7 +102,7 @@ public sealed partial class DownloadBasePage : Page
     private async Task ShowLoginHintAsync()
     {
         bool expired = ViewModel?.ConsumeLoginExpiredPrompt() == true;
-        ViewModel?.MarkLoginPromptShown();
+        ViewModel?.CancelSessionCheck();
         ContentDialog dialog = ContentDialogFactory.Create(
             XamlRoot,
             d =>
