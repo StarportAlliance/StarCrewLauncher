@@ -82,7 +82,7 @@
                 />
                 <controls:SettingsCard x:Uid="Network_AuthCacheCard">
                     <controls:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xECC5;"/>
+                        <FontIcon Glyph="&#xECC5;" />
                     </controls:SettingsCard.HeaderIcon>
                     <NumberBox
                         Minimum="0"
@@ -94,7 +94,7 @@
                 </controls:SettingsCard>
                 <controls:SettingsCard x:Uid="Network_TimeoutCard">
                     <controls:SettingsCard.HeaderIcon>
-                        <FontIcon Glyph="&#xE916;"/>
+                        <FontIcon Glyph="&#xE916;" />
                     </controls:SettingsCard.HeaderIcon>
                     <NumberBox
                         Minimum="1"
