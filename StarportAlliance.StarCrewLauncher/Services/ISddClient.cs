@@ -21,7 +21,7 @@ internal interface ISddClient
     void InvalidateAuthCache();
 
     /// <summary>扫码登录，仅在拿到凭据后返回。</summary>
-    /// <param name="qr">二维码矩阵刷新回调。</param>
+    /// <param name="qr">二维码矩阵刷新回调；事件到达即报告，不等待登录结束。</param>
     Task<SddLoginResult> LoginWithQrAsync(
         IProgress<SddQrCode>? qr,
         CancellationToken cancellationToken = default

@@ -179,9 +179,20 @@ internal sealed class SddClient : ISddClient
             AppPaths.SddAccountFile,
         ];
 
+        // 登录进程要等用户扫码才退出，二维码必须在运行期间逐行上报
+        IProgress<string>? lines = qr is null
+            ? null
+            : new Progress<string>(line =>
+            {
+                if (TryParseEvent(line) is { Name: "qr" } item)
+                {
+                    qr.Report(ReadQrCode(item.Payload));
+                }
+            });
+
         ExecutableOutcome outcome = await _runner.RunAsync(
             new ExecutableCommand(toolPath, arguments, null, LogOutput: false),
-            null,
+            lines,
             cancellationToken
         );
 
@@ -192,9 +203,6 @@ internal sealed class SddClient : ISddClient
         {
             switch (item.Name)
             {
-                case "qr":
-                    qr?.Report(ReadQrCode(item.Payload));
-                    break;
                 case "auth":
                     accountName = ReadString(item.Payload, "account");
                     break;
@@ -425,37 +433,43 @@ internal sealed class SddClient : ISddClient
         List<SddEvent> events = [];
         foreach (string line in lines)
         {
-            if (line.Length == 0 || line[0] != '{')
+            if (TryParseEvent(line) is { } item)
             {
-                continue;
-            }
-
-            try
-            {
-                using JsonDocument document = JsonDocument.Parse(line);
-                JsonElement root = document.RootElement;
-                if (
-                    root.ValueKind != JsonValueKind.Object
-                    || !root.TryGetProperty("event", out JsonElement nameElement)
-                    || nameElement.ValueKind != JsonValueKind.String
-                )
-                {
-                    continue;
-                }
-
-                string? name = nameElement.GetString();
-                if (name is not null)
-                {
-                    events.Add(new SddEvent(name, root.Clone()));
-                }
-            }
-            catch (JsonException)
-            {
-                // 非 JSON 行（如 trace 输出）直接忽略
+                events.Add(item);
             }
         }
 
         return events;
+    }
+
+    private static SddEvent? TryParseEvent(string line)
+    {
+        if (line.Length == 0 || line[0] != '{')
+        {
+            return null;
+        }
+
+        try
+        {
+            using JsonDocument document = JsonDocument.Parse(line);
+            JsonElement root = document.RootElement;
+            if (
+                root.ValueKind != JsonValueKind.Object
+                || !root.TryGetProperty("event", out JsonElement nameElement)
+                || nameElement.ValueKind != JsonValueKind.String
+                || nameElement.GetString() is not { } name
+            )
+            {
+                return null;
+            }
+
+            return new SddEvent(name, root.Clone());
+        }
+        catch (JsonException)
+        {
+            // 非 JSON 行（如 trace 输出）直接忽略
+            return null;
+        }
     }
 
     private static bool ReadBoolean(JsonElement payload, string name) =>
