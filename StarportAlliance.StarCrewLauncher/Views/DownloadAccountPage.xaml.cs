@@ -227,20 +227,22 @@ public sealed partial class DownloadAccountPage : Page
     /// <summary>将模块矩阵渲染成位图。</summary>
     private static (WriteableBitmap Bitmap, int PixelSize) RenderMatrix(bool[][] matrix, int scale)
     {
+        // SDD 输出的矩阵已含 4 模块静区，裁掉以免二维码被白边压缩
         const int quietZone = 4;
-        int coreSide = Math.Max(1, matrix.Length);
-        int size = (coreSide + quietZone * 2) * scale;
+        int fullSide = matrix.Length;
+        int coreSide = Math.Max(1, fullSide - quietZone * 2);
+        int size = coreSide * scale;
         WriteableBitmap bitmap = new(size, size);
         using Stream pixels = bitmap.PixelBuffer.AsStream();
         byte[] rowBytes = new byte[size * 4];
-        for (int y = 0; y < coreSide; y++)
+        for (int y = quietZone; y < fullSide - quietZone; y++)
         {
-            for (int x = 0; x < coreSide; x++)
+            for (int x = quietZone; x < fullSide - quietZone; x++)
             {
                 byte channel = matrix[y][x] ? (byte)0 : byte.MaxValue;
                 for (int s = 0; s < scale; s++)
                 {
-                    int offset = ((x + quietZone) * scale + s) * 4;
+                    int offset = ((x - quietZone) * scale + s) * 4;
                     rowBytes[offset] = channel;
                     rowBytes[offset + 1] = channel;
                     rowBytes[offset + 2] = channel;
