@@ -29,9 +29,18 @@ public sealed partial class DownloadBasePage : Page
         ViewModel = e.Parameter as DownloadPageViewModel;
         Bindings.Update();
 
-        if (ViewModel is not null && string.IsNullOrWhiteSpace(ViewModel.AccountName))
+        if (ViewModel is null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(ViewModel.AccountName))
         {
             Loaded += OnLoadedShowLoginHint;
+        }
+        else
+        {
+            Loaded += OnLoadedValidateSession;
         }
     }
 
@@ -73,8 +82,33 @@ public sealed partial class DownloadBasePage : Page
         }
     }
 
+    private void OnLoadedValidateSession(object sender, RoutedEventArgs e)
+    {
+        _ = sender;
+        _ = e;
+        Loaded -= OnLoadedValidateSession;
+        _ = ShowOnlineValidationAsync();
+    }
+
+    private async Task ShowOnlineValidationAsync()
+    {
+        if (ViewModel is null)
+        {
+            return;
+        }
+
+        bool needsPrompt = await ViewModel.ValidateSessionOnlineAsync();
+        if (!needsPrompt || !IsLoaded || XamlRoot is null || ContentDialogFactory.IsOpen)
+        {
+            return;
+        }
+
+        await ShowLoginHintAsync();
+    }
+
     private async Task ShowLoginHintAsync()
     {
+        ViewModel?.MarkLoginPromptShown();
         ContentDialog dialog = ContentDialogFactory.Create(
             XamlRoot,
             d =>

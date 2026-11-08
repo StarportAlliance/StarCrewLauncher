@@ -5,13 +5,20 @@ namespace StarportAlliance.StarCrewLauncher.Services;
 /// <summary>StarDepotDownloader 的结构化调用客户端。</summary>
 internal interface ISddClient
 {
-    /// <summary>查询本地缓存凭据状态。</summary>
+    /// <summary>查询缓存凭据状态。</summary>
     /// <param name="accountName">限定账号；为 null 时查询任意已缓存账号。</param>
-    /// <returns>凭据不可用或工具缺失时返回 <see cref="SddAuthStatus.HasCredentials" /> 为 false。</returns>
+    /// <param name="online">
+    /// 为 true 时通过 Steam 在线校验凭据，结论按设置缓存。超时、连接失败、工具缺失等无结论情况返回
+    /// <see cref="SddAuthStatus.Checked" /> 为 false；明确鉴权失败返回 Checked 为 true、HasCredentials 为 false。
+    /// </param>
     Task<SddAuthStatus> GetAuthStatusAsync(
         string? accountName,
+        bool online = false,
         CancellationToken cancellationToken = default
     );
+
+    /// <summary>清除在线登录校验缓存。</summary>
+    void InvalidateAuthCache();
 
     /// <summary>扫码登录，仅在拿到凭据后返回。</summary>
     /// <param name="qr">二维码矩阵刷新回调。</param>

@@ -20,6 +20,8 @@ internal sealed partial class AdvancedViewModel
 
     private readonly ILoggingSettings _loggingSettings;
     private readonly IVersionCacheSettings _versionCacheSettings;
+    private readonly INetworkSettings _networkSettings;
+    private readonly ISddClient _sdd;
     private readonly IGameVersionCatalog _catalog;
     private readonly IAppStrings _strings;
     private readonly INotificationService _notifications;
@@ -31,6 +33,8 @@ internal sealed partial class AdvancedViewModel
     public AdvancedViewModel(
         ILoggingSettings loggingSettings,
         IVersionCacheSettings versionCacheSettings,
+        INetworkSettings networkSettings,
+        ISddClient sdd,
         IGameVersionCatalog catalog,
         IAppStrings strings,
         INotificationService notifications,
@@ -41,6 +45,8 @@ internal sealed partial class AdvancedViewModel
     {
         ArgumentNullException.ThrowIfNull(loggingSettings);
         ArgumentNullException.ThrowIfNull(versionCacheSettings);
+        ArgumentNullException.ThrowIfNull(networkSettings);
+        ArgumentNullException.ThrowIfNull(sdd);
         ArgumentNullException.ThrowIfNull(catalog);
         ArgumentNullException.ThrowIfNull(strings);
         ArgumentNullException.ThrowIfNull(notifications);
@@ -49,6 +55,8 @@ internal sealed partial class AdvancedViewModel
         ArgumentNullException.ThrowIfNull(logger);
         _loggingSettings = loggingSettings;
         _versionCacheSettings = versionCacheSettings;
+        _networkSettings = networkSettings;
+        _sdd = sdd;
         _catalog = catalog;
         _strings = strings;
         _notifications = notifications;
@@ -140,6 +148,54 @@ internal sealed partial class AdvancedViewModel
             {
                 _catalog.ClearCache();
             }
+        }
+    }
+
+    // 与 NumberBox.Value 同型（double，清空时为 NaN）；落库前取整并夹取到 0-86400，0 表示关闭缓存
+    public double AuthCacheSeconds
+    {
+        get => _networkSettings.AuthCacheSeconds;
+        set
+        {
+            if (!double.IsFinite(value))
+            {
+                return;
+            }
+
+            int seconds = Math.Clamp(
+                (int)Math.Round(value),
+                NetworkSettings.MinAuthCacheSeconds,
+                NetworkSettings.MaxAuthCacheSeconds
+            );
+            if (_networkSettings.AuthCacheSeconds == seconds)
+            {
+                return;
+            }
+
+            _networkSettings.AuthCacheSeconds = seconds;
+            if (seconds == 0)
+            {
+                _sdd.InvalidateAuthCache();
+            }
+        }
+    }
+
+    // 与 NumberBox.Value 同型（double，清空时为 NaN）；落库前取整并夹取到 1-30
+    public double NetworkTimeoutSeconds
+    {
+        get => _networkSettings.TimeoutSeconds;
+        set
+        {
+            if (!double.IsFinite(value))
+            {
+                return;
+            }
+
+            _networkSettings.TimeoutSeconds = Math.Clamp(
+                (int)Math.Round(value),
+                NetworkSettings.MinTimeoutSeconds,
+                NetworkSettings.MaxTimeoutSeconds
+            );
         }
     }
 

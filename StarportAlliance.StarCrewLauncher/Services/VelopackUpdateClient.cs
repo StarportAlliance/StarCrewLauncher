@@ -9,12 +9,18 @@ internal sealed class VelopackUpdateClient : IUpdateClient
     public const string DefaultFeedUrl = "https://asset.starbridge.ink/launcher/updates";
 
     private readonly UpdateManager _manager;
+    private readonly INetworkSettings _network;
+    private readonly IAppStrings _strings;
     private UpdateInfo? _pendingUpdate;
 
-    public VelopackUpdateClient(string feedUrl)
+    public VelopackUpdateClient(string feedUrl, INetworkSettings network, IAppStrings strings)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(feedUrl);
+        ArgumentNullException.ThrowIfNull(network);
+        ArgumentNullException.ThrowIfNull(strings);
         _manager = new UpdateManager(feedUrl);
+        _network = network;
+        _strings = strings;
     }
 
     public bool IsInstalled => _manager.IsInstalled;
@@ -24,7 +30,16 @@ internal sealed class VelopackUpdateClient : IUpdateClient
     public async Task<string?> CheckForUpdatesAsync(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        _pendingUpdate = await _manager.CheckForUpdatesAsync().ConfigureAwait(false);
+        // Velopack 不支持取消，超时只能放弃等待
+        Task<UpdateInfo?> check = _manager.CheckForUpdatesAsync();
+        Task timeout = Task.Delay(TimeSpan.FromSeconds(_network.TimeoutSeconds), cancellationToken);
+        if (await Task.WhenAny(check, timeout).ConfigureAwait(false) != check)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            throw new TimeoutException(_strings.GetString("Network_TimeoutMessage"));
+        }
+
+        _pendingUpdate = await check.ConfigureAwait(false);
         return _pendingUpdate?.TargetFullRelease.Version.ToString();
     }
 

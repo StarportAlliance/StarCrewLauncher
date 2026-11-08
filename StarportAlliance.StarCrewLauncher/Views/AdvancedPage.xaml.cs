@@ -40,4 +40,20 @@ public sealed partial class AdvancedPage : Page
             box.Value = ViewModel.VersionCacheHours;
         }
     }
+
+    private void AuthCacheBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        if (sender is NumberBox box && double.IsNaN(box.Value) && ViewModel is not null)
+        {
+            box.Value = ViewModel.AuthCacheSeconds;
+        }
+    }
+
+    private void NetworkTimeoutBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        if (sender is NumberBox box && double.IsNaN(box.Value) && ViewModel is not null)
+        {
+            box.Value = ViewModel.NetworkTimeoutSeconds;
+        }
+    }
 }

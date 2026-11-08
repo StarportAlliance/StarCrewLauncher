@@ -104,6 +104,7 @@ public sealed partial class App : Application
         services.AddSingleton(store);
         services.AddSingleton(loggingSettings);
         services.AddSingleton<IVersionCacheSettings>(new VersionCacheSettings(store));
+        services.AddSingleton<INetworkSettings>(new NetworkSettings(store));
         services.AddSingleton<IAppStrings, AppStrings>();
         services.AddSingleton<ISystemFontCatalog, SystemFontCatalog>();
         services.AddSingleton<IThemeSettings>(sp => new ThemeSettings(
@@ -122,8 +123,10 @@ public sealed partial class App : Application
         services.AddSingleton<INavigationService>(sp =>
             sp.GetRequiredService<FrameNavigationService>()
         );
-        services.AddSingleton<IUpdateClient>(_ => new VelopackUpdateClient(
-            VelopackUpdateClient.DefaultFeedUrl
+        services.AddSingleton<IUpdateClient>(sp => new VelopackUpdateClient(
+            VelopackUpdateClient.DefaultFeedUrl,
+            sp.GetRequiredService<INetworkSettings>(),
+            sp.GetRequiredService<IAppStrings>()
         ));
         services.AddSingleton<AppUpdater>();
         services.AddSingleton<IProcessStarter, ProcessStarter>();

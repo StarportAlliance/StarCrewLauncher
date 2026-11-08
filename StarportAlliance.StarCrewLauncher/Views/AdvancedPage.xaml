@@ -75,6 +75,35 @@
                         Value="{x:Bind ViewModel.VersionCacheHours, Mode=TwoWay}"
                     />
                 </controls:SettingsCard>
+                <TextBlock
+                    x:Uid="Network_SectionTitle"
+                    Margin="1,12,0,6"
+                    Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+                />
+                <controls:SettingsCard x:Uid="Network_AuthCacheCard">
+                    <controls:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xECC5;"/>
+                    </controls:SettingsCard.HeaderIcon>
+                    <NumberBox
+                        Minimum="0"
+                        Maximum="86400"
+                        LostFocus="AuthCacheBox_LostFocus"
+                        SpinButtonPlacementMode="Inline"
+                        Value="{x:Bind ViewModel.AuthCacheSeconds, Mode=TwoWay}"
+                    />
+                </controls:SettingsCard>
+                <controls:SettingsCard x:Uid="Network_TimeoutCard">
+                    <controls:SettingsCard.HeaderIcon>
+                        <FontIcon Glyph="&#xE916;"/>
+                    </controls:SettingsCard.HeaderIcon>
+                    <NumberBox
+                        Minimum="1"
+                        Maximum="30"
+                        LostFocus="NetworkTimeoutBox_LostFocus"
+                        SpinButtonPlacementMode="Inline"
+                        Value="{x:Bind ViewModel.NetworkTimeoutSeconds, Mode=TwoWay}"
+                    />
+                </controls:SettingsCard>
             </StackPanel>
         </Grid>
     </ScrollViewer>

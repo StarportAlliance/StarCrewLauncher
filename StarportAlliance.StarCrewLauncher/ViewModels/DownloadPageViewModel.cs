@@ -15,6 +15,9 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     private readonly ISddClient _sdd;
     private readonly INotificationService _notifications;
     private readonly IAppStrings _strings;
+    private CancellationTokenSource? _sessionCheckCts;
+    private Task<bool>? _sessionCheck;
+    private bool _loginPromptShown;
 
     public DownloadPageViewModel(
         IInstanceStore store,
@@ -182,6 +185,7 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         CancellationToken cancellationToken = default
     )
     {
+        ResetSessionCheck();
         IsBusy = true;
         try
         {
@@ -219,9 +223,90 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         }
     }
 
+    /// <summary>进入下载页时发起的在线登录校验；返回 true 表示应提示未登录。</summary>
+    public Task<bool> ValidateSessionOnlineAsync()
+    {
+        return _sessionCheck ??= ValidateSessionOnlineCoreAsync();
+    }
+
+    /// <summary>标记本次会话已提示未登录，之后不再发起在线校验。</summary>
+    public void MarkLoginPromptShown()
+    {
+        _loginPromptShown = true;
+        _sessionCheckCts?.Cancel();
+    }
+
+    private void ResetSessionCheck()
+    {
+        _sessionCheckCts?.Cancel();
+        _sessionCheckCts = null;
+        _sessionCheck = null;
+        _loginPromptShown = false;
+    }
+
+    private async Task<bool> ValidateSessionOnlineCoreAsync()
+    {
+        if (_loginPromptShown || NeedsLogin)
+        {
+            return false;
+        }
+
+        using CancellationTokenSource cts = new();
+        _sessionCheckCts = cts;
+        try
+        {
+            SddAuthStatus status = await _sdd.GetAuthStatusAsync(
+                AccountName,
+                online: true,
+                cancellationToken: cts.Token
+            );
+
+            if (!status.Checked)
+            {
+                return false;
+            }
+
+            if (status is { HasCredentials: true, AccountName: not null })
+            {
+                AccountName = status.AccountName;
+                return false;
+            }
+
+            AccountName = null;
+            _store.Save(_store.Load() with { SteamAccountName = null });
+            return !_loginPromptShown;
+        }
+        catch (OperationCanceledException)
+        {
+            return false;
+        }
+        finally
+        {
+            if (ReferenceEquals(_sessionCheckCts, cts))
+            {
+                _sessionCheckCts = null;
+            }
+        }
+    }
+
     public async Task<bool> HasValidSessionAsync(CancellationToken cancellationToken = default)
     {
-        SddAuthStatus status = await _sdd.GetAuthStatusAsync(AccountName, cancellationToken);
+        if (_sessionCheck is not null)
+        {
+            await _sessionCheck;
+
+            if (NeedsLogin)
+            {
+                return false;
+            }
+        }
+
+        bool online = !string.IsNullOrWhiteSpace(AccountName);
+        SddAuthStatus status = await _sdd.GetAuthStatusAsync(
+            AccountName,
+            online,
+            cancellationToken
+        );
         if (!status.Checked)
         {
             return true;
@@ -240,6 +325,7 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
 
     public async Task LogoutAsync()
     {
+        ResetSessionCheck();
         await _sdd.LogoutAsync();
         LauncherState state = _store.Load();
         _store.Save(state with { SteamAccountName = null });

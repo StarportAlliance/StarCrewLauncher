@@ -299,6 +299,26 @@
     <value>指示启动器要缓存游戏版本列表的时间，单位为小时。设为 0 时禁用。手动刷新按钮不受该影响。</value>
   </data>
 
+  <!-- 网络设置 -->
+  <data name="Network_SectionTitle.Text" xml:space="preserve">
+    <value>网络</value>
+  </data>
+  <data name="Network_AuthCacheCard.Header" xml:space="preserve">
+    <value>登录状态缓存时间</value>
+  </data>
+  <data name="Network_AuthCacheCard.Description" xml:space="preserve">
+    <value>指示启动器缓存 StarDepotDownloader 在线登录校验结果的时间，单位为秒。设为 0 时禁用。</value>
+  </data>
+  <data name="Network_TimeoutCard.Header" xml:space="preserve">
+    <value>网络请求超时</value>
+  </data>
+  <data name="Network_TimeoutCard.Description" xml:space="preserve">
+    <value>指示启动器等待短时网络请求的最长时间，单位为秒。下载与扫码登录不受该影响。</value>
+  </data>
+  <data name="Network_TimeoutMessage" xml:space="preserve">
+    <value>网络请求超时</value>
+  </data>
+
   <!-- 关于页 -->
   <data name="About_SectionTitle.Text" xml:space="preserve">
     <value>关于</value>
@@ -600,10 +620,10 @@
 
   <!-- 游戏下载安装详情页 -->
   <data name="Install_NotLoggedInBar.Title" xml:space="preserve">
-    <value>尚未登录 Steam 账号</value>
+    <value>尚未登录 Steam</value>
   </data>
   <data name="Install_NotLoggedInBar.Message" xml:space="preserve">
-    <value>下载原版 Among Us 需要账号凭据。返回后在「游戏下载」→「账号」页扫码登录。</value>
+    <value>原版 Among Us 需要通过已购买该游戏的 Steam 账号获取。</value>
   </data>
   <data name="Install_InstanceNameCard.Header" xml:space="preserve">
     <value>实例名称</value>

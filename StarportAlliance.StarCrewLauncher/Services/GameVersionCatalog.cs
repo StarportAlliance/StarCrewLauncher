@@ -20,20 +20,24 @@ internal sealed class GameVersionCatalog : IGameVersionCatalog
     private readonly HttpClient _http;
     private readonly string _cacheDirectory;
     private readonly IVersionCacheSettings _settings;
+    private readonly INetworkSettings _network;
 
-    public GameVersionCatalog(IVersionCacheSettings settings)
-        : this(new HttpClient(), AppPaths.CacheDirectory, settings) { }
+    public GameVersionCatalog(IVersionCacheSettings settings, INetworkSettings network)
+        : this(new HttpClient(), AppPaths.CacheDirectory, settings, network) { }
 
     internal GameVersionCatalog(
         HttpClient httpClient,
         string cacheDirectory,
-        IVersionCacheSettings settings
+        IVersionCacheSettings settings,
+        INetworkSettings network
     )
     {
         ArgumentNullException.ThrowIfNull(settings);
+        ArgumentNullException.ThrowIfNull(network);
         _http = httpClient;
         _cacheDirectory = cacheDirectory;
         _settings = settings;
+        _network = network;
     }
 
     public async Task<VersionCatalogLoadResult> LoadAsync(
@@ -83,9 +87,13 @@ internal sealed class GameVersionCatalog : IGameVersionCatalog
 
     private async Task<VersionCatalog?> TryFetchRemoteAsync(CancellationToken cancellationToken)
     {
+        using CancellationTokenSource timeout = CancellationTokenSource.CreateLinkedTokenSource(
+            cancellationToken
+        );
+        timeout.CancelAfter(TimeSpan.FromSeconds(_network.TimeoutSeconds));
         try
         {
-            string json = await _http.GetStringAsync(CatalogUri, cancellationToken);
+            string json = await _http.GetStringAsync(CatalogUri, timeout.Token);
             VersionCatalog? parsed = Parse(json);
             // 服务端返回空列表时不覆盖本地可用缓存；禁用缓存时也不落盘
             if (parsed is not null && parsed.Versions.Count > 0 && _settings.MaxAgeHours > 0)
@@ -94,6 +102,10 @@ internal sealed class GameVersionCatalog : IGameVersionCatalog
             }
 
             return parsed;
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            return null;
         }
         catch (OperationCanceledException)
         {

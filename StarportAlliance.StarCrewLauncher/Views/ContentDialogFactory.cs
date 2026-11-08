@@ -10,6 +10,11 @@ namespace StarportAlliance.StarCrewLauncher.Views;
 /// </remarks>
 internal static class ContentDialogFactory
 {
+    private static int _openCount;
+
+    /// <summary>当前是否有 Dialog 正在显示。</summary>
+    public static bool IsOpen => _openCount > 0;
+
     /// <summary>创建已套默认样式并绑定 XamlRoot 的 Dialog。</summary>
     public static ContentDialog Create(XamlRoot xamlRoot, Action<ContentDialog>? configure = null)
     {
@@ -18,6 +23,8 @@ internal static class ContentDialogFactory
             XamlRoot = xamlRoot,
             Style = (Style)Application.Current.Resources["DefaultContentDialogStyle"],
         };
+        dialog.Opened += (_, _) => _openCount++;
+        dialog.Closed += (_, _) => _openCount--;
         configure?.Invoke(dialog);
         return dialog;
     }

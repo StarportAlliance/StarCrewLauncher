@@ -33,6 +33,11 @@ public sealed partial class DownloadInstallPage : Page
             ViewModel?.SelectedVersion?.VersionLabel ?? string.Empty,
         };
         Bindings.Update();
+
+        if (ViewModel is not null)
+        {
+            Loaded += OnLoadedValidateSession;
+        }
     }
 
     private void TitleBreadcrumb_ItemClicked(
@@ -116,33 +121,74 @@ public sealed partial class DownloadInstallPage : Page
         }
     }
 
-    private async Task ShowLoginRequiredAsync()
+    private void OnLoadedValidateSession(object sender, RoutedEventArgs e)
     {
+        _ = sender;
+        _ = e;
+        Loaded -= OnLoadedValidateSession;
+        _ = ShowOnlineValidationAsync();
+    }
+
+    private async Task ShowOnlineValidationAsync()
+    {
+        if (ViewModel is null)
+        {
+            return;
+        }
+
+        bool needsPrompt = await ViewModel.ValidateSessionOnlineAsync();
+        if (!needsPrompt || !IsLoaded || XamlRoot is null || ContentDialogFactory.IsOpen)
+        {
+            return;
+        }
+
+        await ShowLoginHintAsync();
+    }
+
+    private async Task ShowLoginHintAsync() =>
+        await ShowLoginDialogAsync(
+            _strings.GetString("DownloadBase_LoginHintContent"),
+            alwaysGoBack: true
+        );
+
+    private async Task ShowLoginRequiredAsync() =>
+        await ShowLoginDialogAsync(
+            _strings.GetString("Download_LoginRequiredForInstall"),
+            alwaysGoBack: false
+        );
+
+    private async Task ShowLoginDialogAsync(string content, bool alwaysGoBack)
+    {
+        ViewModel?.MarkLoginPromptShown();
         ContentDialog dialog = ContentDialogFactory.Create(
             XamlRoot,
             d =>
             {
                 d.Title = _strings.GetString("DownloadBase_LoginHintTitle");
-                d.Content = _strings.GetString("Download_LoginRequiredForInstall");
+                d.Content = content;
                 d.PrimaryButtonText = _strings.GetString("DownloadBase_GoLogin");
                 d.CloseButtonText = _strings.GetString("DownloadBase_Later");
                 d.DefaultButton = ContentDialogButton.Primary;
             }
         );
 
-        if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+        ContentDialogResult result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary && !alwaysGoBack)
         {
             return;
         }
 
-        DependencyObject? walker = this;
-        while (walker is not null)
+        if (result == ContentDialogResult.Primary)
         {
-            walker = VisualTreeHelper.GetParent(walker);
-            if (walker is DownloadPage host)
+            DependencyObject? walker = this;
+            while (walker is not null)
             {
-                host.ShowAccountSection();
-                break;
+                walker = VisualTreeHelper.GetParent(walker);
+                if (walker is DownloadPage host)
+                {
+                    host.ShowAccountSection();
+                    break;
+                }
             }
         }
 

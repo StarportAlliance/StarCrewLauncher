@@ -16,29 +16,44 @@ internal sealed class SddClient : ISddClient
     private readonly IDepotDownloaderRunner _runner;
     private readonly IAppStrings _strings;
     private readonly ILogger<SddClient> _logger;
+    private readonly INetworkSettings _network;
+    private SddAuthStatus? _cachedStatus;
+    private DateTimeOffset _cachedAt;
 
     public SddClient(
         StarDepotDownloaderLocator locator,
         IDepotDownloaderRunner runner,
         IAppStrings strings,
-        ILogger<SddClient> logger
+        ILogger<SddClient> logger,
+        INetworkSettings network
     )
     {
         ArgumentNullException.ThrowIfNull(locator);
         ArgumentNullException.ThrowIfNull(runner);
         ArgumentNullException.ThrowIfNull(strings);
         ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(network);
         _locator = locator;
         _runner = runner;
         _strings = strings;
         _logger = logger;
+        _network = network;
     }
+
+    public void InvalidateAuthCache() => _cachedStatus = null;
 
     public async Task<SddAuthStatus> GetAuthStatusAsync(
         string? accountName,
+        bool online = false,
         CancellationToken cancellationToken = default
     )
     {
+        bool useOnline = online && !string.IsNullOrWhiteSpace(accountName);
+        if (useOnline && TryGetCachedStatus() is { } cached)
+        {
+            return cached;
+        }
+
         string? toolPath = _locator.Find();
         if (toolPath is null)
         {
@@ -59,16 +74,66 @@ internal sealed class SddClient : ISddClient
             arguments.Add(accountName);
         }
 
-        ExecutableOutcome outcome = await _runner.RunAsync(
-            new ExecutableCommand(toolPath, arguments, null, LogOutput: false),
-            null,
+        if (useOnline)
+        {
+            arguments.Add("-online");
+            arguments.Add("-remember-password");
+        }
+
+        using CancellationTokenSource timeout = CancellationTokenSource.CreateLinkedTokenSource(
             cancellationToken
         );
+        timeout.CancelAfter(TimeSpan.FromSeconds(_network.TimeoutSeconds));
 
+        ExecutableOutcome outcome;
+        try
+        {
+            outcome = await _runner.RunAsync(
+                new ExecutableCommand(toolPath, arguments, null, LogOutput: false),
+                null,
+                timeout.Token
+            );
+        }
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogWarning("查询登录状态超时（{Seconds} 秒）", _network.TimeoutSeconds);
+            return new SddAuthStatus(false, false, null);
+        }
+
+        SddAuthStatus status = ParseAuthStatus(outcome);
+        if (useOnline && status.Checked)
+        {
+            _cachedStatus = status;
+            _cachedAt = DateTimeOffset.UtcNow;
+        }
+
+        return status;
+    }
+
+    private SddAuthStatus? TryGetCachedStatus()
+    {
+        int seconds = _network.AuthCacheSeconds;
+        if (
+            seconds <= 0
+            || _cachedStatus is null
+            || DateTimeOffset.UtcNow - _cachedAt >= TimeSpan.FromSeconds(seconds)
+        )
+        {
+            return null;
+        }
+
+        return _cachedStatus;
+    }
+
+    private static SddAuthStatus ParseAuthStatus(ExecutableOutcome outcome)
+    {
         if (outcome.ExitCode != 0)
         {
-            _logger.LogWarning("查询登录状态失败，退出码 {ExitCode}", outcome.ExitCode);
-            return new SddAuthStatus(false, false, null);
+            string? code = FindFailure(outcome)?.Code;
+            bool authFailure = code is SddErrorCode.AuthRequired or SddErrorCode.AuthFailed;
+            return authFailure
+                ? new SddAuthStatus(true, false, null)
+                : new SddAuthStatus(false, false, null);
         }
 
         foreach (SddEvent item in ParseEvents(outcome.OutputLines))
@@ -160,11 +225,13 @@ internal sealed class SddClient : ISddClient
         }
 
         _logger.LogInformation("扫码登录成功 {Account}", LogRedaction.MaskAccountName(accountName));
+        InvalidateAuthCache();
         return new SddLoginResult(true, accountName, null, null);
     }
 
     public async Task<SddLogoutResult> LogoutAsync(CancellationToken cancellationToken = default)
     {
+        InvalidateAuthCache();
         string? toolPath = _locator.Find();
         if (toolPath is null)
         {
@@ -277,6 +344,11 @@ internal sealed class SddClient : ISddClient
 
         if (failure is not null)
         {
+            if (failure.Code is SddErrorCode.AuthRequired or SddErrorCode.AuthFailed)
+            {
+                InvalidateAuthCache();
+            }
+
             return new SddDownloadResult(
                 false,
                 totalBytes,
