@@ -552,6 +552,12 @@
   <data name="DownloadBase_Later" xml:space="preserve">
     <value>稍后再说</value>
   </data>
+  <data name="DownloadBase_LoginExpiredTitle" xml:space="preserve">
+    <value>Steam 登录已过期</value>
+  </data>
+  <data name="DownloadBase_LoginExpiredContent" xml:space="preserve">
+    <value>您的 Steam 登录凭据已失效，请重新登录后再继续下载。</value>
+  </data>
   <data name="Download_NotLoggedIn" xml:space="preserve">
     <value>未登录</value>
   </data>

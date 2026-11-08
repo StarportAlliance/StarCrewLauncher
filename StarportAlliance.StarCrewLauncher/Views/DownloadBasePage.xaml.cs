@@ -108,13 +108,18 @@ public sealed partial class DownloadBasePage : Page
 
     private async Task ShowLoginHintAsync()
     {
+        bool expired = ViewModel?.ConsumeLoginExpiredPrompt() == true;
         ViewModel?.MarkLoginPromptShown();
         ContentDialog dialog = ContentDialogFactory.Create(
             XamlRoot,
             d =>
             {
-                d.Title = _strings.GetString("DownloadBase_LoginHintTitle");
-                d.Content = _strings.GetString("DownloadBase_LoginHintContent");
+                d.Title = _strings.GetString(
+                    expired ? "DownloadBase_LoginExpiredTitle" : "DownloadBase_LoginHintTitle"
+                );
+                d.Content = _strings.GetString(
+                    expired ? "DownloadBase_LoginExpiredContent" : "DownloadBase_LoginHintContent"
+                );
                 d.PrimaryButtonText = _strings.GetString("DownloadBase_GoLogin");
                 d.CloseButtonText = _strings.GetString("DownloadBase_Later");
                 d.DefaultButton = ContentDialogButton.Primary;

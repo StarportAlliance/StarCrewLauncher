@@ -18,6 +18,7 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     private CancellationTokenSource? _sessionCheckCts;
     private Task<bool>? _sessionCheck;
     private bool _loginPromptShown;
+    private bool _loginExpired;
 
     public DownloadPageViewModel(
         IInstanceStore store,
@@ -236,12 +237,22 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
         _sessionCheckCts?.Cancel();
     }
 
+    /// <summary>取走“登录已过期”标记，使过期文案只用于过期后的首次提示。</summary>
+    /// <returns>本次提示是否因登录过期而触发。</returns>
+    public bool ConsumeLoginExpiredPrompt()
+    {
+        bool expired = _loginExpired;
+        _loginExpired = false;
+        return expired;
+    }
+
     private void ResetSessionCheck()
     {
         _sessionCheckCts?.Cancel();
         _sessionCheckCts = null;
         _sessionCheck = null;
         _loginPromptShown = false;
+        _loginExpired = false;
     }
 
     private async Task<bool> ValidateSessionOnlineCoreAsync()
@@ -274,6 +285,7 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
 
             AccountName = null;
             _store.Save(_store.Load() with { SteamAccountName = null });
+            _loginExpired = true;
             return !_loginPromptShown;
         }
         catch (OperationCanceledException)

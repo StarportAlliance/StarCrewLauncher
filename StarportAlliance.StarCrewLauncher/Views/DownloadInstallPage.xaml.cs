@@ -145,26 +145,35 @@ public sealed partial class DownloadInstallPage : Page
         await ShowLoginHintAsync();
     }
 
-    private async Task ShowLoginHintAsync() =>
+    private async Task ShowLoginHintAsync()
+    {
+        bool expired = ViewModel?.ConsumeLoginExpiredPrompt() == true;
         await ShowLoginDialogAsync(
-            _strings.GetString("DownloadBase_LoginHintContent"),
+            _strings.GetString(
+                expired ? "DownloadBase_LoginExpiredTitle" : "DownloadBase_LoginHintTitle"
+            ),
+            _strings.GetString(
+                expired ? "DownloadBase_LoginExpiredContent" : "DownloadBase_LoginHintContent"
+            ),
             alwaysGoBack: true
         );
+    }
 
     private async Task ShowLoginRequiredAsync() =>
         await ShowLoginDialogAsync(
+            _strings.GetString("DownloadBase_LoginHintTitle"),
             _strings.GetString("Download_LoginRequiredForInstall"),
             alwaysGoBack: false
         );
 
-    private async Task ShowLoginDialogAsync(string content, bool alwaysGoBack)
+    private async Task ShowLoginDialogAsync(string title, string content, bool alwaysGoBack)
     {
         ViewModel?.MarkLoginPromptShown();
         ContentDialog dialog = ContentDialogFactory.Create(
             XamlRoot,
             d =>
             {
-                d.Title = _strings.GetString("DownloadBase_LoginHintTitle");
+                d.Title = title;
                 d.Content = content;
                 d.PrimaryButtonText = _strings.GetString("DownloadBase_GoLogin");
                 d.CloseButtonText = _strings.GetString("DownloadBase_Later");
