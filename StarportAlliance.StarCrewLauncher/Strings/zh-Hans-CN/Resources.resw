@@ -401,7 +401,7 @@
     <value>实例详情：{0}</value>
   </data>
   <data name="Instances_EmptyHint" xml:space="preserve">
-    <value>这里还没有任何实例...</value>
+    <value>还没有任何实例...去下载一个？</value>
   </data>
   <data name="Instances_GoDownloadButton" xml:space="preserve">
     <value>前往下载</value>

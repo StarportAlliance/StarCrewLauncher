@@ -36,10 +36,10 @@
         <TextBlock
             x:Name="CurrentInstanceNameBlock"
             Style="{StaticResource TitleTextBlockStyle}"
-            Margin="32,0,0,32"
+            Margin="32,32,0,0"
             HorizontalAlignment="Left"
-            VerticalAlignment="Bottom"
-            Text="{x:Bind ViewModel.CurrentInstanceName, Mode=OneWay}"
+            VerticalAlignment="Top"
+            Text="{x:Bind ViewModel.HeaderText, Mode=OneWay}"
         />
     </Grid>
 </Page>

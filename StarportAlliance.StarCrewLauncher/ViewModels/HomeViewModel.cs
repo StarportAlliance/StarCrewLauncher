@@ -52,7 +52,7 @@ internal sealed partial class HomeViewModel : ObservableObject
     public partial IReadOnlyList<GameInstance> Instances { get; set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CurrentInstanceName))]
+    [NotifyPropertyChangedFor(nameof(HeaderText))]
     public partial GameInstance? SelectedInstance { get; set; }
 
     public bool HasInstances => Instances.Count > 0;
@@ -64,7 +64,7 @@ internal sealed partial class HomeViewModel : ObservableObject
 
     public string LaunchButtonGlyph => HasInstances ? "\uF5B0" : "\uE896";
 
-    public string CurrentInstanceName => SelectedInstance?.Name ?? string.Empty;
+    public string HeaderText => SelectedInstance?.Name ?? _strings.GetString("Instances_EmptyHint");
 
     [RelayCommand]
     private async Task LaunchAsync()
