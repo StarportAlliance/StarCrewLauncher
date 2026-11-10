@@ -348,9 +348,6 @@
   <data name="About_VersionFormatAlpha" xml:space="preserve">
     <value>版本 {0} (Alpha Version)</value>
   </data>
-  <data name="About_VersionUnknown" xml:space="preserve">
-    <value>版本 未知</value>
-  </data>
   <data name="About_WasdkCard" xml:space="preserve">
     <value>Windows App SDK</value>
   </data>
