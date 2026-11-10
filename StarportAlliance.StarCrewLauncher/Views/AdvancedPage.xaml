@@ -13,6 +13,12 @@
                 HorizontalAlignment="Stretch"
                 Spacing="{StaticResource SettingsCardSpacing}"
             >
+                <InfoBar
+                    IsClosable="False"
+                    IsOpen="True"
+                    Message="{x:Bind i18n:Loc.Get('Advanced_CautionInfoBar')}"
+                    Severity="Informational"
+                />
                 <TextBlock
                     Text="{x:Bind i18n:Loc.Get('Logging_SectionTitle')}"
                     Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"

@@ -191,6 +191,11 @@
     <value>跟随系统</value>
   </data>
 
+  <!-- Advanced -->
+  <data name="Advanced_CautionInfoBar" xml:space="preserve">
+    <value>通常情况下，这些设置不应被更改。</value>
+  </data>
+
   <!-- Logging -->
   <data name="Logging_EnableToggleOff" xml:space="preserve">
     <value>关</value>
