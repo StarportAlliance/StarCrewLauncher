@@ -199,7 +199,7 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
                     NotificationSeverity.Success
                 );
             }
-            else
+            else if (!cancellationToken.IsCancellationRequested)
             {
                 _notifications.Notify(
                     _strings.Format(
