@@ -198,11 +198,6 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
             return _strings.GetString("Download_LoginRequired");
         }
 
-        if (result.ErrorCode == SddErrorCode.ToolMissing)
-        {
-            return _strings.GetString("Sdd_Missing");
-        }
-
         if (result.ErrorCode == SddErrorCode.DepotUnavailable)
         {
             return _strings.GetString("Install_DepotUnavailable");

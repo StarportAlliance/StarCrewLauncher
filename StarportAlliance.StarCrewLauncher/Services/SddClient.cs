@@ -54,12 +54,7 @@ internal sealed class SddClient : ISddClient
             return cached;
         }
 
-        string? toolPath = _locator.Find();
-        if (toolPath is null)
-        {
-            _logger.LogWarning("无法查询登录状态：未找到 StarDepotDownloader");
-            return new SddAuthStatus(false, false, null);
-        }
+        string toolPath = _locator.Find();
 
         List<string> arguments =
         [
@@ -158,16 +153,7 @@ internal sealed class SddClient : ISddClient
         CancellationToken cancellationToken = default
     )
     {
-        string? toolPath = _locator.Find();
-        if (toolPath is null)
-        {
-            return new SddLoginResult(
-                false,
-                null,
-                SddErrorCode.ToolMissing,
-                _strings.GetString("Sdd_Missing")
-            );
-        }
+        string toolPath = _locator.Find();
 
         List<string> arguments =
         [
@@ -240,12 +226,7 @@ internal sealed class SddClient : ISddClient
     public async Task<SddLogoutResult> LogoutAsync(CancellationToken cancellationToken = default)
     {
         InvalidateAuthCache();
-        string? toolPath = _locator.Find();
-        if (toolPath is null)
-        {
-            TryDeleteAccountFile();
-            return new SddLogoutResult(true, null, null);
-        }
+        string toolPath = _locator.Find();
 
         List<string> arguments = ["-logout", "--json", "-account-file", AppPaths.SddAccountFile];
 
@@ -278,17 +259,7 @@ internal sealed class SddClient : ISddClient
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        string? toolPath = _locator.Find();
-        if (toolPath is null)
-        {
-            return new SddDownloadResult(
-                false,
-                null,
-                -1,
-                SddErrorCode.ToolMissing,
-                _strings.GetString("Sdd_Missing")
-            );
-        }
+        string toolPath = _locator.Find();
 
         List<string> arguments =
         [

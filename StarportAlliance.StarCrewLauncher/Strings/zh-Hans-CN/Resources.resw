@@ -569,11 +569,6 @@
     <value>开始安装</value>
   </data>
 
-  <!-- Sdd -->
-  <data name="Sdd_Missing" xml:space="preserve">
-    <value>内置组件 StarDepotDownloader 缺失，请重新安装或更新启动器。</value>
-  </data>
-
   <!-- Launch -->
   <data name="Launch_Failed" xml:space="preserve">
     <value>启动失败。</value>

@@ -8,7 +8,7 @@ internal interface ISddClient
     /// <summary>查询缓存凭据状态。</summary>
     /// <param name="accountName">限定账号；为 null 时查询任意已缓存账号。</param>
     /// <param name="online">
-    /// 为 true 时通过 Steam 在线校验凭据，结论按设置缓存。超时、连接失败、工具缺失等无结论情况返回
+    /// 为 true 时通过 Steam 在线校验凭据，结论按设置缓存。超时、连接失败等无结论情况返回
     /// <see cref="SddAuthStatus.Checked" /> 为 false；明确鉴权失败返回 Checked 为 true、HasCredentials 为 false。
     /// </param>
     Task<SddAuthStatus> GetAuthStatusAsync(

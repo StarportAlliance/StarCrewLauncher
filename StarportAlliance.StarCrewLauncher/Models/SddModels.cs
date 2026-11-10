@@ -13,7 +13,7 @@ internal sealed record SddProgress(long Downloaded, long Total, double Percent);
 internal sealed record SddQrCode(int Size, IReadOnlyList<string> Rows);
 
 /// <summary>本地缓存的登录凭据状态。</summary>
-/// <param name="Checked">是否成功查询到状态；工具缺失或调用失败时为 false。</param>
+/// <param name="Checked">是否成功查询到状态；调用失败时为 false。</param>
 internal sealed record SddAuthStatus(bool Checked, bool HasCredentials, string? AccountName);
 
 /// <summary>一次下载调用所需的全部参数。</summary>
@@ -43,9 +43,6 @@ internal sealed record SddLogoutResult(bool IsSuccess, string? ErrorCode, string
 
 internal static class SddErrorCode
 {
-    /// <summary>启动器未找到随包分发的 SDD。</summary>
-    public const string ToolMissing = "sdd_missing";
-
     /// <summary>本地凭据不可用，需要用户重新扫码登录。</summary>
     public const string AuthRequired = "auth_required";
 

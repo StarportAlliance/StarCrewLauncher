@@ -34,6 +34,7 @@ public sealed partial class App : Application
 
             InitializeComponent();
             Services = BuildServices(store, loggingSettings);
+            Services.GetRequiredService<StarDepotDownloaderLocator>().Find();
             WriteStartupSummary();
         }
         catch (Exception ex)

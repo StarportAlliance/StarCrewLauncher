@@ -15,10 +15,15 @@ internal sealed class StarDepotDownloaderLocator
     }
 
     /// <summary>随包可执行文件路径。</summary>
-    /// <returns>文件缺失（被杀软隔离、安装不完整）时返回 null。</returns>
-    internal string? Find()
+    /// <exception cref="FileNotFoundException">文件缺失（安装不完整、被杀软隔离）。</exception>
+    internal string Find()
     {
         string path = Path.Combine(_directory, "StarDepotDownloader.exe");
-        return File.Exists(path) ? path : null;
+        return File.Exists(path)
+            ? path
+            : throw new FileNotFoundException(
+                $"未找到内置的 StarDepotDownloader：{path}。安装可能不完整，或文件被杀毒软件隔离。",
+                path
+            );
     }
 }
