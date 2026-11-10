@@ -36,7 +36,7 @@ internal sealed class VelopackUpdateClient : IUpdateClient
         if (await Task.WhenAny(check, timeout).ConfigureAwait(false) != check)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            throw new TimeoutException(_strings.GetString("Network_TimeoutMessage"));
+            throw new TimeoutException(_strings.GetString("Network_Timeout"));
         }
 
         _pendingUpdate = await check.ConfigureAwait(false);

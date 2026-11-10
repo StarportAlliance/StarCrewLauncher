@@ -392,10 +392,7 @@ internal sealed partial class DownloadPageViewModel : ObservableObject
     {
         if (string.IsNullOrWhiteSpace(AccountName))
         {
-            return new GameInstallResult(
-                false,
-                _strings.GetString("Download_LoginRequiredForInstall")
-            );
+            return new GameInstallResult(false, _strings.GetString("Download_LoginRequired"));
         }
 
         string normalizedName = instanceName?.Trim() ?? string.Empty;

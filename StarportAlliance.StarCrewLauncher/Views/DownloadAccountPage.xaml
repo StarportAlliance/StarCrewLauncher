@@ -3,13 +3,14 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:i18n="using:StarportAlliance.StarCrewLauncher.Markup"
 >
     <Page.Resources>
         <Flyout x:Name="LogoutFlyout" Placement="Bottom" Closed="LogoutFlyout_Closed">
             <StackPanel Spacing="12">
-                <TextBlock x:Uid="Account_LogoutConfirm" />
+                <TextBlock Text="{x:Bind i18n:Loc.Get('Account_LogoutConfirm')}" />
                 <Button
-                    x:Uid="Account_LogoutButton"
+                    Content="{x:Bind i18n:Loc.Get('Common_Ok')}"
                     HorizontalAlignment="Right"
                     Click="LogoutConfirm_Click"
                 />
@@ -26,11 +27,11 @@
         <Grid Padding="24,0,24,24">
             <StackPanel MaxWidth="1000" HorizontalAlignment="Stretch" Spacing="4">
                 <TextBlock
-                    x:Uid="Account_SectionTitle"
+                    Text="{x:Bind i18n:Loc.Get('Account_Title')}"
                     Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
                 />
                 <controls:SettingsCard
-                    x:Uid="Account_SteamCard"
+                    Header="{x:Bind i18n:Loc.Get('Account_SteamCard')}"
                     Description="{x:Bind ViewModel.AccountLabel, Mode=OneWay}"
                 >
                     <controls:SettingsCard.HeaderIcon>
@@ -47,7 +48,7 @@
 
                 <StackPanel Margin="0,8,0,0" Spacing="4">
                     <TextBlock
-                        x:Uid="Account_PrivacyNote"
+                        Text="{x:Bind i18n:Loc.Get('Account_PrivacyNote')}"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                         TextWrapping="Wrap"
                     />

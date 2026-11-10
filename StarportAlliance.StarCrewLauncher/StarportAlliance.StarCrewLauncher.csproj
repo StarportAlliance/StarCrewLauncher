@@ -10,12 +10,30 @@
         <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
         <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
         <UseWinUI>true</UseWinUI>
-        <DefaultLanguage>zh-CN</DefaultLanguage>
+        <!-- MSIX 不支持 zh-Hans-CN，实际默认语言由下面的 target 指定 -->
+        <DefaultLanguage>zh-Hans</DefaultLanguage>
+        <RealDefaultLanguage>zh-Hans-CN</RealDefaultLanguage>
         <EnableMsixTooling>true</EnableMsixTooling>
         <WindowsPackageType>None</WindowsPackageType>
         <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
+
+    <Target Name="ForceDefaultResourceLanguage" AfterTargets="_GetDefaultResourceLanguage">
+        <PropertyGroup>
+            <DefaultResourceLanguage>$(RealDefaultLanguage)</DefaultResourceLanguage>
+        </PropertyGroup>
+    </Target>
+
+    <Target
+        Name="VerifyDefaultResourceLanguage"
+        BeforeTargets="_GenerateProjectPriConfigurationFiles"
+    >
+        <Error
+            Condition="'$(DefaultResourceLanguage)' != '$(RealDefaultLanguage)'"
+            Text="PRI 默认资源语言未生效：$(DefaultResourceLanguage)"
+        />
+    </Target>
 
     <PropertyGroup Condition="'$(DesignTimeBuild)' == 'true'">
         <BuildingInsideVisualStudio Condition="'$(BuildingInsideVisualStudio)' == ''"

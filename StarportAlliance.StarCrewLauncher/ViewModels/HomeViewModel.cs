@@ -59,7 +59,7 @@ internal sealed partial class HomeViewModel : ObservableObject
 
     public string LaunchButtonText =>
         HasInstances
-            ? _strings.GetString("Home_LaunchGame")
+            ? _strings.GetString("Common_LaunchGame")
             : _strings.GetString("Home_DownloadGame");
 
     public string LaunchButtonGlyph => HasInstances ? "\uF5B0" : "\uE896";

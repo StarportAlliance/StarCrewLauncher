@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:i18n="using:StarportAlliance.StarCrewLauncher.Markup"
 >
     <Grid>
         <Grid.RowDefinitions>
@@ -11,7 +12,7 @@
         </Grid.RowDefinitions>
 
         <TextBlock
-            x:Uid="Settings_SectionTitle"
+            Text="{x:Bind i18n:Loc.Get('Settings_SectionTitle')}"
             Margin="24,16,24,12"
             Style="{StaticResource TitleTextBlockStyle}"
         />
@@ -44,7 +45,7 @@
                 </NavigationView.Resources>
                 <NavigationView.MenuItems>
                     <NavigationViewItem
-                        x:Uid="SettingsSection_Appearance"
+                        Content="{x:Bind i18n:Loc.Get('Settings_Appearance')}"
                         Tag="Appearance"
                         IsSelected="True"
                     >
@@ -52,12 +53,15 @@
                             <FontIcon Glyph="&#xE790;" />
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
-                    <NavigationViewItem x:Uid="SettingsSection_Advanced" Tag="Advanced">
+                    <NavigationViewItem
+                        Content="{x:Bind i18n:Loc.Get('Settings_Advanced')}"
+                        Tag="Advanced"
+                    >
                         <NavigationViewItem.Icon>
                             <FontIcon Glyph="&#xEC7A;" />
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
-                    <NavigationViewItem x:Uid="SettingsSection_About" Tag="About">
+                    <NavigationViewItem Content="{x:Bind i18n:Loc.Get('About_Title')}" Tag="About">
                         <NavigationViewItem.Icon>
                             <FontIcon Glyph="&#xE946;" />
                         </NavigationViewItem.Icon>

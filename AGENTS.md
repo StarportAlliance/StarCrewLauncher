@@ -40,7 +40,7 @@ dotnet husky install
 - 用户提示一律经 `INotificationService` 发应用内通知，视图模型不直接接触 UI。
 - XAML 绑定只用 `x:Bind`：页面在 `OnNavigatedTo` 里把导航参数赋给 `ViewModel` 属性，随后调用 `Bindings.Update()`。
 - 对话框等离不开 UI 的交互留在代码隐藏；决策逻辑必须回视图模型（代码隐藏保持空壳）。
-- 除日志外的全部文本文案均放在 resw 文件内。
+- 除日志外的全部文本文案均放在 resw 文件内；XAML 统一用 `{x:Bind i18n:Loc.Get('Key')}` 引用。
 
 ## 注释与文档风格
 

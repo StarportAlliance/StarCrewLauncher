@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:vm="using:StarportAlliance.StarCrewLauncher.ViewModels"
+    xmlns:i18n="using:StarportAlliance.StarCrewLauncher.Markup"
 >
     <Page.Resources>
         <!-- InfoBadge 的 Value 只接受 Int32，文本标签改走 FrameworkElement.Tag 承载
@@ -53,7 +54,7 @@
                         VerticalAlignment="Center"
                     >
                         <TextBlock
-                            x:Uid="DownloadBase_SectionTitle"
+                            Text="{x:Bind i18n:Loc.Get('DownloadBase_SectionTitle')}"
                             Margin="1,0,0,0"
                             Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
                         />
@@ -72,14 +73,14 @@
                         VerticalAlignment="Center"
                     >
                         <TextBox
-                            x:Uid="DownloadBase_SearchBox"
+                            PlaceholderText="{x:Bind i18n:Loc.Get('DownloadBase_SearchBoxPlaceholder')}"
                             Width="260"
                             Text="{x:Bind ViewModel.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         />
                         <Button MinWidth="72" Command="{x:Bind ViewModel.RefreshCommand}">
                             <Grid>
                                 <TextBlock
-                                    x:Uid="DownloadBase_RefreshButton"
+                                    Text="{x:Bind i18n:Loc.Get('DownloadBase_RefreshButton')}"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     Visibility="{x:Bind ViewModel.IsNotRefreshing, Mode=OneWay}"

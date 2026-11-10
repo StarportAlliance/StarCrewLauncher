@@ -58,7 +58,7 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
         if (string.IsNullOrWhiteSpace(accountName))
         {
             _logger.LogWarning("下载 {Version} 失败：未登录 Steam", version.VersionLabel);
-            return new GameInstallResult(false, _strings.GetString("Install_LoginRequired"));
+            return new GameInstallResult(false, _strings.GetString("Download_LoginRequired"));
         }
 
         _logger.LogInformation(
@@ -168,7 +168,7 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
         catch (Exception ex)
         {
             _logger.LogError(ex, "下载 {Version} 过程中出现异常", version.VersionLabel);
-            return await FailAsync(_strings.Format("Install_FailedFormat", ex.Message));
+            return await FailAsync(_strings.Format("Download_FailedFormat", ex.Message));
         }
 
         async Task<GameInstallResult> FailAsync(string message)
@@ -195,7 +195,7 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
     {
         if (result.ErrorCode is SddErrorCode.AuthRequired or SddErrorCode.AuthFailed)
         {
-            return _strings.GetString("Download_LoginRequiredForInstall");
+            return _strings.GetString("Download_LoginRequired");
         }
 
         if (result.ErrorCode == SddErrorCode.ToolMissing)
@@ -210,7 +210,7 @@ internal sealed class DownloadCoordinator : IDownloadCoordinator
 
         return string.IsNullOrWhiteSpace(result.ErrorMessage)
             ? _strings.Format("Install_FailedExitCodeFormat", result.ExitCode)
-            : _strings.Format("Install_FailedWithReasonFormat", result.ErrorMessage);
+            : _strings.Format("Download_FailedFormat", result.ErrorMessage);
     }
 
     private static void CleanupWorkDirectories(string instanceDirectory, string metadataDirectory)

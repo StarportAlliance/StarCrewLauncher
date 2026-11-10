@@ -6,6 +6,7 @@
     xmlns:models="using:StarportAlliance.StarCrewLauncher.Models"
     xmlns:viewModels="using:StarportAlliance.StarCrewLauncher.ViewModels"
     xmlns:views="using:StarportAlliance.StarCrewLauncher.Views"
+    xmlns:i18n="using:StarportAlliance.StarCrewLauncher.Markup"
 >
     <Page.Resources>
         <views:HexColorConverter x:Key="HexColorConverter" />
@@ -141,7 +142,8 @@
                         Visibility="{x:Bind IsHighlighted, Mode=OneWay}"
                     />
                     <Button
-                        x:Uid="Appearance_BackgroundImageRemove"
+                        AutomationProperties.Name="{x:Bind i18n:Loc.Get('Appearance_BackgroundImageRemove')}"
+                        ToolTipService.ToolTip="{x:Bind i18n:Loc.Get('Appearance_BackgroundImageRemove')}"
                         Width="32"
                         Height="32"
                         Margin="0,8,8,0"
@@ -156,7 +158,7 @@
                     </Button>
                 </Grid>
                 <Button
-                    x:Uid="Appearance_BackgroundImageAdd"
+                    AutomationProperties.Name="{x:Bind i18n:Loc.Get('Appearance_BackgroundImageAdd')}"
                     Height="190"
                     MaxWidth="240"
                     Padding="8"
@@ -167,7 +169,7 @@
                     <StackPanel Width="204" HorizontalAlignment="Center" Spacing="8">
                         <FontIcon FontSize="24" Glyph="&#xE710;" />
                         <TextBlock
-                            x:Uid="Appearance_BackgroundImageAddText"
+                            Text="{x:Bind i18n:Loc.Get('Appearance_BackgroundImageAdd')}"
                             HorizontalAlignment="Center"
                         />
                     </StackPanel>
@@ -189,10 +191,13 @@
                 Spacing="{StaticResource SettingsCardSpacing}"
             >
                 <TextBlock
-                    x:Uid="Appearance_SectionTitle"
+                    Text="{x:Bind i18n:Loc.Get('Appearance_SectionTitle')}"
                     Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
                 />
-                <controls:SettingsCard x:Uid="Appearance_ThemeCard">
+                <controls:SettingsCard
+                    Header="{x:Bind i18n:Loc.Get('Appearance_ThemeCard')}"
+                    Description="{x:Bind i18n:Loc.Get('Appearance_ThemeCardDescription')}"
+                >
                     <controls:SettingsCard.HeaderIcon>
                         <FontIcon Glyph="&#xE793;" />
                     </controls:SettingsCard.HeaderIcon>
@@ -201,19 +206,32 @@
                         Width="120"
                         SelectedIndex="{x:Bind ViewModel.SelectedThemeIndex, Mode=TwoWay}"
                     >
-                        <ComboBoxItem x:Uid="Appearance_ThemeSystem" Tag="System" />
-                        <ComboBoxItem x:Uid="Appearance_ThemeLight" Tag="Light" />
-                        <ComboBoxItem x:Uid="Appearance_ThemeDark" Tag="Dark" />
+                        <ComboBoxItem
+                            Content="{x:Bind i18n:Loc.Get('Appearance_ThemeSystem')}"
+                            Tag="System"
+                        />
+                        <ComboBoxItem
+                            Content="{x:Bind i18n:Loc.Get('Appearance_ThemeLight')}"
+                            Tag="Light"
+                        />
+                        <ComboBoxItem
+                            Content="{x:Bind i18n:Loc.Get('Appearance_ThemeDark')}"
+                            Tag="Dark"
+                        />
                     </ComboBox>
                 </controls:SettingsCard>
-                <controls:SettingsExpander x:Uid="Appearance_AccentExpander" IsExpanded="False">
+                <controls:SettingsExpander
+                    Header="{x:Bind i18n:Loc.Get('Appearance_AccentExpander')}"
+                    Description="{x:Bind i18n:Loc.Get('Appearance_AccentExpanderDescription')}"
+                    IsExpanded="False"
+                >
                     <controls:SettingsExpander.HeaderIcon>
                         <FontIcon Glyph="&#xE771;" />
                     </controls:SettingsExpander.HeaderIcon>
                     <controls:SettingsExpander.ItemsHeader>
                         <InfoBar
                             x:Name="AccentHighContrastBar"
-                            x:Uid="Appearance_AccentHighContrastBar"
+                            Title="{x:Bind i18n:Loc.Get('Appearance_AccentHighContrastBar')}"
                             Margin="58,8,44,8"
                             IsClosable="False"
                             IsOpen="False"
@@ -223,13 +241,13 @@
                     </controls:SettingsExpander.ItemsHeader>
                     <controls:SettingsExpander.Items>
                         <controls:SettingsCard
-                            x:Uid="Appearance_AccentLightCard"
+                            Header="{x:Bind i18n:Loc.Get('Appearance_AccentLightCard')}"
                             x:Name="AccentLightCard"
                         >
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <controls:ColorPickerButton
                                     x:Name="LightAccentPicker"
-                                    x:Uid="Appearance_AccentLightPicker"
+                                    AutomationProperties.Name="{x:Bind i18n:Loc.Get('Appearance_AccentLightPickerAutomationName')}"
                                     MinWidth="128"
                                     HorizontalContentAlignment="Center"
                                     SelectedColor="{x:Bind ViewModel.LightAccentColor, Mode=TwoWay, Converter={StaticResource HexColorConverter}}"
@@ -242,20 +260,22 @@
                                     />
                                 </controls:ColorPickerButton>
                                 <Button
-                                    x:Uid="Appearance_AccentLightReset"
+                                    Content="{x:Bind i18n:Loc.Get('Common_Reset')}"
+                                    ToolTipService.ToolTip="{x:Bind i18n:Loc.Get('Appearance_AccentResetToolTip')}"
+                                    AutomationProperties.Name="{x:Bind i18n:Loc.Get('Appearance_AccentLightResetAutomationName')}"
                                     Command="{x:Bind ViewModel.ResetLightAccentCommand}"
                                     IsEnabled="{x:Bind ViewModel.CanResetLightAccent, Mode=OneWay}"
                                 />
                             </StackPanel>
                         </controls:SettingsCard>
                         <controls:SettingsCard
-                            x:Uid="Appearance_AccentDarkCard"
+                            Header="{x:Bind i18n:Loc.Get('Appearance_AccentDarkCard')}"
                             x:Name="AccentDarkCard"
                         >
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <controls:ColorPickerButton
                                     x:Name="DarkAccentPicker"
-                                    x:Uid="Appearance_AccentDarkPicker"
+                                    AutomationProperties.Name="{x:Bind i18n:Loc.Get('Appearance_AccentDarkPickerAutomationName')}"
                                     MinWidth="128"
                                     HorizontalContentAlignment="Center"
                                     SelectedColor="{x:Bind ViewModel.DarkAccentColor, Mode=TwoWay, Converter={StaticResource HexColorConverter}}"
@@ -268,7 +288,9 @@
                                     />
                                 </controls:ColorPickerButton>
                                 <Button
-                                    x:Uid="Appearance_AccentDarkReset"
+                                    Content="{x:Bind i18n:Loc.Get('Common_Reset')}"
+                                    ToolTipService.ToolTip="{x:Bind i18n:Loc.Get('Appearance_AccentResetToolTip')}"
+                                    AutomationProperties.Name="{x:Bind i18n:Loc.Get('Appearance_AccentDarkResetAutomationName')}"
                                     Command="{x:Bind ViewModel.ResetDarkAccentCommand}"
                                     IsEnabled="{x:Bind ViewModel.CanResetDarkAccent, Mode=OneWay}"
                                 />
@@ -276,14 +298,17 @@
                         </controls:SettingsCard>
                     </controls:SettingsExpander.Items>
                 </controls:SettingsExpander>
-                <controls:SettingsCard x:Uid="Appearance_FontCard">
+                <controls:SettingsCard
+                    Header="{x:Bind i18n:Loc.Get('Appearance_FontCard')}"
+                    Description="{x:Bind i18n:Loc.Get('Appearance_FontCardDescription')}"
+                >
                     <controls:SettingsCard.HeaderIcon>
                         <SymbolIcon Symbol="Font" />
                     </controls:SettingsCard.HeaderIcon>
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <ComboBox
                             x:Name="FontCombo"
-                            x:Uid="Appearance_FontCombo"
+                            AutomationProperties.Name="{x:Bind i18n:Loc.Get('Appearance_FontCard')}"
                             MinWidth="300"
                             MaxDropDownHeight="400"
                             ItemsSource="{x:Bind ViewModel.FontOptions}"
@@ -312,7 +337,9 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
                         <Button
-                            x:Uid="Appearance_FontReset"
+                            Content="{x:Bind i18n:Loc.Get('Common_Reset')}"
+                            ToolTipService.ToolTip="{x:Bind i18n:Loc.Get('Appearance_FontResetToolTip')}"
+                            AutomationProperties.Name="{x:Bind i18n:Loc.Get('Appearance_FontResetAutomationName')}"
                             VerticalAlignment="Center"
                             Command="{x:Bind ViewModel.ResetFontCommand}"
                             IsEnabled="{x:Bind ViewModel.CanResetFont, Mode=OneWay}"
@@ -322,13 +349,13 @@
 
                 <StackPanel Margin="1,12,0,6" Orientation="Horizontal" Spacing="8">
                     <TextBlock
-                        x:Uid="Appearance_BackgroundSectionTitle"
+                        Text="{x:Bind i18n:Loc.Get('Appearance_BackgroundSectionTitle')}"
                         Margin="0"
                         VerticalAlignment="Center"
                         Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
                     />
                     <TextBlock
-                        x:Uid="Appearance_BackgroundRestartHint"
+                        Text="{x:Bind i18n:Loc.Get('Common_RestartRequiredHint')}"
                         Margin="0"
                         VerticalAlignment="Bottom"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -336,7 +363,7 @@
                     />
                 </StackPanel>
                 <InfoBar
-                    x:Uid="Appearance_MicaUnsupportedBar"
+                    Title="{x:Bind i18n:Loc.Get('Appearance_MicaUnsupportedBar')}"
                     IsClosable="False"
                     IsOpen="{x:Bind ViewModel.IsMicaUnsupported, Mode=OneWay}"
                     Severity="Warning"
@@ -345,7 +372,7 @@
                 <controls:SettingsCard IsEnabled="{x:Bind ViewModel.IsMicaSupported, Mode=OneWay}">
                     <controls:SettingsCard.Header>
                         <RadioButton
-                            x:Uid="Appearance_MicaRadio"
+                            AutomationProperties.Name="{x:Bind i18n:Loc.Get('Appearance_MicaOptionTitle')}"
                             Padding="20,0,0,0"
                             GroupName="LauncherBackground"
                             IsChecked="{x:Bind ViewModel.IsMicaBackground, Mode=TwoWay}"
@@ -353,11 +380,11 @@
                         >
                             <StackPanel Spacing="2">
                                 <TextBlock
-                                    x:Uid="Appearance_MicaOptionTitle"
+                                    Text="{x:Bind i18n:Loc.Get('Appearance_MicaOptionTitle')}"
                                     Style="{StaticResource BodyStrongTextBlockStyle}"
                                 />
                                 <TextBlock
-                                    x:Uid="Appearance_MicaOptionDescription"
+                                    Text="{x:Bind i18n:Loc.Get('Appearance_MicaOptionDescription')}"
                                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                     Style="{StaticResource CaptionTextBlockStyle}"
                                     TextWrapping="Wrap"
@@ -369,7 +396,7 @@
                 <controls:SettingsExpander>
                     <controls:SettingsExpander.Header>
                         <RadioButton
-                            x:Uid="Appearance_SolidRadio"
+                            AutomationProperties.Name="{x:Bind i18n:Loc.Get('Appearance_SolidOptionTitle')}"
                             Padding="20,0,0,0"
                             GroupName="LauncherBackground"
                             IsChecked="{x:Bind ViewModel.IsSolidBackground, Mode=TwoWay}"
@@ -377,11 +404,11 @@
                         >
                             <StackPanel Spacing="2">
                                 <TextBlock
-                                    x:Uid="Appearance_SolidOptionTitle"
+                                    Text="{x:Bind i18n:Loc.Get('Appearance_SolidOptionTitle')}"
                                     Style="{StaticResource BodyStrongTextBlockStyle}"
                                 />
                                 <TextBlock
-                                    x:Uid="Appearance_SolidOptionDescription"
+                                    Text="{x:Bind i18n:Loc.Get('Appearance_SolidOptionDescription')}"
                                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                     Style="{StaticResource CaptionTextBlockStyle}"
                                     TextWrapping="Wrap"
@@ -391,13 +418,13 @@
                     </controls:SettingsExpander.Header>
                     <controls:SettingsExpander.Items>
                         <controls:SettingsCard
-                            x:Uid="Appearance_SolidColorItem"
+                            Header="{x:Bind i18n:Loc.Get('Appearance_SolidColorItem')}"
                             IsEnabled="{x:Bind ViewModel.IsSolidBackground, Mode=OneWay}"
                         >
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <controls:ColorPickerButton
                                     x:Name="SolidColorPicker"
-                                    x:Uid="Appearance_SolidColorPicker"
+                                    AutomationProperties.Name="{x:Bind i18n:Loc.Get('Appearance_SolidColorPickerAutomationName')}"
                                     MinWidth="128"
                                     HorizontalContentAlignment="Center"
                                     SelectedColor="{x:Bind ViewModel.SolidBackgroundColor, Mode=TwoWay, Converter={StaticResource HexColorConverter}}"
@@ -440,7 +467,9 @@
                                     </Grid>
                                 </controls:ColorPickerButton>
                                 <Button
-                                    x:Uid="Appearance_SolidColorReset"
+                                    Content="{x:Bind i18n:Loc.Get('Common_Reset')}"
+                                    ToolTipService.ToolTip="{x:Bind i18n:Loc.Get('Appearance_SolidColorResetToolTip')}"
+                                    AutomationProperties.Name="{x:Bind i18n:Loc.Get('Appearance_SolidColorResetAutomationName')}"
                                     Command="{x:Bind ViewModel.ResetSolidBackgroundColorCommand}"
                                     IsEnabled="{x:Bind ViewModel.CanResetSolidBackgroundColor, Mode=OneWay}"
                                 />
@@ -451,7 +480,7 @@
                 <controls:SettingsExpander>
                     <controls:SettingsExpander.Header>
                         <RadioButton
-                            x:Uid="Appearance_ImageRadio"
+                            AutomationProperties.Name="{x:Bind i18n:Loc.Get('Appearance_ImageRadioAutomationName')}"
                             Padding="20,0,0,0"
                             GroupName="LauncherBackground"
                             IsChecked="{x:Bind ViewModel.IsImageBackground, Mode=TwoWay}"
@@ -459,11 +488,11 @@
                         >
                             <StackPanel Spacing="2">
                                 <TextBlock
-                                    x:Uid="Appearance_ImageOptionTitle"
+                                    Text="{x:Bind i18n:Loc.Get('Appearance_ImageOptionTitle')}"
                                     Style="{StaticResource BodyStrongTextBlockStyle}"
                                 />
                                 <TextBlock
-                                    x:Uid="Appearance_ImageOptionDescription"
+                                    Text="{x:Bind i18n:Loc.Get('Appearance_ImageOptionDescription')}"
                                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                     Style="{StaticResource CaptionTextBlockStyle}"
                                     TextWrapping="Wrap"
@@ -492,12 +521,13 @@
                             </ItemsRepeater>
                         </controls:SettingsCard>
                         <controls:SettingsCard
-                            x:Uid="Appearance_ScrimCard"
+                            Header="{x:Bind i18n:Loc.Get('Appearance_ScrimCard')}"
+                            Description="{x:Bind i18n:Loc.Get('Appearance_ScrimCardDescription')}"
                             IsEnabled="{x:Bind ViewModel.IsImageBackground, Mode=OneWay}"
                         >
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <Slider
-                                    x:Uid="Appearance_ScrimSlider"
+                                    AutomationProperties.Name="{x:Bind i18n:Loc.Get('Appearance_ScrimSliderAutomationName')}"
                                     MinWidth="180"
                                     Maximum="1"
                                     Minimum="0"

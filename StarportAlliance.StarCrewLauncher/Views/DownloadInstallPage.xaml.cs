@@ -28,8 +28,7 @@ public sealed partial class DownloadInstallPage : Page
         ViewModel = e.Parameter as DownloadPageViewModel;
         TitleBreadcrumb.ItemsSource = new[]
         {
-            // XAML 的 x:Uid 后缀在 PRI 里是层级路径，ResourceLoader 需用斜杠形式
-            _strings.GetString("Download_SectionTitle/Text"),
+            _strings.GetString("Download_Title"),
             ViewModel?.SelectedVersion?.VersionLabel ?? string.Empty,
         };
         Bindings.Update();
@@ -124,7 +123,7 @@ public sealed partial class DownloadInstallPage : Page
             d =>
             {
                 d.Title = _strings.GetString("DownloadBase_LoginHintTitle");
-                d.Content = _strings.GetString("Download_LoginRequiredForInstall");
+                d.Content = _strings.GetString("Download_LoginRequired");
                 d.PrimaryButtonText = _strings.GetString("DownloadBase_GoLogin");
                 d.CloseButtonText = _strings.GetString("DownloadBase_Later");
                 d.DefaultButton = ContentDialogButton.Primary;

@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:i18n="using:StarportAlliance.StarCrewLauncher.Markup"
 >
     <Grid>
         <Grid.RowDefinitions>
@@ -33,12 +34,16 @@
             <Grid Padding="24,0,24,24">
                 <StackPanel MaxWidth="1000" HorizontalAlignment="Stretch" Spacing="4">
                     <InfoBar
-                        x:Uid="Install_NotLoggedInBar"
+                        Title="{x:Bind i18n:Loc.Get('Install_NotLoggedInBar')}"
+                        Message="{x:Bind i18n:Loc.Get('Download_LoginHintMessage')}"
                         IsOpen="{x:Bind ViewModel.NeedsLogin, Mode=OneWay}"
                         Severity="Warning"
                     />
 
-                    <controls:SettingsCard x:Uid="Install_InstanceNameCard">
+                    <controls:SettingsCard
+                        Header="{x:Bind i18n:Loc.Get('Install_InstanceName')}"
+                        Description="{x:Bind i18n:Loc.Get('Install_InstanceNameCardDescription')}"
+                    >
                         <controls:SettingsCard.HeaderIcon>
                             <FontIcon Glyph="&#xE8EC;" />
                         </controls:SettingsCard.HeaderIcon>
@@ -69,7 +74,7 @@
                                 />
                             </StackPanel>
                             <TextBox
-                                x:Uid="Install_InstanceNameBox"
+                                PlaceholderText="{x:Bind i18n:Loc.Get('Install_InstanceName')}"
                                 Grid.Column="1"
                                 Width="360"
                                 Text="{x:Bind ViewModel.InstanceName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -92,7 +97,7 @@
             >
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <FontIcon Glyph="&#xE896;" />
-                    <TextBlock x:Uid="Install_StartButton" />
+                    <TextBlock Text="{x:Bind i18n:Loc.Get('Install_StartButton')}" />
                 </StackPanel>
             </Button>
         </Grid>

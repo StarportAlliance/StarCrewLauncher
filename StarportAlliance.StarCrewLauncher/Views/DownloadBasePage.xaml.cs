@@ -111,7 +111,7 @@ public sealed partial class DownloadBasePage : Page
                     expired ? "DownloadBase_LoginExpiredTitle" : "DownloadBase_LoginHintTitle"
                 );
                 d.Content = _strings.GetString(
-                    expired ? "DownloadBase_LoginExpiredContent" : "DownloadBase_LoginHintContent"
+                    expired ? "DownloadBase_LoginExpiredContent" : "Download_LoginHintMessage"
                 );
                 d.PrimaryButtonText = _strings.GetString("DownloadBase_GoLogin");
                 d.CloseButtonText = _strings.GetString("DownloadBase_Later");

@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:vm="using:StarportAlliance.StarCrewLauncher.ViewModels"
+    xmlns:i18n="using:StarportAlliance.StarCrewLauncher.Markup"
 >
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Padding="24,0,24,24">
@@ -14,7 +15,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock
-                    x:Uid="Instances_SectionTitle"
+                    Text="{x:Bind i18n:Loc.Get('Instances_Title')}"
                     Grid.Row="0"
                     Margin="0,16,0,12"
                     Style="{StaticResource TitleTextBlockStyle}"
@@ -29,13 +30,13 @@
                 >
                     <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="8">
                         <TextBlock
-                            x:Uid="Instances_EmptyHint"
+                            Text="{x:Bind i18n:Loc.Get('Instances_EmptyHint')}"
                             VerticalAlignment="Center"
                             Style="{StaticResource TitleTextBlockStyle}"
                         />
                     </StackPanel>
                     <HyperlinkButton
-                        x:Uid="Instances_GoDownloadButton"
+                        Content="{x:Bind i18n:Loc.Get('Instances_GoDownloadButton')}"
                         HorizontalAlignment="Center"
                         Command="{x:Bind ViewModel.GoDownloadCommand}"
                     />
@@ -64,28 +65,28 @@
                                 </controls:SettingsCard.HeaderIcon>
                                 <StackPanel Orientation="Horizontal" Spacing="8">
                                     <Button
-                                        x:Uid="Instances_CardLaunch"
+                                        Content="{x:Bind i18n:Loc.Get('Instances_CardLaunch')}"
                                         Command="{x:Bind LaunchCommand}"
                                         IsEnabled="{x:Bind CanLaunch}"
                                         Style="{StaticResource AccentButtonStyle}"
                                     />
                                     <Button
-                                        x:Uid="Instances_CardOpenFolder"
+                                        Content="{x:Bind i18n:Loc.Get('Instances_CardOpenFolder')}"
                                         Command="{x:Bind OpenFolderCommand}"
                                     />
-                                    <DropDownButton x:Uid="Instances_CardMore">
+                                    <DropDownButton Content="{x:Bind i18n:Loc.Get('Instances_CardMore')}">
                                         <DropDownButton.Flyout>
                                             <MenuFlyout>
                                                 <MenuFlyoutItem
-                                                    x:Uid="Instances_CardRename"
+                                                    Text="{x:Bind i18n:Loc.Get('Instances_CardRename')}"
                                                     Command="{x:Bind RequestRenameCommand}"
                                                 />
                                                 <MenuFlyoutItem
-                                                    x:Uid="Instances_CardDetails"
+                                                    Text="{x:Bind i18n:Loc.Get('Instances_CardDetails')}"
                                                     Command="{x:Bind RequestDetailsCommand}"
                                                 />
                                                 <MenuFlyoutItem
-                                                    x:Uid="Instances_CardDelete"
+                                                    Text="{x:Bind i18n:Loc.Get('Common_Delete')}"
                                                     Command="{x:Bind RequestDeleteCommand}"
                                                 />
                                             </MenuFlyout>

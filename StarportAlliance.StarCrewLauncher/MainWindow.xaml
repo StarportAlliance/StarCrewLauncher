@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:i18n="using:StarportAlliance.StarCrewLauncher.Markup"
 >
     <Grid IsTabStop="True">
         <Grid.RowDefinitions>
@@ -98,9 +99,22 @@
                 />
             </NavigationView.Resources>
             <NavigationView.MenuItems>
-                <NavigationViewItem x:Uid="Nav_Home" Tag="Home" Icon="Play" IsSelected="True" />
-                <NavigationViewItem x:Uid="Nav_Instances" Tag="Instances" Icon="Folder" />
-                <NavigationViewItem x:Uid="Nav_Download" Tag="Download" Icon="Download" />
+                <NavigationViewItem
+                    Content="{x:Bind i18n:Loc.Get('Common_LaunchGame')}"
+                    Tag="Home"
+                    Icon="Play"
+                    IsSelected="True"
+                />
+                <NavigationViewItem
+                    Content="{x:Bind i18n:Loc.Get('Instances_Title')}"
+                    Tag="Instances"
+                    Icon="Folder"
+                />
+                <NavigationViewItem
+                    Content="{x:Bind i18n:Loc.Get('Download_Title')}"
+                    Tag="Download"
+                    Icon="Download"
+                />
             </NavigationView.MenuItems>
 
             <Grid>

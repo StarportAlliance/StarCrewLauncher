@@ -7,7 +7,7 @@ namespace StarportAlliance.StarCrewLauncher.Services;
 
 internal sealed class SystemFontCatalog : ISystemFontCatalog
 {
-    // 目前只有 zh-CN 资源，按“包含中文字形”过滤即可覆盖当前界面语言
+    // 当前默认界面语言为简体中文，按“包含中文字形”过滤即可覆盖
     private const uint ChineseGlyph = 0x4E2D;
 
     private IReadOnlyList<FontOption>? _cache;
