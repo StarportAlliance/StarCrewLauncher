@@ -9,7 +9,8 @@ internal static class StartupFailureDialog
     private const int CopyButtonId = 1001;
     private const int CloseButtonId = 1002;
     private const uint AllowDialogCancellation = 0x0008;
-    private const nint ErrorIcon = -2;
+    private const uint UseHIconMain = 0x0002;
+    private const int ErrorIconId = 32513;
 
     public static void Show(Exception exception)
     {
@@ -38,10 +39,10 @@ internal static class StartupFailureDialog
             TaskDialogConfig config = new()
             {
                 Size = (uint)Marshal.SizeOf<TaskDialogConfig>(),
-                Flags = AllowDialogCancellation,
-                WindowTitle = "StarCrew Launcher 启动失败",
-                MainIcon = ErrorIcon,
-                MainInstruction = "启动器无法完成初始化",
+                Flags = AllowDialogCancellation | UseHIconMain,
+                WindowTitle = "StarCrew Launcher",
+                MainIcon = LoadIcon(0, ErrorIconId),
+                MainInstruction = "文件已损坏，请重新安装 SCL。",
                 Content = content,
                 Buttons = buttonsPtr,
                 ButtonCount = (uint)buttons.Length,
@@ -52,7 +53,13 @@ internal static class StartupFailureDialog
             };
 
             int result = TaskDialogIndirect(in config, out int button, out _, out _);
-            if (result == 0 && button == CopyButtonId)
+            if (result != 0)
+            {
+                _ = MessageBox(0, $"{content}\n\n{details}", "StarCrew Launcher", 0x10);
+                return;
+            }
+
+            if (button == CopyButtonId)
             {
                 CopyToClipboard(details);
             }
@@ -73,6 +80,7 @@ internal static class StartupFailureDialog
         DataPackage data = new();
         data.SetText(text);
         Clipboard.SetContent(data);
+        Clipboard.Flush();
     }
 
     [DllImport("comctl32.dll", ExactSpelling = true, SetLastError = true)]
@@ -84,7 +92,16 @@ internal static class StartupFailureDialog
         out int verification
     );
 
-    [StructLayout(LayoutKind.Sequential)]
+    [DllImport("user32.dll")]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    private static extern nint LoadIcon(nint instance, nint name);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    private static extern int MessageBox(nint window, string text, string caption, uint type);
+
+    // SDK 用 pshpack1.h 包裹这两个结构体，x64 下 TASKDIALOGCONFIG 是 160 字节；不打包会被判 E_INVALIDARG。
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     private struct TaskDialogConfig
     {
         public uint Size;
@@ -133,7 +150,7 @@ internal static class StartupFailureDialog
         public uint Width;
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     private struct TaskDialogButton
     {
         public int Id;
