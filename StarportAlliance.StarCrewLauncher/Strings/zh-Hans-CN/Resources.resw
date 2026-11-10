@@ -467,10 +467,10 @@
     <value>登录失败：{0}</value>
   </data>
   <data name="Download_LoginHintMessage" xml:space="preserve">
-    <value>原版 Among Us 需要通过已购买该游戏的 Steam 账号获取。</value>
+    <value>需登录已购买 Among Us 的账号才可下载该游戏。</value>
   </data>
   <data name="Download_LoginRequired" xml:space="preserve">
-    <value>请先在「游戏下载」页登录 Steam 账号。</value>
+    <value>请先登录 Steam 账号。</value>
   </data>
   <data name="Download_NotLoggedIn" xml:space="preserve">
     <value>未登录</value>
@@ -632,13 +632,13 @@
     <value>稍后再说</value>
   </data>
   <data name="DownloadBase_LoginExpiredContent" xml:space="preserve">
-    <value>您的 Steam 登录凭据已失效，请重新登录后再继续下载。</value>
+    <value>请重新登录，</value>
   </data>
   <data name="DownloadBase_LoginExpiredTitle" xml:space="preserve">
     <value>Steam 登录已过期</value>
   </data>
   <data name="DownloadBase_LoginHintTitle" xml:space="preserve">
-    <value>未登录 Steam 账号</value>
+    <value>请先登录 Steam</value>
   </data>
   <data name="DownloadBase_PublishedAtFormat" xml:space="preserve">
     <value>发布于 {0}</value>
