@@ -159,9 +159,9 @@
                 </Grid>
                 <Button
                     AutomationProperties.Name="{x:Bind i18n:Loc.Get('Appearance_BackgroundImageAdd')}"
-                    Height="190"
-                    MaxWidth="240"
                     Padding="8"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
                     Command="{x:Bind AddCommand}"
                     VerticalContentAlignment="Center"
                     Visibility="{x:Bind CanAddBackgroundImage, Mode=OneWay}"
